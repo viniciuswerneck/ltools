@@ -62,18 +62,30 @@ public partial class DatabaseDiagramViewModel : ObservableObject
             return;
         }
 
-        await Task.Run(() =>
+        try
         {
-            var migrationFiles = Directory.GetFiles(migrationsDir, "*.php")
-                .OrderBy(f => f)
-                .ToList();
-
-            foreach (var file in migrationFiles)
+            await Task.Run(() =>
             {
-                var content = File.ReadAllText(file);
-                ParseMigration(content);
-            }
-        });
+                var migrationFiles = Directory.GetFiles(migrationsDir, "*.php")
+                    .OrderBy(f => f)
+                    .ToList();
+
+                foreach (var file in migrationFiles)
+                {
+                    try
+                    {
+                        var content = File.ReadAllText(file);
+                        ParseMigration(content);
+                    }
+                    catch { }
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Erro ao analisar migrations: {ex.Message}";
+            return;
+        }
 
         DetectRelationships();
         StatusMessage = $"{Tables.Count} tabelas encontradas nas migrations.";
@@ -81,23 +93,36 @@ public partial class DatabaseDiagramViewModel : ObservableObject
 
     private void ParseMigration(string content)
     {
-        var schemaMatch = Regex.Match(content, @"Schema::create\s*\(\s*['""]([\w_]+)['""]\s*,", RegexOptions.Singleline);
-        if (!schemaMatch.Success) return;
+        var tableName = "";
+        var isNewTable = false;
 
-        var tableName = schemaMatch.Groups[1].Value;
-        var table = new TableSchema { Name = tableName };
+        var createMatch = Regex.Match(content, @"Schema::create\s*\(\s*['""]([\w_]+)['""]\s*,", RegexOptions.Singleline);
+        if (createMatch.Success)
+        {
+            tableName = createMatch.Groups[1].Value;
+            isNewTable = true;
+        }
+        else
+        {
+            var tableMatch = Regex.Match(content, @"Schema::table\s*\(\s*['""]([\w_]+)['""]\s*,", RegexOptions.Singleline);
+            if (!tableMatch.Success) return;
+            tableName = tableMatch.Groups[1].Value;
+        }
+
+        var existingTable = Tables.FirstOrDefault(t => t.Name == tableName);
+        var table = existingTable ?? new TableSchema { Name = tableName };
 
         var columnMatches = Regex.Matches(content,
-            @"\$table->(\w+)\s*\(\s*['""]([\w_]+)['""]([^;]*);",
+            @"\$table->(\w+)\s*\(\s*(?:['""]([\w_]+)['""]\s*)?([^;]*);",
             RegexOptions.Singleline);
 
         foreach (Match match in columnMatches)
         {
             var type = match.Groups[1].Value;
-            var name = match.Groups[2].Value;
+            var name = match.Groups[2].Success ? match.Groups[2].Value : "";
             var rest = match.Groups[3].Value;
 
-            var isPrimary = type == "id" || rest.Contains("->primary()") || name == "id";
+            var isPrimary = type == "id" || rest.Contains("->primary()");
             var isNullable = rest.Contains("->nullable()");
             var foreignKey = "";
 
@@ -117,17 +142,21 @@ public partial class DatabaseDiagramViewModel : ObservableObject
                 foreignKey = $"{inferred}.id";
             }
 
-            table.Columns.Add(new ColumnSchema
+            if (table.Columns.All(c => c.Name != name || name == ""))
             {
-                Name = name,
-                Type = type,
-                IsPrimary = isPrimary,
-                IsNullable = isNullable,
-                ForeignKey = foreignKey
-            });
+                table.Columns.Add(new ColumnSchema
+                {
+                    Name = name,
+                    Type = type,
+                    IsPrimary = isPrimary,
+                    IsNullable = isNullable,
+                    ForeignKey = foreignKey
+                });
+            }
         }
 
-        Avalonia.Threading.Dispatcher.UIThread.Post(() => Tables.Add(table));
+        if (existingTable == null)
+            Avalonia.Threading.Dispatcher.UIThread.Post(() => Tables.Add(table));
     }
 
     private void DetectRelationships()
