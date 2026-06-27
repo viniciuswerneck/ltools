@@ -88,7 +88,7 @@ public partial class DatabaseDiagramViewModel : ObservableObject
         var table = new TableSchema { Name = tableName };
 
         var columnMatches = Regex.Matches(content,
-            @"\$table->(\w+)\s*\(\s*['""]([\w_]+)['""]([^)]*)\)",
+            @"\$table->(\w+)\s*\(\s*['""]([\w_]+)['""]([^;]*);",
             RegexOptions.Singleline);
 
         foreach (Match match in columnMatches)
@@ -101,12 +101,20 @@ public partial class DatabaseDiagramViewModel : ObservableObject
             var isNullable = rest.Contains("->nullable()");
             var foreignKey = "";
 
-            var fkMatch = Regex.Match(rest, @"->constrained\(\)|->references\(['""]([\w_]+)['""]\)->on\(['""]([\w_]+)['""]\)");
+            var fkMatch = Regex.Match(rest, @"->constrained\(\s*['""]?([\w_]*)['""]?\s*\)|->references\(['""]([\w_]+)['""]\)\s*->\s*on\s*\(\s*['""]([\w_]+)['""]\s*\)");
             if (fkMatch.Success)
             {
-                foreignKey = fkMatch.Groups[2].Success
-                    ? $"{fkMatch.Groups[2].Value}.{fkMatch.Groups[1].Value}"
-                    : "constrained";
+                if (!string.IsNullOrWhiteSpace(fkMatch.Groups[1].Value))
+                    foreignKey = $"{fkMatch.Groups[1].Value}.id";
+                else if (!string.IsNullOrWhiteSpace(fkMatch.Groups[2].Value))
+                    foreignKey = $"{fkMatch.Groups[3].Value}.{fkMatch.Groups[2].Value}";
+                else
+                    foreignKey = "constrained";
+            }
+            else if (name.EndsWith("_id") && type == "foreignId")
+            {
+                var inferred = name[..^3] + "s";
+                foreignKey = $"{inferred}.id";
             }
 
             table.Columns.Add(new ColumnSchema
@@ -128,24 +136,34 @@ public partial class DatabaseDiagramViewModel : ObservableObject
         {
             foreach (var col in table.Columns)
             {
-                if (!string.IsNullOrWhiteSpace(col.ForeignKey))
+                if (string.IsNullOrWhiteSpace(col.ForeignKey)) continue;
+
+                var targetTable = col.ForeignKey;
+                var targetCol = "id";
+
+                if (targetTable == "constrained")
                 {
-                    var parts = col.ForeignKey.Split('.');
-                    var targetTable = parts[0];
-                    var targetCol = parts.Length > 1 ? parts[1] : "id";
-
-                    var relTable = Tables.FirstOrDefault(t =>
-                        t.Name.Equals(targetTable, StringComparison.OrdinalIgnoreCase));
-                    if (relTable == null) continue;
-
-                    table.Relationships.Add(new Relationship
-                    {
-                        FromTable = table.Name,
-                        FromColumn = col.Name,
-                        ToTable = relTable.Name,
-                        ToColumn = targetCol
-                    });
+                    if (!col.Name.EndsWith("_id")) continue;
+                    targetTable = col.Name[..^3] + "s";
                 }
+                else
+                {
+                    var parts = targetTable.Split('.');
+                    targetTable = parts[0];
+                    targetCol = parts.Length > 1 ? parts[1] : "id";
+                }
+
+                var relTable = Tables.FirstOrDefault(t =>
+                    t.Name.Equals(targetTable, StringComparison.OrdinalIgnoreCase));
+                if (relTable == null) continue;
+
+                table.Relationships.Add(new Relationship
+                {
+                    FromTable = table.Name,
+                    FromColumn = col.Name,
+                    ToTable = relTable.Name,
+                    ToColumn = targetCol
+                });
             }
         }
     }
