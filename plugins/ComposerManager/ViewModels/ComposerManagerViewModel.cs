@@ -23,7 +23,7 @@ public partial class ComposerManagerViewModel : ObservableObject
     private bool _isRunning;
 
     [ObservableProperty]
-    private string _statusMessage = "Selecione um projeto no menu lateral.";
+    private string _statusMessage = "Selecione um projeto na barra superior.";
 
     [ObservableProperty]
     private string _packageName = string.Empty;
@@ -106,15 +106,22 @@ public partial class ComposerManagerViewModel : ObservableObject
         }
 
         IsRunning = true;
-        OutputText = "";
         StatusMessage = $"Executando composer {arguments}...";
+
+        OutputText += $"> composer {arguments}\n\n";
 
         try
         {
             _runner.OutputReceived += OnOutputReceived;
             _runner.ErrorReceived += OnErrorReceived;
 
-            await _runner.RunAsync(_projectPath, "composer", arguments);
+            var pharPath = Path.Combine(_projectPath, "composer.phar");
+            if (File.Exists(pharPath))
+                await _runner.RunAsync(_projectPath, "php", $"composer.phar {arguments}");
+            else
+                await _runner.RunAsync(_projectPath, "cmd", $"/c composer {arguments}");
+
+            OutputText += "\n";
 
             var cmdParts = arguments.Split(' ');
             History.Insert(0, new ComposerHistory
@@ -129,7 +136,7 @@ public partial class ComposerManagerViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            OutputText += $"\nErro: {ex.Message}";
+            OutputText += $"\nErro: {ex.Message}\n";
         }
         finally
         {
@@ -139,14 +146,29 @@ public partial class ComposerManagerViewModel : ObservableObject
         }
     }
 
+    private static string StripAnsi(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return text;
+        int idx;
+        while ((idx = text.IndexOf('\x1b', StringComparison.Ordinal)) >= 0)
+        {
+            var end = text.IndexOf('m', idx);
+            if (end < 0) end = text.IndexOf('K', idx);
+            if (end < 0) end = text.IndexOf('H', idx);
+            if (end < 0) break;
+            text = text[..idx] + text[(end + 1)..];
+        }
+        return text;
+    }
+
     private void OnOutputReceived(string data)
     {
-        Avalonia.Threading.Dispatcher.UIThread.Post(() => OutputText += data + "\n");
+        Avalonia.Threading.Dispatcher.UIThread.Post(() => OutputText += StripAnsi(data) + "\n");
     }
 
     private void OnErrorReceived(string data)
     {
-        Avalonia.Threading.Dispatcher.UIThread.Post(() => OutputText += $"[ERRO] {data}\n");
+        Avalonia.Threading.Dispatcher.UIThread.Post(() => OutputText += $"[ERRO] {StripAnsi(data)}\n");
     }
 
     [RelayCommand] private async Task InstallAsync() => await RunComposerAsync("install");

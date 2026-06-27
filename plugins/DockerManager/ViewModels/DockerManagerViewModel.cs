@@ -23,7 +23,7 @@ public partial class DockerManagerViewModel : ObservableObject
     private bool _hasDockerCompose;
 
     [ObservableProperty]
-    private string _statusMessage = "Selecione um projeto no menu lateral.";
+    private string _statusMessage = "Selecione um projeto na barra superior.";
 
     public DockerManagerViewModel()
     {

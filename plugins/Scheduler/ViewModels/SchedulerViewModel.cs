@@ -16,7 +16,7 @@ public partial class SchedulerViewModel : ObservableObject
     private string _projectName = string.Empty;
 
     [ObservableProperty]
-    private string _statusMessage = "Selecione um projeto no menu lateral.";
+    private string _statusMessage = "Selecione um projeto na barra superior.";
 
     public ObservableCollection<ScheduledTask> Tasks { get; } = [];
 

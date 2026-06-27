@@ -20,7 +20,7 @@ public partial class QueueMonitorViewModel : ObservableObject
     private bool _isRunning;
 
     [ObservableProperty]
-    private string _statusMessage = "Selecione um projeto no menu lateral.";
+    private string _statusMessage = "Selecione um projeto na barra superior.";
 
     public QueueMonitorViewModel()
     {

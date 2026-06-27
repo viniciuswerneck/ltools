@@ -32,7 +32,7 @@ public partial class SqlDebuggerViewModel : ObservableObject
     private string _dbUser = string.Empty;
 
     [ObservableProperty]
-    private string _statusMessage = "Selecione um projeto no menu lateral.";
+    private string _statusMessage = "Selecione um projeto na barra superior.";
 
     public ObservableCollection<TableInfo> Tables { get; } = [];
 

@@ -25,7 +25,7 @@ public partial class LogViewerViewModel : ObservableObject
     private bool _autoRefresh;
 
     [ObservableProperty]
-    private string _statusMessage = "Selecione um projeto no menu lateral.";
+    private string _statusMessage = "Selecione um projeto na barra superior.";
 
     public ObservableCollection<LogFile> LogFiles { get; } = [];
 

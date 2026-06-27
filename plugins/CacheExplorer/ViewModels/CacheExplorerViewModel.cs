@@ -20,7 +20,7 @@ public partial class CacheExplorerViewModel : ObservableObject
     private bool _isRunning;
 
     [ObservableProperty]
-    private string _statusMessage = "Selecione um projeto no menu lateral.";
+    private string _statusMessage = "Selecione um projeto na barra superior.";
 
     public CacheExplorerViewModel()
     {
@@ -57,21 +57,23 @@ public partial class CacheExplorerViewModel : ObservableObject
         }
 
         IsRunning = true;
-        OutputText = "";
         StatusMessage = $"Executando php artisan {arguments}...";
+
+        OutputText += $"> php artisan {arguments}\n\n";
 
         try
         {
             _runner.OutputReceived += OnOutputReceived;
             _runner.ErrorReceived += OnErrorReceived;
 
-            await _runner.RunAsync(_projectPath, "php", $"artisan {arguments}");
+            await _runner.RunAsync(_projectPath, "php", $"artisan {arguments} --no-ansi");
 
+            OutputText += "\n";
             StatusMessage = "Comando concluído.";
         }
         catch (Exception ex)
         {
-            OutputText += $"\nErro: {ex.Message}";
+            OutputText += $"\nErro: {ex.Message}\n";
         }
         finally
         {
@@ -81,21 +83,31 @@ public partial class CacheExplorerViewModel : ObservableObject
         }
     }
 
+    private static string StripAnsi(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return text;
+        int idx;
+        while ((idx = text.IndexOf('\x1b', StringComparison.Ordinal)) >= 0)
+        {
+            var end = text.IndexOf('m', idx);
+            if (end < 0) end = text.IndexOf('K', idx);
+            if (end < 0) end = text.IndexOf('H', idx);
+            if (end < 0) break;
+            text = text[..idx] + text[(end + 1)..];
+        }
+        return text;
+    }
+
     private void OnOutputReceived(string data)
     {
-        Avalonia.Threading.Dispatcher.UIThread.Post(() => OutputText += data + "\n");
+        Avalonia.Threading.Dispatcher.UIThread.Post(() => OutputText += StripAnsi(data) + "\n");
     }
 
     private void OnErrorReceived(string data)
     {
-        Avalonia.Threading.Dispatcher.UIThread.Post(() => OutputText += $"[ERRO] {data}\n");
+        Avalonia.Threading.Dispatcher.UIThread.Post(() => OutputText += $"[ERRO] {StripAnsi(data)}\n");
     }
 
-    [RelayCommand] private async Task ClearApplicationAsync() => await RunArtisanAsync("cache:clear");
-    [RelayCommand] private async Task ClearConfigAsync() => await RunArtisanAsync("config:clear");
-    [RelayCommand] private async Task ClearRouteAsync() => await RunArtisanAsync("route:clear");
-    [RelayCommand] private async Task ClearViewAsync() => await RunArtisanAsync("view:clear");
-    [RelayCommand] private async Task ClearEventAsync() => await RunArtisanAsync("event:clear");
     [RelayCommand] private async Task ClearAllAsync()
     {
         await RunArtisanAsync("cache:clear");
@@ -105,5 +117,10 @@ public partial class CacheExplorerViewModel : ObservableObject
         await RunArtisanAsync("event:clear");
         StatusMessage = "Todos os caches foram limpos!";
     }
+    [RelayCommand] private async Task ClearApplicationAsync() => await RunArtisanAsync("cache:clear");
+    [RelayCommand] private async Task ClearConfigAsync() => await RunArtisanAsync("config:clear");
+    [RelayCommand] private async Task ClearRouteAsync() => await RunArtisanAsync("route:clear");
+    [RelayCommand] private async Task ClearViewAsync() => await RunArtisanAsync("view:clear");
+    [RelayCommand] private async Task ClearEventAsync() => await RunArtisanAsync("event:clear");
     [RelayCommand] private void ClearOutput() => OutputText = "";
 }

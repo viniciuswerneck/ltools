@@ -10,7 +10,7 @@ namespace LTools.VirtualHosts.ViewModels;
 public partial class VirtualHostsViewModel : ObservableObject
 {
     [ObservableProperty]
-    private string _statusMessage = "Selecione um projeto no menu lateral.";
+    private string _statusMessage = "Selecione um projeto na barra superior.";
 
     [ObservableProperty]
     private string _projectName = string.Empty;

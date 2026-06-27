@@ -20,7 +20,7 @@ public partial class EnvManagerViewModel : ObservableObject
     private string _envContent = string.Empty;
 
     [ObservableProperty]
-    private string _statusMessage = "Selecione um projeto no menu lateral.";
+    private string _statusMessage = "Selecione um projeto na barra superior.";
 
     [ObservableProperty]
     private bool _isLoaded;

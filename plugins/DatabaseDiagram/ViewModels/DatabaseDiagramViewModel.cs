@@ -19,7 +19,7 @@ public partial class DatabaseDiagramViewModel : ObservableObject
     private TableSchema? _selectedTable;
 
     [ObservableProperty]
-    private string _statusMessage = "Selecione um projeto no menu lateral.";
+    private string _statusMessage = "Selecione um projeto na barra superior.";
 
     public ObservableCollection<TableSchema> Tables { get; } = [];
 

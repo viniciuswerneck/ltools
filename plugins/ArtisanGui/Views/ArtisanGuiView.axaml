@@ -7,15 +7,7 @@
 
     <Grid RowDefinitions="Auto,*" ColumnDefinitions="300,*">
         <Border Grid.ColumnSpan="2" Padding="12 8" BorderBrush="#33000000" BorderThickness="0 0 0 1">
-            <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" FontSize="12" Opacity="0.7" />
-                <Button Grid.Column="1" Command="{Binding ClearOutputCommand}" Padding="8 4">
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                        <TextBlock Text="🗑" />
-                        <TextBlock Text="Limpar" />
-                    </StackPanel>
-                </Button>
-            </Grid>
+            <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" FontSize="12" Opacity="0.7" />
         </Border>
 
         <Border Grid.Row="1" BorderBrush="#33000000" BorderThickness="0 0 1 0">
@@ -43,13 +35,86 @@
         </Border>
 
         <Border Grid.Row="1" Grid.Column="1">
-            <DockPanel>
-                <Border DockPanel.Dock="Bottom" Padding="12" BorderBrush="#33000000" BorderThickness="0 1 0 0">
+            <Grid RowDefinitions="*,Auto,Auto">
+                <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="12 12 12 0">
+                    <TextBlock Text="{Binding SelectedCommand.Name, TargetNullValue='Selecione um comando'}"
+                               FontSize="18" FontWeight="Bold" />
+                    <TextBlock Grid.Row="1" Text="{Binding SelectedCommand.Description, TargetNullValue=''}"
+                               FontSize="13" Opacity="0.7" Margin="0 0 0 8" />
+
+                    <TextBox Grid.Row="2" Text="{Binding OutputText}"
+                             FontFamily="Consolas" FontSize="13"
+                             Foreground="#D4D4D4" Background="#1E1E1E"
+                             BorderBrush="#333333" BorderThickness="1"
+                             IsReadOnly="True"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             Padding="8">
+                        <TextBox.Styles>
+                            <Style Selector="TextBox /template/ Border#border">
+                                <Setter Property="Background" Value="#1E1E1E" />
+                            </Style>
+                            <Style Selector="TextBox:pointerover /template/ Border#border">
+                                <Setter Property="Background" Value="#1E1E1E" />
+                                <Setter Property="BorderBrush" Value="#333333" />
+                            </Style>
+                            <Style Selector="TextBox:focus /template/ Border#border">
+                                <Setter Property="Background" Value="#1E1E1E" />
+                                <Setter Property="BorderBrush" Value="#333333" />
+                            </Style>
+                        </TextBox.Styles>
+                    </TextBox>
+
+                    <Border Grid.Row="3" CornerRadius="4" Background="#1A1A1A" Padding="8"
+                            BorderBrush="#333333" BorderThickness="1"
+                            MinHeight="60" MaxHeight="100"
+                            Margin="0 8 0 0">
+                        <Grid RowDefinitions="Auto,*">
+                            <Grid ColumnDefinitions="Auto,*">
+                                <TextBlock Text="Histórico" FontSize="12" FontWeight="SemiBold"
+                                           Opacity="0.7" />
+                            </Grid>
+                            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+                                <ItemsControl ItemsSource="{Binding History}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="models:CommandHistory">
+                                            <Border Padding="6 3" BorderBrush="#22FFFFFF" BorderThickness="0 0 0 1">
+                                                <Grid ColumnDefinitions="Auto,*">
+                                                    <TextBlock Text="{Binding Command}" FontWeight="Bold" FontSize="11"
+                                                               Foreground="#D4D4D4" />
+                                                    <TextBlock Grid.Column="1" Text="{Binding Arguments}" FontSize="11"
+                                                               Opacity="0.5" Margin="6 0 0 0" />
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <Border Grid.Row="1" Padding="12" BorderBrush="#33000000" BorderThickness="0 1 0 0"
+                        Background="{Binding $parent[Window].Background}">
                     <StackPanel Spacing="8">
                         <TextBox Text="{Binding CustomCommand}" PlaceholderText="Comando (ex: route:list) — ou selecione na lista"
-                                 FontSize="13" Padding="8" />
-                        <TextBox Text="{Binding ArgumentValues}" PlaceholderText="Argumentos (ex: --force --name=Teste)"
-                                 FontSize="13" Padding="8" />
+                                 FontSize="13" Padding="8" IsReadOnly="True" />
+                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="6">
+                            <TextBox Text="{Binding ArgumentValues}" PlaceholderText="Argumentos (ex: --force --name=Teste)"
+                                     FontSize="13" Padding="8" />
+                            <Button Grid.Column="1" Command="{Binding CopyOutputCommand}" Padding="8 4">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <TextBlock Text="📋" />
+                                    <TextBlock Text="Copiar" />
+                                </StackPanel>
+                            </Button>
+                            <Button Grid.Column="2" Command="{Binding ClearOutputCommand}" Padding="8 4">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <TextBlock Text="🗑" />
+                                    <TextBlock Text="Limpar" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
                         <Button Command="{Binding ExecuteCommand}"
                                 Foreground="White"
                                 FontWeight="Bold"
@@ -63,40 +128,40 @@
                     </StackPanel>
                 </Border>
 
-                <ScrollViewer Padding="12">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="{Binding SelectedCommand.Name, TargetNullValue='Selecione um comando'}"
-                                   FontSize="18" FontWeight="Bold" />
-                        <TextBlock Text="{Binding SelectedCommand.Description, TargetNullValue=''}"
-                                   FontSize="13" Opacity="0.7" />
-
-                        <Border CornerRadius="4" Background="#1E1E1E" Padding="12"
-                                BorderBrush="#333333" BorderThickness="1">
-                            <ScrollViewer MaxHeight="300">
-                                <TextBlock Text="{Binding OutputText}"
-                                           FontFamily="Consolas"
-                                           FontSize="13"
-                                           Foreground="#D4D4D4"
-                                           TextWrapping="Wrap" />
-                            </ScrollViewer>
-                        </Border>
-
-                        <TextBlock Text="Histórico" FontSize="13" FontWeight="SemiBold" />
-                        <ItemsControl ItemsSource="{Binding History}" MaxHeight="150">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="models:CommandHistory">
-                                    <Border Padding="8 4" BorderBrush="#22000000" BorderThickness="0 0 0 1">
-                                        <Grid ColumnDefinitions="Auto,*">
-                                            <TextBlock Text="{Binding Command}" FontWeight="Bold" FontSize="12" />
-                                            <TextBlock Grid.Column="1" Text="{Binding Arguments}" FontSize="11" Opacity="0.6" Margin="8 0 0 0" />
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                <Border IsVisible="{Binding DangerWarningVisible}"
+                        Background="#CCCC0000" CornerRadius="8" Padding="20"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Margin="40">
+                    <StackPanel Spacing="12" HorizontalAlignment="Center">
+                        <TextBlock Text="⚠️ ATENÇÃO" FontSize="18" FontWeight="Bold"
+                                   Foreground="White" HorizontalAlignment="Center" />
+                        <TextBlock FontSize="14" Foreground="White" TextWrapping="Wrap"
+                                   HorizontalAlignment="Center">
+                            <Run Text="Este comando pode causar PERDA DE DADOS:" FontWeight="Bold" />
+                            <LineBreak />
+                            <Run Text="{Binding DangerCommandName}" FontWeight="Bold" FontSize="16" />
+                        </TextBlock>
+                        <TextBlock Text="Tem certeza que deseja executar?" FontSize="14"
+                                   Foreground="White" HorizontalAlignment="Center" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <Button Command="{Binding ConfirmDangerCommand}" Padding="12 8"
+                                    Background="#CC3333" Foreground="White" FontWeight="Bold">
+                                <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center">
+                                    <TextBlock Text="⚠️" />
+                                    <TextBlock Text="Sim, executar" />
+                                </StackPanel>
+                            </Button>
+                            <Button Grid.Column="1" Command="{Binding CancelDangerCommand}"
+                                    Padding="12 8" Background="#333333" Foreground="White">
+                                <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center">
+                                    <TextBlock Text="✕" />
+                                    <TextBlock Text="Cancelar" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
                     </StackPanel>
-                </ScrollViewer>
-            </DockPanel>
+                </Border>
+            </Grid>
         </Border>
     </Grid>
 

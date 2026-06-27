@@ -22,7 +22,7 @@ public partial class ProjectDoctorViewModel : ObservableObject
     private string _healthLabel = string.Empty;
 
     [ObservableProperty]
-    private string _statusMessage = "Selecione um projeto no menu lateral.";
+    private string _statusMessage = "Selecione um projeto na barra superior.";
 
     public ObservableCollection<DoctorCheck> Checks { get; } = [];
 

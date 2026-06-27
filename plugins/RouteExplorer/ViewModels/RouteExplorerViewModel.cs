@@ -23,7 +23,7 @@ public partial class RouteExplorerViewModel : ObservableObject
     private string _middlewareFilter = string.Empty;
 
     [ObservableProperty]
-    private string _statusMessage = "Selecione um projeto no menu lateral.";
+    private string _statusMessage = "Selecione um projeto na barra superior.";
 
     public ObservableCollection<RouteInfo> AllRoutes { get; } = [];
     public ObservableCollection<RouteInfo> FilteredRoutes { get; } = [];
