@@ -1,19 +1,31 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:LTools.ProjectDoctor.ViewModels"
+             xmlns:models="using:LTools.ProjectDoctor.Models"
              x:DataType="vm:ProjectDoctorViewModel"
-             x:Class="LTools.ProjectDoctor.Views.ProjectDoctorView">
+             x:Class="LTools.ProjectDoctor.Views.ProjectDoctorView"
+             x:Name="root">
 
-    <Grid RowDefinitions="Auto,Auto,*">
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
         <Border Padding="12 8" BorderBrush="#33000000" BorderThickness="0 0 0 1">
-            <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" FontSize="12" Opacity="0.7" />
-                <Button Grid.Column="1" Command="{Binding ClearResultsCommand}" Height="28" Padding="10 0"
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <Ellipse Width="10" Height="10" Fill="#FF9800"
+                         IsVisible="{Binding IsRunning}" VerticalAlignment="Center">
+                    <Ellipse.Styles>
+                        <Style Selector="Ellipse">
+                            <Setter Property="Opacity" Value="1" />
+                        </Style>
+                    </Ellipse.Styles>
+                </Ellipse>
+                <TextBlock Grid.Column="1" Text="{Binding StatusMessage}"
+                           VerticalAlignment="Center" FontSize="12" Opacity="0.7"
+                           Margin="8 0 0 0" />
+                <Button Grid.Column="2" Command="{Binding ClearResultsCommand}" Height="28" Padding="10 0"
                         Background="#3A3A3A" Foreground="#E0E0E0" FontSize="12"
                         CornerRadius="4" BorderThickness="0"
                         VerticalContentAlignment="Center">
                     <StackPanel Orientation="Horizontal" Spacing="4">
-                        <TextBlock Text="🗑" FontSize="12" />
+                        <TextBlock Text="&#x1F5D1;" FontSize="12" />
                         <TextBlock Text="Limpar" />
                     </StackPanel>
                 </Button>
@@ -27,42 +39,90 @@
                         CornerRadius="4" BorderThickness="0"
                         VerticalContentAlignment="Center">
                     <StackPanel Orientation="Horizontal" Spacing="5">
-                        <TextBlock Text="🩺" FontSize="13" />
+                        <TextBlock Text="&#x1FA7A;" FontSize="13" />
                         <TextBlock Text="Executar Diagnóstico" />
                     </StackPanel>
                 </Button>
 
-                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12" VerticalAlignment="Center">
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="12">
                     <Border CornerRadius="8" Padding="16 8" Background="#22000000" MinWidth="80">
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock Text="{Binding HealthScore, StringFormat='{}{0}%'}" FontSize="28" FontWeight="Bold"
-                                       HorizontalAlignment="Center" />
+                                       HorizontalAlignment="Center" Foreground="{Binding HealthColor}" />
                             <TextBlock Text="Saúde" FontSize="11" Opacity="0.7" HorizontalAlignment="Center" />
                         </StackPanel>
                     </Border>
-                    <TextBlock Text="{Binding HealthLabel}" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1" Text="{Binding HealthLabel}" FontSize="16" FontWeight="SemiBold"
+                               VerticalAlignment="Center" Foreground="{Binding HealthColor}" Margin="12 0 0 0" />
                 </StackPanel>
             </Grid>
         </Border>
 
-        <ScrollViewer Grid.Row="2" Margin="8">
-            <ItemsControl ItemsSource="{Binding Checks}">
+        <Border Grid.Row="2" Margin="8 4 8 0" Padding="8 4" CornerRadius="4" Background="#11000000">
+            <StackPanel Orientation="Horizontal" Spacing="16" HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <TextBlock Text="&#x2705;" FontSize="11" />
+                    <TextBlock Text="OK" FontSize="11" Opacity="0.6" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <TextBlock Text="&#x26A0;&#xFE0F;" FontSize="11" />
+                    <TextBlock Text="Alerta" FontSize="11" Opacity="0.6" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <TextBlock Text="&#x274C;" FontSize="11" />
+                    <TextBlock Text="Falha" FontSize="11" Opacity="0.6" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <ScrollViewer Grid.Row="3" Margin="8">
+            <ItemsControl ItemsSource="{Binding CheckGroups}">
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Padding="12 8" Margin="0 0 0 4" CornerRadius="4"
-                                BorderBrush="#22000000" BorderThickness="0 0 0 1">
-                            <Grid ColumnDefinitions="20,*,Auto" RowDefinitions="Auto,Auto">
-                                <TextBlock Text="✅" FontSize="14" VerticalAlignment="Center" />
-                                <StackPanel Grid.Column="1" Margin="8 0">
-                                    <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" />
-                                    <TextBlock Text="{Binding Message}" FontSize="12" Opacity="0.7" />
-                                </StackPanel>
-                                <Border Grid.Column="2" CornerRadius="3" Padding="6 2" VerticalAlignment="Center"
-                                        Background="#33000000">
-                                    <TextBlock Text="{Binding Category}" FontSize="10" Opacity="0.6" />
-                                </Border>
-                            </Grid>
-                        </Border>
+                    <DataTemplate x:DataType="models:DoctorGroup">
+                        <StackPanel Margin="0 0 0 12">
+                            <Border Padding="10 6" CornerRadius="4" Background="#1A0078D4" Margin="0 0 0 4">
+                                <TextBlock Text="{Binding Category}" FontSize="12" FontWeight="Bold" />
+                            </Border>
+
+                            <ItemsControl ItemsSource="{Binding Items}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="models:DoctorCheck">
+                                        <Border Padding="10 6" Margin="0 1 0 0" CornerRadius="4"
+                                                Background="#08000000">
+                                            <Grid ColumnDefinitions="20,*,Auto">
+                                                <TextBlock Text="{Binding Icon}" FontSize="14"
+                                                           VerticalAlignment="Top" Margin="0 2 0 0" />
+
+                                                <StackPanel Grid.Column="1" Margin="8 0">
+                                                    <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" />
+                                                    <TextBlock Text="{Binding WhatItChecks}" FontSize="11" Opacity="0.6" />
+                                                    <TextBlock Text="{Binding Message}" FontSize="12"
+                                                               Margin="0 2 0 0" />
+                                                    <TextBlock Text="{Binding Suggestion}" FontSize="11"
+                                                               Opacity="0.5" FontStyle="Italic" Margin="0 1 0 0"
+                                                               TextWrapping="Wrap" />
+                                                </StackPanel>
+
+                                                <Button Grid.Column="2"
+                                                        Command="{Binding #root.DataContext.FixCheckCommand}"
+                                                        CommandParameter="{Binding}"
+                                                        IsVisible="{Binding ShowFixButton}"
+                                                        Height="28" Padding="10 0" FontSize="12"
+                                                        Background="#E67E22" Foreground="White"
+                                                        CornerRadius="4" BorderThickness="0"
+                                                        VerticalContentAlignment="Center"
+                                                        VerticalAlignment="Top" Margin="4 0 0 0">
+                                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                                        <TextBlock Text="&#x1F527;" FontSize="11" />
+                                                        <TextBlock Text="{Binding FixButtonText}" />
+                                                    </StackPanel>
+                                                </Button>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
