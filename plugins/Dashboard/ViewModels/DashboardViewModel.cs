@@ -13,6 +13,9 @@ public partial class DashboardViewModel : ObservableObject
     private string _laravelVersion = "Carregando...";
 
     [ObservableProperty]
+    private string _laravelCliVersion = "Carregando...";
+
+    [ObservableProperty]
     private string _composerVersion = "Carregando...";
 
     [ObservableProperty]
@@ -170,7 +173,7 @@ public partial class DashboardViewModel : ObservableObject
     public async Task LoadAsync()
     {
         PhpVersion = await GetVersionAsync("php", "-v");
-        LaravelVersion = await GetVersionAsync("laravel", "--version");
+        LaravelCliVersion = await GetVersionAsync("laravel", "--version");
         ComposerVersion = await GetVersionAsync("composer", "--version");
         GitVersion = await GetVersionAsync("git", "--version");
         NodeVersion = await GetVersionAsync("node", "--version");
@@ -251,34 +254,62 @@ public partial class DashboardViewModel : ObservableObject
             var runner = new ProcessRunner();
             var output = await runner.RunAndGetOutputAsync(ProjectPath, "php", "artisan about --json --no-ansi");
 
-            if (string.IsNullOrWhiteSpace(output)) return;
+            if (!string.IsNullOrWhiteSpace(output))
+            {
+                using var doc = JsonDocument.Parse(output);
+                var root = doc.RootElement;
 
-            using var doc = JsonDocument.Parse(output);
+                if (root.TryGetProperty("environment", out var env))
+                {
+                    LaravelVersion = TryGetString(env, "application_version");
+                    PhpVersion = TryGetString(env, "php_version");
+                    Env = TryGetString(env, "environment");
+                    DebugMode = TryGetString(env, "debug_mode");
+                    Url = TryGetString(env, "url");
+                }
+
+                if (root.TryGetProperty("cache", out var cache))
+                {
+                    CacheConfig = TryGetString(cache, "config");
+                    CacheEvents = TryGetString(cache, "events");
+                    CacheRoutes = TryGetString(cache, "routes");
+                    CacheViews = TryGetString(cache, "views");
+                }
+
+                if (root.TryGetProperty("drivers", out var drivers))
+                {
+                    Broadcasting = TryGetString(drivers, "broadcasting");
+                    CacheDriver = TryGetString(drivers, "cache");
+                    DatabaseDriver = TryGetString(drivers, "database");
+                    LogsDriver = TryGetString(drivers, "logs");
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(LaravelVersion) || LaravelVersion == "Carregando...")
+            {
+                var version = await runner.RunAndGetOutputAsync(ProjectPath, "php", "artisan --version");
+                if (!string.IsNullOrWhiteSpace(version))
+                    LaravelVersion = version.Split('\n').FirstOrDefault()?.Trim() ?? "";
+            }
+        }
+        catch { }
+
+        if (string.IsNullOrWhiteSpace(LaravelVersion) || LaravelVersion == "Carregando...")
+            LoadLaravelVersionFromComposer();
+    }
+
+    private void LoadLaravelVersionFromComposer()
+    {
+        try
+        {
+            var json = File.ReadAllText(Path.Combine(ProjectPath, "composer.json"));
+            using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
 
-            if (root.TryGetProperty("environment", out var env))
+            if (root.TryGetProperty("require", out var require) &&
+                require.TryGetProperty("laravel/framework", out var fw))
             {
-                LaravelVersion = TryGetString(env, "application_version");
-                PhpVersion = TryGetString(env, "php_version");
-                Env = TryGetString(env, "environment");
-                DebugMode = TryGetString(env, "debug_mode");
-                Url = TryGetString(env, "url");
-            }
-
-            if (root.TryGetProperty("cache", out var cache))
-            {
-                CacheConfig = TryGetString(cache, "config");
-                CacheEvents = TryGetString(cache, "events");
-                CacheRoutes = TryGetString(cache, "routes");
-                CacheViews = TryGetString(cache, "views");
-            }
-
-            if (root.TryGetProperty("drivers", out var drivers))
-            {
-                Broadcasting = TryGetString(drivers, "broadcasting");
-                CacheDriver = TryGetString(drivers, "cache");
-                DatabaseDriver = TryGetString(drivers, "database");
-                LogsDriver = TryGetString(drivers, "logs");
+                LaravelVersion = fw.GetString() ?? "";
             }
         }
         catch { }
