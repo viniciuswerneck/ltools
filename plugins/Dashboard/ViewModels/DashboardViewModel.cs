@@ -1,4 +1,6 @@
+using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
+using LTools.Core.Services;
 
 namespace LTools.Dashboard.ViewModels;
 
@@ -23,16 +25,304 @@ public partial class DashboardViewModel : ObservableObject
     private string _dockerVersion = "Carregando...";
 
     [ObservableProperty]
-    private int _recentProjectsCount;
+    private string _statusMessage = "Nenhum projeto aberto.";
+
+    // Project info
+    [ObservableProperty]
+    private bool _hasProject;
+
+    [ObservableProperty]
+    private string _projectName = "";
+
+    [ObservableProperty]
+    private string _projectPath = "";
+
+    [ObservableProperty]
+    private string _projectSize = "";
+
+    [ObservableProperty]
+    private string _env = "";
+
+    [ObservableProperty]
+    private string _debugMode = "";
+
+    [ObservableProperty]
+    private string _url = "";
+
+    [ObservableProperty]
+    private string _broadcasting = "";
+
+    [ObservableProperty]
+    private string _cacheDriver = "";
+
+    [ObservableProperty]
+    private string _databaseDriver = "";
+
+    [ObservableProperty]
+    private string _logsDriver = "";
+
+    [ObservableProperty]
+    private string _cacheConfig = "";
+
+    [ObservableProperty]
+    private string _cacheEvents = "";
+
+    [ObservableProperty]
+    private string _cacheRoutes = "";
+
+    [ObservableProperty]
+    private string _cacheViews = "";
+
+    // File counts
+    [ObservableProperty]
+    private int _migrationsCount;
+
+    [ObservableProperty]
+    private int _modelsCount;
+
+    [ObservableProperty]
+    private int _controllersCount;
+
+    [ObservableProperty]
+    private int _jobsCount;
+
+    [ObservableProperty]
+    private int _servicesCount;
+
+    [ObservableProperty]
+    private int _middlewareCount;
+
+    [ObservableProperty]
+    private int _eventsCount;
+
+    [ObservableProperty]
+    private int _listenersCount;
+
+    [ObservableProperty]
+    private int _notificationsCount;
+
+    [ObservableProperty]
+    private int _mailCount;
+
+    [ObservableProperty]
+    private int _observersCount;
+
+    [ObservableProperty]
+    private int _policiesCount;
+
+    [ObservableProperty]
+    private int _providersCount;
+
+    [ObservableProperty]
+    private int _commandsCount;
+
+    [ObservableProperty]
+    private int _factoriesCount;
+
+    [ObservableProperty]
+    private int _seedersCount;
+
+    [ObservableProperty]
+    private int _testsCount;
+
+    [ObservableProperty]
+    private int _routesCount;
+
+    [ObservableProperty]
+    private int _packagesCount;
+
+    [ObservableProperty]
+    private int _devPackagesCount;
+
+    public DashboardViewModel()
+    {
+        ProjectContext.Instance.ProjectChanged += OnProjectChanged;
+        _ = LoadAsync();
+        InitFromContext();
+    }
+
+    private void InitFromContext()
+    {
+        var path = ProjectContext.Instance.CurrentPath;
+        if (!string.IsNullOrWhiteSpace(path))
+        {
+            ProjectPath = path;
+            ProjectName = ProjectContext.Instance.CurrentName ?? "";
+            HasProject = true;
+            StatusMessage = $"Projeto: {ProjectName}";
+            _ = LoadProjectInfoAsync();
+        }
+        else
+        {
+            HasProject = false;
+            StatusMessage = "Nenhum projeto aberto. Selecione um na barra superior.";
+        }
+    }
+
+    private void OnProjectChanged()
+    {
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            InitFromContext();
+        });
+    }
 
     public async Task LoadAsync()
     {
         PhpVersion = await GetVersionAsync("php", "-v");
-        LaravelVersion = await GetGlobalVersionAsync("laravel", "--version");
+        LaravelVersion = await GetVersionAsync("laravel", "--version");
         ComposerVersion = await GetVersionAsync("composer", "--version");
         GitVersion = await GetVersionAsync("git", "--version");
         NodeVersion = await GetVersionAsync("node", "--version");
         DockerVersion = await GetVersionAsync("docker", "--version");
+    }
+
+    private async Task LoadProjectInfoAsync()
+    {
+        if (string.IsNullOrWhiteSpace(ProjectPath)) return;
+
+        LoadFileCounts();
+        await LoadComposerInfoAsync();
+        await LoadArtisanAboutAsync();
+        LoadProjectSize();
+    }
+
+    private void LoadFileCounts()
+    {
+        MigrationsCount = CountFiles("database", "migrations", "*.php");
+        ModelsCount = CountFiles("app", "Models", "*.php");
+        ControllersCount = CountFiles("app", "Http/Controllers", "*.php");
+        JobsCount = CountFiles("app", "Jobs", "*.php");
+        ServicesCount = CountFiles("app", "Services", "*.php");
+        MiddlewareCount = CountFiles("app", "Http/Middleware", "*.php");
+        EventsCount = CountFiles("app", "Events", "*.php");
+        ListenersCount = CountFiles("app", "Listeners", "*.php");
+        NotificationsCount = CountFiles("app", "Notifications", "*.php");
+        MailCount = CountFiles("app", "Mail", "*.php");
+        ObserversCount = CountFiles("app", "Observers", "*.php");
+        PoliciesCount = CountFiles("app", "Policies", "*.php");
+        ProvidersCount = CountFiles("app", "Providers", "*.php");
+        CommandsCount = CountFiles("app", "Console/Commands", "*.php");
+        FactoriesCount = CountFiles("database", "factories", "*.php");
+        SeedersCount = CountFiles("database", "seeders", "*.php");
+        TestsCount = CountFiles("tests", null, "*.php");
+        RoutesCount = CountRouteFiles();
+    }
+
+    private int CountFiles(string baseDir, string? subDir, string pattern)
+    {
+        var dir = subDir != null
+            ? Path.Combine(ProjectPath, baseDir, subDir)
+            : Path.Combine(ProjectPath, baseDir);
+        if (!Directory.Exists(dir)) return 0;
+        try { return Directory.GetFiles(dir, pattern).Length; }
+        catch { return 0; }
+    }
+
+    private int CountRouteFiles()
+    {
+        var routesDir = Path.Combine(ProjectPath, "routes");
+        if (!Directory.Exists(routesDir)) return 0;
+        try { return Directory.GetFiles(routesDir, "*.php").Length; }
+        catch { return 0; }
+    }
+
+    private async Task LoadComposerInfoAsync()
+    {
+        try
+        {
+            var json = await File.ReadAllTextAsync(Path.Combine(ProjectPath, "composer.json"));
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+
+            if (root.TryGetProperty("require", out var require))
+                PackagesCount = require.EnumerateObject().Count();
+
+            if (root.TryGetProperty("require-dev", out var dev))
+                DevPackagesCount = dev.EnumerateObject().Count();
+        }
+        catch { }
+    }
+
+    private async Task LoadArtisanAboutAsync()
+    {
+        try
+        {
+            var runner = new ProcessRunner();
+            var output = await runner.RunAndGetOutputAsync(ProjectPath, "php", "artisan about --json --no-ansi");
+
+            if (string.IsNullOrWhiteSpace(output)) return;
+
+            using var doc = JsonDocument.Parse(output);
+            var root = doc.RootElement;
+
+            if (root.TryGetProperty("environment", out var env))
+            {
+                LaravelVersion = TryGetString(env, "application_version");
+                PhpVersion = TryGetString(env, "php_version");
+                Env = TryGetString(env, "environment");
+                DebugMode = TryGetString(env, "debug_mode");
+                Url = TryGetString(env, "url");
+            }
+
+            if (root.TryGetProperty("cache", out var cache))
+            {
+                CacheConfig = TryGetString(cache, "config");
+                CacheEvents = TryGetString(cache, "events");
+                CacheRoutes = TryGetString(cache, "routes");
+                CacheViews = TryGetString(cache, "views");
+            }
+
+            if (root.TryGetProperty("drivers", out var drivers))
+            {
+                Broadcasting = TryGetString(drivers, "broadcasting");
+                CacheDriver = TryGetString(drivers, "cache");
+                DatabaseDriver = TryGetString(drivers, "database");
+                LogsDriver = TryGetString(drivers, "logs");
+            }
+        }
+        catch { }
+    }
+
+    private static string TryGetString(JsonElement element, string property)
+    {
+        return element.TryGetProperty(property, out var prop) ? prop.GetString() ?? "" : "";
+    }
+
+    private void LoadProjectSize()
+    {
+        try
+        {
+            var dir = new DirectoryInfo(ProjectPath);
+            if (!dir.Exists) { ProjectSize = "Desconhecido"; return; }
+
+            long size = 0;
+            foreach (var sub in dir.EnumerateDirectories())
+            {
+                if (sub.Name is ".git" or "node_modules" or "vendor" or ".idea" or ".vscode")
+                    continue;
+                size += DirSize(sub);
+            }
+            ProjectSize = FormatSize(size);
+        }
+        catch { ProjectSize = "Desconhecido"; }
+    }
+
+    private static long DirSize(DirectoryInfo d)
+    {
+        long size = 0;
+        try { foreach (var f in d.EnumerateFiles("*", SearchOption.AllDirectories)) size += f.Length; }
+        catch { }
+        return size;
+    }
+
+    private static string FormatSize(long bytes)
+    {
+        string[] suf = ["B", "KB", "MB", "GB", "TB"];
+        int place = 0;
+        double sz = bytes;
+        while (sz >= 1024 && place < suf.Length - 1) { sz /= 1024; place++; }
+        return $"{sz:F2} {suf[place]}";
     }
 
     private static async Task<string> GetVersionAsync(string command, string args)
@@ -43,32 +333,6 @@ public partial class DashboardViewModel : ObservableObject
             {
                 FileName = command,
                 Arguments = args,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            using var process = new System.Diagnostics.Process { StartInfo = psi };
-            process.Start();
-            var output = await process.StandardOutput.ReadToEndAsync();
-            await process.WaitForExitAsync();
-            return output.Split('\n').FirstOrDefault()?.Trim() ?? "Não detectado";
-        }
-        catch
-        {
-            return "Não instalado";
-        }
-    }
-
-    private static async Task<string> GetGlobalVersionAsync(string package, string args)
-    {
-        try
-        {
-            var psi = new System.Diagnostics.ProcessStartInfo
-            {
-                FileName = "php",
-                Arguments = $"artisan {package} {args}",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,

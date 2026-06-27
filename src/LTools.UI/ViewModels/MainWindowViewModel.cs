@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Reflection;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
@@ -29,6 +31,21 @@ public partial class MainWindowViewModel : ViewModelBase
     public bool HasGlobalProject => GlobalProjectName != null;
 
     public ObservableCollection<PluginItemViewModel> Plugins { get; } = [];
+
+    public string AppVersion { get; } = GetVersion();
+
+    private static string GetVersion()
+    {
+        var ver = Assembly.GetExecutingAssembly().GetName().Version;
+        return ver != null ? $"{ver.Major}.{ver.Minor}.{ver.Build}" : "1.0.0";
+    }
+
+    [RelayCommand]
+    private void OpenSite()
+    {
+        try { Process.Start(new ProcessStartInfo("https://lab.werneck.dev.br/") { UseShellExecute = true }); }
+        catch { }
+    }
 
     public MainWindowViewModel()
     {
