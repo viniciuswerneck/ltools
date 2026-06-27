@@ -7,6 +7,7 @@
         x:Class="LTools.UI.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="LTools — Laravel Toolkit"
+        Icon="/Assets/avalonia-logo.ico"
         Width="1100" Height="700"
         MinWidth="800" MinHeight="500">
 

@@ -9,9 +9,12 @@
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" FontSize="12" Opacity="0.7" />
                 <CheckBox Grid.Column="1" IsChecked="{Binding AutoRefresh}" Content="Auto-refresh" Margin="0 0 8 0" VerticalAlignment="Center" />
-                <Button Grid.Column="2" Command="{Binding RefreshCommand}" Padding="8 4">
+                <Button Grid.Column="2" Command="{Binding RefreshCommand}" Height="28" Padding="10 0"
+                        Background="#3A3A3A" Foreground="#E0E0E0" FontSize="12"
+                        CornerRadius="4" BorderThickness="0"
+                        VerticalContentAlignment="Center">
                     <StackPanel Orientation="Horizontal" Spacing="4">
-                        <TextBlock Text="🔄" />
+                        <TextBlock Text="🔄" FontSize="12" />
                         <TextBlock Text="Atualizar" />
                     </StackPanel>
                 </Button>
@@ -42,16 +45,28 @@
                 </StackPanel>
             </Border>
 
-            <Border Grid.Column="1" Margin="8 0 0 0" CornerRadius="4" Background="#1E1E1E"
-                    BorderBrush="#333333" BorderThickness="1">
-                <ScrollViewer>
-                    <TextBlock Text="{Binding LogContent}"
-                               FontFamily="Consolas" FontSize="12"
-                               Foreground="#D4D4D4"
-                               TextWrapping="Wrap"
-                               Padding="12" />
-                </ScrollViewer>
-            </Border>
+            <TextBox Grid.Column="1" Margin="8 0 0 0" Text="{Binding LogContent}"
+                     FontFamily="Consolas" FontSize="12"
+                     Foreground="#D4D4D4" Background="#1E1E1E"
+                     BorderBrush="#333333" BorderThickness="1"
+                     IsReadOnly="True"
+                     TextWrapping="Wrap"
+                     AcceptsReturn="True"
+                     Padding="12">
+                <TextBox.Styles>
+                    <Style Selector="TextBox /template/ Border#border">
+                        <Setter Property="Background" Value="#1E1E1E" />
+                    </Style>
+                    <Style Selector="TextBox:pointerover /template/ Border#border">
+                        <Setter Property="Background" Value="#1E1E1E" />
+                        <Setter Property="BorderBrush" Value="#333333" />
+                    </Style>
+                    <Style Selector="TextBox:focus /template/ Border#border">
+                        <Setter Property="Background" Value="#1E1E1E" />
+                        <Setter Property="BorderBrush" Value="#333333" />
+                    </Style>
+                </TextBox.Styles>
+            </TextBox>
         </Grid>
     </Grid>
 

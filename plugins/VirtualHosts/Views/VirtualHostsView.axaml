@@ -24,11 +24,12 @@
                     <CheckBox IsChecked="{Binding EnableSsl}">
                         <TextBlock Text="Habilitar SSL" />
                     </CheckBox>
-                    <Button Command="{Binding CreateHostCommand}" Padding="12 6"
-                            Background="{DynamicResource SystemAccentColor}" Foreground="White"
-                            FontWeight="Bold">
-                        <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center">
-                            <TextBlock Text="➕" />
+                    <Button Command="{Binding CreateHostCommand}" Height="32" Padding="14 0"
+                            Background="{DynamicResource SystemAccentColor}" Foreground="White" FontSize="13" FontWeight="SemiBold"
+                            CornerRadius="4" BorderThickness="0"
+                            VerticalContentAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Center">
+                            <TextBlock Text="➕" FontSize="13" />
                             <TextBlock Text="Criar Host" />
                         </StackPanel>
                     </Button>
@@ -52,8 +53,11 @@
                                             <TextBlock Text="{Binding IsEnabled, StringFormat='{}Ativo'}" FontSize="10" Foreground="White" />
                                         </Border>
                                         <Button Grid.Column="2" Command="{Binding $parent[ListBox].DataContext.DeleteHostCommand}"
-                                                CommandParameter="{Binding .}" Padding="6 4" Background="#CC3333" Foreground="White">
-                                            <TextBlock Text="🗑" />
+                                                CommandParameter="{Binding .}" Height="28" Padding="10 0"
+                                                Background="#CC3333" Foreground="White" FontSize="12"
+                                                CornerRadius="4" BorderThickness="0"
+                                                VerticalContentAlignment="Center">
+                                            <TextBlock Text="🗑" FontSize="12" />
                                         </Button>
                                     </Grid>
                                 </Border>
