@@ -1,0 +1,63 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LTools.RouteExplorer.ViewModels"
+             x:DataType="vm:RouteExplorerViewModel"
+             x:Class="LTools.RouteExplorer.Views.RouteExplorerView">
+
+    <Grid RowDefinitions="Auto,Auto,*">
+        <Border Padding="12 8" BorderBrush="#33000000" BorderThickness="0 0 0 1">
+            <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                <Button Command="{Binding SelectProjectCommand}" Padding="8 4" Margin="0 0 8 0">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="📂" />
+                        <TextBlock Text="{Binding ProjectName, TargetNullValue='Selecionar Projeto'}" />
+                    </StackPanel>
+                </Button>
+                <TextBlock Grid.Column="1" Text="{Binding StatusMessage}" VerticalAlignment="Center" FontSize="12" Opacity="0.7" />
+                <Button Grid.Column="3" Command="{Binding ExportRoutesCommand}" Padding="8 4" Margin="0 0 4 0">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="📤" />
+                        <TextBlock Text="Exportar CSV" />
+                    </StackPanel>
+                </Button>
+                <Button Grid.Column="4" Command="{Binding ClearFiltersCommand}" Padding="8 4">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="🗑" />
+                        <TextBlock Text="Limpar Filtros" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Border>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="8 8 8 0" Spacing="6">
+            <TextBox Text="{Binding SearchText}" PlaceholderText="Pesquisar rotas..." MinWidth="250" />
+            <TextBox Text="{Binding MiddlewareFilter}" PlaceholderText="Filtrar por middleware..." MinWidth="200" />
+        </StackPanel>
+
+        <ListBox Grid.Row="2" ItemsSource="{Binding FilteredRoutes}" Margin="8"
+                 BorderThickness="0" Background="Transparent">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border Padding="10 6" Margin="0 0 0 3" CornerRadius="4"
+                            BorderBrush="#22000000" BorderThickness="0 0 0 1">
+                        <Grid ColumnDefinitions="70,*,Auto,200" RowDefinitions="Auto,Auto">
+                            <Border CornerRadius="3" Padding="4 2" VerticalAlignment="Center"
+                                    Background="#1A0078D4">
+                                <TextBlock Text="{Binding Method}" FontSize="11"
+                                           FontWeight="Bold" Foreground="{DynamicResource SystemAccentColor}" />
+                            </Border>
+                            <TextBlock Grid.Column="1" Text="{Binding Uri}" FontSize="14" FontWeight="SemiBold"
+                                       Margin="8 0 0 0" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="2" Text="{Binding Name}" FontSize="11" Opacity="0.6"
+                                       VerticalAlignment="Center" Margin="8 0" />
+                            <TextBlock Grid.Column="3" Grid.Row="1" Grid.ColumnSpan="2"
+                                       Text="{Binding Action}" FontSize="11" Opacity="0.5" />
+                            <TextBlock Grid.Row="1" Text="{Binding Middleware}" FontSize="10" Opacity="0.4" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+
+</UserControl>

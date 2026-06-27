@@ -1,0 +1,80 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LTools.VirtualHosts.ViewModels"
+             x:DataType="vm:VirtualHostsViewModel"
+             x:Class="LTools.VirtualHosts.Views.VirtualHostsView">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Border Padding="12 8" BorderBrush="#33000000" BorderThickness="0 0 0 1">
+            <Grid ColumnDefinitions="Auto,Auto,*">
+                <Button Command="{Binding SelectProjectCommand}" Padding="8 4" Margin="0 0 8 0">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="📂" />
+                        <TextBlock Text="{Binding ProjectName, TargetNullValue='Selecionar Projeto'}" />
+                    </StackPanel>
+                </Button>
+                <TextBlock Grid.Column="1" Text="{Binding StatusMessage}" VerticalAlignment="Center" FontSize="12" Opacity="0.7" />
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" ColumnDefinitions="300,*" Margin="8">
+            <Border BorderBrush="#33000000" BorderThickness="0 0 1 0" Padding="8">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Criar Novo Host" FontSize="16" FontWeight="Bold" />
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="ServerName" FontSize="12" Opacity="0.7" />
+                        <TextBox Text="{Binding ServerName}" PlaceholderText="meuprojeto.test" />
+                    </StackPanel>
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Document Root" FontSize="12" Opacity="0.7" />
+                        <TextBox Text="{Binding RootPath}" />
+                    </StackPanel>
+                    <CheckBox IsChecked="{Binding EnableSsl}">
+                        <TextBlock Text="Habilitar SSL" />
+                    </CheckBox>
+                    <Button Command="{Binding CreateHostCommand}" Padding="12 6"
+                            Background="{DynamicResource SystemAccentColor}" Foreground="White"
+                            FontWeight="Bold">
+                        <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center">
+                            <TextBlock Text="➕" />
+                            <TextBlock Text="Criar Host" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="1" Margin="8 0 0 0" Padding="8">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Hosts Criados" FontSize="16" FontWeight="Bold" Margin="0 0 0 8" />
+                    <ListBox ItemsSource="{Binding Hosts}" BorderThickness="0" Background="Transparent">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="10 6" Margin="0 0 0 4" CornerRadius="4" Background="#1A0078D4">
+                                    <Grid ColumnDefinitions="*,Auto,Auto">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding ServerName}" FontSize="14" FontWeight="SemiBold" />
+                                            <TextBlock Text="{Binding Root}" FontSize="11" Opacity="0.6" />
+                                            <TextBlock Text="{Binding ConfigPath}" FontSize="10" Opacity="0.4" />
+                                        </StackPanel>
+                                        <Border Grid.Column="1" CornerRadius="3" Padding="4 2" Background="#4CAF50" VerticalAlignment="Center" Margin="0 0 4 0">
+                                            <TextBlock Text="{Binding IsEnabled, StringFormat='{}Ativo'}" FontSize="10" Foreground="White" />
+                                        </Border>
+                                        <Button Grid.Column="2" Command="{Binding $parent[ListBox].DataContext.DeleteHostCommand}"
+                                                CommandParameter="{Binding .}" Padding="6 4" Background="#CC3333" Foreground="White">
+                                            <TextBlock Text="🗑" />
+                                        </Button>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="2" Padding="12 6" BorderBrush="#33000000" BorderThickness="0 1 0 0">
+            <TextBlock Text="{Binding StatusMessage}" FontSize="12" Opacity="0.6" VerticalAlignment="Center" />
+        </Border>
+    </Grid>
+
+</UserControl>

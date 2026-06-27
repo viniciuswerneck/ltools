@@ -1,0 +1,82 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LTools.QueueMonitor.ViewModels"
+             x:DataType="vm:QueueMonitorViewModel"
+             x:Class="LTools.QueueMonitor.Views.QueueMonitorView">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <Border Padding="12 8" BorderBrush="#33000000" BorderThickness="0 0 0 1">
+            <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                <Button Command="{Binding SelectProjectCommand}" Padding="8 4" Margin="0 0 8 0">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="📂" />
+                        <TextBlock Text="{Binding ProjectName, TargetNullValue='Selecionar Projeto'}" />
+                    </StackPanel>
+                </Button>
+                <TextBlock Grid.Column="1" Text="{Binding StatusMessage}" VerticalAlignment="Center" FontSize="12" Opacity="0.7" />
+                <Button Grid.Column="3" Command="{Binding ClearOutputCommand}" Padding="8 4">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="🗑" />
+                        <TextBlock Text="Limpar" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Border>
+
+        <WrapPanel Grid.Row="1" Margin="8 8 8 0">
+            <Button Command="{Binding CheckFailedCommand}" Padding="12 6" FontWeight="Bold"
+                    Background="{DynamicResource SystemAccentColor}" Foreground="White">
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <TextBlock Text="❌" />
+                    <TextBlock Text="Falhos" />
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding RetryFailedCommand}" Padding="12 6">
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <TextBlock Text="🔄" />
+                    <TextBlock Text="Retry All" />
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding FlushFailedCommand}" Padding="12 6">
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <TextBlock Text="🗑" />
+                    <TextBlock Text="Limpar Falhos" />
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding WorkCommand}" Padding="12 6">
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <TextBlock Text="⚙️" />
+                    <TextBlock Text="Work (once)" />
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding RestartCommand}" Padding="12 6">
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <TextBlock Text="🔁" />
+                    <TextBlock Text="Restart" />
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding MonitorCommand}" Padding="12 6">
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <TextBlock Text="📊" />
+                    <TextBlock Text="Monitor" />
+                </StackPanel>
+            </Button>
+        </WrapPanel>
+
+        <Border Grid.Row="2" Margin="8" CornerRadius="4" Background="#1E1E1E"
+                BorderBrush="#333333" BorderThickness="1">
+            <ScrollViewer>
+                <TextBlock Text="{Binding OutputText}"
+                           FontFamily="Consolas" FontSize="13"
+                           Foreground="#D4D4D4"
+                           TextWrapping="Wrap"
+                           Padding="12" />
+            </ScrollViewer>
+        </Border>
+
+        <Border Grid.Row="3" Padding="12 6" BorderBrush="#33000000" BorderThickness="0 1 0 0">
+            <TextBlock Text="{Binding StatusMessage}" FontSize="12" Opacity="0.6" VerticalAlignment="Center" />
+        </Border>
+    </Grid>
+
+</UserControl>

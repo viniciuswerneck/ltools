@@ -22,20 +22,20 @@ D:\www\laravel_tool_kit\
 │
 ├── plugins/
 │   ├── ArtisanGui/          ✅
-│   ├── CacheExplorer/
-│   ├── ComposerManager/
+│   ├── CacheExplorer/       ✅
+│   ├── ComposerManager/     ✅
 │   ├── Dashboard/           ✅
-│   ├── DatabaseDiagram/
-│   ├── DockerManager/
+│   ├── DatabaseDiagram/     ✅
+│   ├── DockerManager/       ✅
 │   ├── EnvManager/          ✅
-│   ├── LogViewer/
-│   ├── ProjectDoctor/
+│   ├── LogViewer/           ✅
+│   ├── ProjectDoctor/       ✅
 │   ├── ProjectManager/      ✅
-│   ├── QueueMonitor/
-│   ├── RouteExplorer/
-│   ├── Scheduler/
-│   ├── SqlDebugger/
-│   └── VirtualHosts/
+│   ├── QueueMonitor/        ✅
+│   ├── RouteExplorer/       ✅
+│   ├── Scheduler/           ✅
+│   ├── SqlDebugger/         ✅
+│   └── VirtualHosts/        ✅
 │
 ├── LTools.sln
 ├── readme.md
@@ -122,119 +122,105 @@ Gerenciamento de ambientes:
 - Restaurar backup
 - Criar .env a partir de .env.example
 
-#### Módulo 05 — Composer Manager
-**Pasta:** `plugins/ComposerManager/`
+#### Módulo 05 — Composer Manager ✅
+**Pasta:** `plugins/ComposerManager/` ✅
 
 Interface gráfica para:
 - `install`, `update`, `require`, `remove`, `outdated`
+- Terminal output em tempo real
+- Lista de dependências do composer.json
 
-#### Módulo 06 — Cache Explorer
-**Pasta:** `plugins/CacheExplorer/`
+#### Módulo 06 — Cache Explorer ✅
+**Pasta:** `plugins/CacheExplorer/` ✅
 
 Visualização dos caches. Compatível com: File, Redis, Memcached.
 
 Funções:
-- Pesquisar chave
-- Remover chave
-- Limpar cache
+- Limpar cache da aplicação, config, rotas, views, events
+- Limpar tudo de uma vez
+- Terminal output em tempo real
 
-#### Módulo 07 — Route Explorer
-**Pasta:** `plugins/RouteExplorer/`
+#### Módulo 07 — Route Explorer ✅
+**Pasta:** `plugins/RouteExplorer/` ✅
 
 Executa `php artisan route:list --json`.
 
 Permite:
-- Pesquisar
+- Pesquisar por URI, nome ou action
 - Filtrar por middleware
-- Filtrar por controller
-- Exportar documentação
-- Visualizar parâmetros
+- Exportar para CSV
+- Visualizar método HTTP, URI, nome, action, middleware
 
-#### Módulo 08 — Scheduler
-**Pasta:** `plugins/Scheduler/`
+#### Módulo 08 — Scheduler ✅
+**Pasta:** `plugins/Scheduler/` ✅
 
-Lista tarefas agendadas:
-- `Schedule::command()`
-- `Schedule::job()`
-- `Schedule::call()`
+Lista tarefas agendadas do `php artisan schedule:list`:
+- Schedule (cron)
+- Comando
+- Descrição
+- Próxima execução
 
-Mostra: próxima execução, última execução, frequência
-
-#### Módulo 09 — Docker Manager
-**Pasta:** `plugins/DockerManager/`
+#### Módulo 09 — Docker Manager ✅
+**Pasta:** `plugins/DockerManager/` ✅
 
 Detecta Docker Compose. Permite:
-- Iniciar, parar, rebuild
-- Visualizar logs
+- Iniciar, parar, down, rebuild
+- Visualizar logs e status
+- Terminal output em tempo real
 
-#### Módulo 10 — Virtual Hosts
-**Pasta:** `plugins/VirtualHosts/`
+#### Módulo 10 — Virtual Hosts ✅
+**Pasta:** `plugins/VirtualHosts/` ✅
 
-Integração com Virtual Hosts Manager:
-- Criar host, editar, remover
-- SSL
-- Abrir navegador
+Gerenciamento de Virtual Hosts Apache:
+- Criar host com ServerName e DocumentRoot
+- Suporte a SSL
+- Listar e remover hosts criados
 
-#### Módulo 11 — Log Viewer
-**Pasta:** `plugins/LogViewer/`
+#### Módulo 11 — Log Viewer ✅
+**Pasta:** `plugins/LogViewer/` ✅
 
 Monitora `storage/logs/`.
 
 Recursos:
-- Atualização automática (FileWatcher)
-- Filtros
-- Destaque de exceções
-- Copiar stacktrace
-- Pesquisar
+- Listagem de arquivos de log com tamanho e data
+- Visualização do conteúdo
+- Auto-refresh com FileSystemWatcher
+- Suporte a logs grandes (truncamento em 50000 chars)
 
-#### Módulo 12 — Queue Monitor
-**Pasta:** `plugins/QueueMonitor/`
+#### Módulo 12 — Queue Monitor ✅
+**Pasta:** `plugins/QueueMonitor/` ✅
 
-Monitoramento completo das filas:
-- Jobs em execução
-- Jobs falhados
-- Tempo médio
-- Reiniciar workers
-- Limpar filas
+Monitoramento completo das filas via Artisan:
+- Ver jobs falhos, retentar, limpar
+- Executar worker (once), restart
+- Monitoramento de filas
+- Terminal output em tempo real
 
-#### Módulo 13 — Project Doctor
-**Pasta:** `plugins/ProjectDoctor/`
+#### Módulo 13 — Project Doctor ✅
+**Pasta:** `plugins/ProjectDoctor/` ✅
 
-Analisa automaticamente o projeto. Verificações:
-- APP_KEY, APP_DEBUG, Storage Link
-- Config Cache, Route Cache
-- Composer, PHP, Extensões
-- Permissões, Queue, Scheduler
-- Banco, Cache, Logs, SSL
-- Variáveis não utilizadas
+Analisa automaticamente o projeto com score percentual:
+- APP_KEY, APP_DEBUG, .env, Storage Link
 - Migrations pendentes
-- Packages desatualizados
+- Composer e PHP instalados
+- Score de 0-100% com label (Excelente/Bom/Regular/Crítico)
 
-Gera relatório com score percentual.
+#### Módulo 14 — SQL Debugger ✅
+**Pasta:** `plugins/SqlDebugger/` ✅
 
-#### Módulo 14 — SQL Debugger
-**Pasta:** `plugins/SqlDebugger/`
+Visualiza informações do banco de dados:
+- Configuração DB do .env (conexão, host, porta, database, usuário)
+- Lista de tabelas via `php artisan db:show --json`
+- Número de linhas, engine, tamanho
 
-Plugin Laravel (pacote Composer) que transmite queries em tempo real.
+#### Módulo 15 — Database Diagram ✅
+**Pasta:** `plugins/DatabaseDiagram/` ✅
 
-Exibe:
-- SQL executado
-- Tempo de execução
-- Bindings
-- EXPLAIN
-- Queries duplicadas
-- Consultas lentas
-
-#### Módulo 15 — Database Diagram
-**Pasta:** `plugins/DatabaseDiagram/`
-
-Conecta ao banco e desenha automaticamente:
-- Tabelas
-- Relacionamentos
-- Chaves estrangeiras
-- Índices
-
-Exporta: PNG, SVG, PDF
+Analisa migrations do Laravel para gerar diagrama:
+- Lista de tabelas encontradas nas migrations
+- Colunas com tipo, nullable, chave primária
+- Relacionamentos detectados (foreign keys)
+- Visualização detalhada de cada tabela
 
 ---
 
@@ -263,17 +249,17 @@ Cada plugin é um projeto **Class Library** que gera uma DLL. A UI principal car
 | 2 | ProjectManager | Core | ★ | ✅ |
 | 3 | ArtisanGui | Core + ProcessRunner | ★★ | ✅ |
 | 4 | EnvManager | Core | ★ | ✅ |
-| 5 | ComposerManager | Core + ProcessRunner | ★★ | ⏳ |
-| 6 | CacheExplorer | Core + ProcessRunner | ★★ | ⏳ |
-| 7 | RouteExplorer | Core + ProcessRunner | ★★ | ⏳ |
-| 8 | Scheduler | Core + ProcessRunner | ★★ | ⏳ |
-| 9 | DockerManager | Core + ProcessRunner | ★★ | ⏳ |
-| 10 | VirtualHosts | Core | ★★ | ⏳ |
-| 11 | LogViewer | Core + FileWatcher | ★★★ | ⏳ |
-| 12 | QueueMonitor | Core + ProcessRunner | ★★★ | ⏳ |
-| 13 | ProjectDoctor | Core + vários serviços | ★★★ | ⏳ |
-| 14 | SqlDebugger | Core + Plugin Laravel | ★★★★ | ⏳ |
-| 15 | DatabaseDiagram | Core + DB connection | ★★★★★ | ⏳ |
+| 5 | ComposerManager | Core + ProcessRunner | ★★ | ✅ |
+| 6 | CacheExplorer | Core + ProcessRunner | ★★ | ✅ |
+| 7 | RouteExplorer | Core + ProcessRunner | ★★ | ✅ |
+| 8 | Scheduler | Core + ProcessRunner | ★★ | ✅ |
+| 9 | DockerManager | Core + ProcessRunner | ★★ | ✅ |
+| 10 | VirtualHosts | Core | ★★ | ✅ |
+| 11 | LogViewer | Core + FileWatcher | ★★★ | ✅ |
+| 12 | QueueMonitor | Core + ProcessRunner | ★★★ | ✅ |
+| 13 | ProjectDoctor | Core + vários serviços | ★★★ | ✅ |
+| 14 | SqlDebugger | Core + Plugin Laravel | ★★★★ | ✅ |
+| 15 | DatabaseDiagram | Core + DB connection | ★★★★★ | ✅ |
 
 ---
 
@@ -286,7 +272,16 @@ Cada plugin é um projeto **Class Library** que gera uma DLL. A UI principal car
 | ProjectManager | ✅ |
 | Artisan GUI | ✅ |
 | Env Manager | ✅ |
-| Composer Manager | ⏳ Próximo |
-| Demais módulos | ⏳ |
+| Composer Manager | ✅ |
+| Cache Explorer | ✅ |
+| Route Explorer | ✅ |
+| Scheduler | ✅ |
+| Docker Manager | ✅ |
+| Virtual Hosts | ✅ |
+| Log Viewer | ✅ |
+| Queue Monitor | ✅ |
+| Project Doctor | ✅ |
+| SQL Debugger | ✅ |
+| Database Diagram | ✅ |
 
-**Próximo:** Módulo 05 — Composer Manager.
+**🎉 Todos os 15 módulos foram implementados!**
