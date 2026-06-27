@@ -249,9 +249,10 @@ public partial class DashboardViewModel : ObservableObject
 
     private async Task LoadArtisanAboutAsync()
     {
+        var runner = new ProcessRunner();
+
         try
         {
-            var runner = new ProcessRunner();
             var output = await runner.RunAndGetOutputAsync(ProjectPath, "php", "artisan about --json --no-ansi");
 
             if (!string.IsNullOrWhiteSpace(output))
@@ -284,15 +285,19 @@ public partial class DashboardViewModel : ObservableObject
                     LogsDriver = TryGetString(drivers, "logs");
                 }
             }
+        }
+        catch { }
 
-            if (string.IsNullOrWhiteSpace(LaravelVersion) || LaravelVersion == "Carregando...")
+        if (string.IsNullOrWhiteSpace(LaravelVersion) || LaravelVersion == "Carregando...")
+        {
+            try
             {
                 var version = await runner.RunAndGetOutputAsync(ProjectPath, "php", "artisan --version");
                 if (!string.IsNullOrWhiteSpace(version))
                     LaravelVersion = version.Split('\n').FirstOrDefault()?.Trim() ?? "";
             }
+            catch { }
         }
-        catch { }
 
         if (string.IsNullOrWhiteSpace(LaravelVersion) || LaravelVersion == "Carregando...")
             LoadLaravelVersionFromComposer();
