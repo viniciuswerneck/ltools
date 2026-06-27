@@ -13,22 +13,20 @@
             <Border BorderBrush="#33000000" BorderThickness="0 0 1 0" Padding="8">
                 <Grid RowDefinitions="Auto,*">
                     <TextBlock Text="Tabelas" FontWeight="SemiBold" FontSize="14" Margin="0 0 0 8" />
-                    <ScrollViewer Grid.Row="1">
-                        <ListBox ItemsSource="{Binding Tables}" SelectedItem="{Binding SelectedTable}"
-                                 BorderThickness="0" Background="Transparent">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Padding="8 4" Margin="0 0 0 2" CornerRadius="4" Background="#1A0078D4">
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" />
-                                            <TextBlock Text="{Binding Columns.Count, StringFormat='{}{0} colunas'}"
-                                                       FontSize="11" Opacity="0.6" />
-                                        </StackPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </ScrollViewer>
+                    <ListBox Grid.Row="1" ItemsSource="{Binding Tables}" SelectedItem="{Binding SelectedTable}"
+                             BorderThickness="0" Background="Transparent">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="8 4" Margin="0 0 0 2" CornerRadius="4" Background="#1A0078D4">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding Columns.Count, StringFormat='{}{0} colunas'}"
+                                                   FontSize="11" Opacity="0.6" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
                 </Grid>
             </Border>
 

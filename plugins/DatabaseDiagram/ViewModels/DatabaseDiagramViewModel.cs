@@ -53,6 +53,7 @@ public partial class DatabaseDiagramViewModel : ObservableObject
     private async Task AnalyzeMigrationsAsync()
     {
         Tables.Clear();
+        SelectedTable = null;
         StatusMessage = "Analisando migrations...";
 
         var migrationsDir = Path.Combine(_projectPath, "database", "migrations");
@@ -62,23 +63,29 @@ public partial class DatabaseDiagramViewModel : ObservableObject
             return;
         }
 
+        List<TableSchema> parsedTables;
+
         try
         {
-            await Task.Run(() =>
+            parsedTables = await Task.Run(() =>
             {
                 var migrationFiles = Directory.GetFiles(migrationsDir, "*.php")
                     .OrderBy(f => f)
                     .ToList();
+
+                var allTables = new List<TableSchema>();
 
                 foreach (var file in migrationFiles)
                 {
                     try
                     {
                         var content = File.ReadAllText(file);
-                        ParseMigration(content);
+                        ParseMigration(content, allTables);
                     }
                     catch { }
                 }
+
+                return allTables;
             });
         }
         catch (Exception ex)
@@ -87,21 +94,20 @@ public partial class DatabaseDiagramViewModel : ObservableObject
             return;
         }
 
+        foreach (var t in parsedTables)
+            Tables.Add(t);
+
         DetectRelationships();
         StatusMessage = $"{Tables.Count} tabelas encontradas nas migrations.";
     }
 
-    private void ParseMigration(string content)
+    private static void ParseMigration(string content, List<TableSchema> allTables)
     {
         var tableName = "";
-        var isNewTable = false;
 
         var createMatch = Regex.Match(content, @"Schema::create\s*\(\s*['""]([\w_]+)['""]\s*,", RegexOptions.Singleline);
         if (createMatch.Success)
-        {
             tableName = createMatch.Groups[1].Value;
-            isNewTable = true;
-        }
         else
         {
             var tableMatch = Regex.Match(content, @"Schema::table\s*\(\s*['""]([\w_]+)['""]\s*,", RegexOptions.Singleline);
@@ -109,7 +115,7 @@ public partial class DatabaseDiagramViewModel : ObservableObject
             tableName = tableMatch.Groups[1].Value;
         }
 
-        var existingTable = Tables.FirstOrDefault(t => t.Name == tableName);
+        var existingTable = allTables.FirstOrDefault(t => t.Name == tableName);
         var table = existingTable ?? new TableSchema { Name = tableName };
 
         var columnMatches = Regex.Matches(content,
@@ -156,7 +162,7 @@ public partial class DatabaseDiagramViewModel : ObservableObject
         }
 
         if (existingTable == null)
-            Avalonia.Threading.Dispatcher.UIThread.Post(() => Tables.Add(table));
+            allTables.Add(table);
     }
 
     private void DetectRelationships()
