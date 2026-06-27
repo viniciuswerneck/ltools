@@ -1,0 +1,60 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:LTools.UI.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
+        x:Class="LTools.UI.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="LTools — Laravel Toolkit"
+        Width="1100" Height="700"
+        MinWidth="800" MinHeight="500">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid ColumnDefinitions="220,*">
+        <Border Background="#100078D4">
+            <DockPanel>
+                <Border DockPanel.Dock="Top" Padding="16" Background="#2078D4">
+                    <TextBlock Text="LTools" FontSize="20" FontWeight="Bold" Foreground="White"/>
+                </Border>
+
+                <ScrollViewer Padding="8">
+                    <ItemsControl ItemsSource="{Binding Plugins}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:PluginItemViewModel">
+                                <Border Margin="0,2" CornerRadius="6">
+                                    <Button Command="{Binding $parent[Window].DataContext.SelectPluginCommand}"
+                                            CommandParameter="{Binding .}"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            HorizontalContentAlignment="Stretch"
+                                            Padding="8,6">
+                                        <Grid ColumnDefinitions="Auto,*">
+                                            <TextBlock Text="{Binding Icon}" FontSize="16" VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="1" Text="{Binding Name}" Margin="10,0,0,0"
+                                                       VerticalAlignment="Center" FontSize="14" />
+                                        </Grid>
+                                    </Button>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+
+        <Border Grid.Column="1">
+            <Grid RowDefinitions="Auto,*">
+                <Border Grid.Row="0" Padding="16 8" Background="#05000000">
+                    <TextBlock Text="{Binding CurrentPluginName}" FontSize="16" FontWeight="SemiBold" />
+                </Border>
+
+                <ContentControl Grid.Row="1" Content="{Binding CurrentView}" />
+            </Grid>
+        </Border>
+    </Grid>
+
+</Window>

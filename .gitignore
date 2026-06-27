@@ -1,0 +1,29 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.sln.docstates
+*.userprefs
+
+## Visual Studio
+.vs/
+*.csproj.user
+*.dbmdl
+*.jfm
+
+## JetBrains Rider
+.idea/
+*.sln.iml
+
+## Build outputs
+plugins/*.dll
+plugins/*.pdb
+plugins/*.deps.json
+
+## OS
+.DS_Store
+Thumbs.db
+
+## dotnet
+*.nupkg

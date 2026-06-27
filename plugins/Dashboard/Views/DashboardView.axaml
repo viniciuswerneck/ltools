@@ -1,0 +1,53 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LTools.Dashboard.ViewModels"
+             x:DataType="vm:DashboardViewModel"
+             x:Class="LTools.Dashboard.Views.DashboardView">
+
+    <ScrollViewer Padding="20">
+        <StackPanel Spacing="16">
+            <TextBlock Text="Dashboard"
+                       FontSize="24"
+                       FontWeight="Bold" />
+
+            <TextBlock Text="Bem-vindo ao LTools! Seu centro de operações para projetos Laravel."
+                       FontSize="14"
+                       Opacity="0.7" />
+
+            <Border Background="#1A0078D4"
+                    CornerRadius="8"
+                    Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Ferramentas Detectadas"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource SystemAccentColor}" />
+
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="PHP:" FontWeight="Bold" Margin="0,0,16,4" />
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PhpVersion}" />
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Laravel:" FontWeight="Bold" Margin="0,0,16,4" />
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding LaravelVersion}" />
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Composer:" FontWeight="Bold" Margin="0,0,16,4" />
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ComposerVersion}" />
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Git:" FontWeight="Bold" Margin="0,0,16,4" />
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding GitVersion}" />
+
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Node:" FontWeight="Bold" Margin="0,0,16,4" />
+                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding NodeVersion}" />
+
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Docker:" FontWeight="Bold" Margin="0,0,16,4" />
+                        <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding DockerVersion}" />
+
+                        <TextBlock Grid.Row="6" Grid.Column="0" Text="Projetos Recentes:" FontWeight="Bold" Margin="0,0,16,4" />
+                        <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding RecentProjectsCount}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+
+</UserControl>
