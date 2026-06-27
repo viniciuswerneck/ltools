@@ -20,7 +20,13 @@ public partial class MainWindowViewModel : ViewModelBase
     private string _currentPluginName = "Dashboard";
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasGlobalProject))]
     private string? _globalProjectName;
+
+    [ObservableProperty]
+    private string? _globalProjectPath;
+
+    public bool HasGlobalProject => GlobalProjectName != null;
 
     public ObservableCollection<PluginItemViewModel> Plugins { get; } = [];
 
@@ -51,6 +57,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private void UpdateProjectName()
     {
         GlobalProjectName = ProjectContext.Instance.CurrentName;
+        GlobalProjectPath = ProjectContext.Instance.CurrentPath;
     }
 
     [RelayCommand]

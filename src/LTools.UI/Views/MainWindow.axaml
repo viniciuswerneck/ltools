@@ -18,15 +18,20 @@
         <Border Grid.Row="0" Padding="12 8" Background="#2078D4">
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <TextBlock Text="LTools" FontSize="18" FontWeight="Bold" Foreground="White" VerticalAlignment="Center" />
-                <Button Grid.Column="2" Command="{Binding SelectGlobalProjectCommand}"
-                        Background="#33FFFFFF" BorderThickness="0"
-                        Padding="12 6" CornerRadius="4">
-                    <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Text="📂" FontSize="14" VerticalAlignment="Center" />
-                        <TextBlock Text="{Binding GlobalProjectName, TargetNullValue='Abrir Projeto...'}"
-                                   FontSize="13" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Button Command="{Binding SelectGlobalProjectCommand}"
+                            Background="#33FFFFFF" BorderThickness="0"
+                            Padding="12 6" CornerRadius="4">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="📂" FontSize="14" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding GlobalProjectName, TargetNullValue='Abrir Projeto'}"
+                                       FontSize="13" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <TextBlock Text="{Binding GlobalProjectPath}"
+                               FontSize="11" Foreground="#AAFFFFFF" VerticalAlignment="Center"
+                               IsVisible="{Binding HasGlobalProject}" />
+                </StackPanel>
             </Grid>
         </Border>
 
