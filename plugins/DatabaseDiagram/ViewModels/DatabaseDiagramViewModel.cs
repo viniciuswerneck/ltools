@@ -98,6 +98,10 @@ public partial class DatabaseDiagramViewModel : ObservableObject
             Tables.Add(t);
 
         DetectRelationships();
+
+        if (Tables.Count > 0 && SelectedTable == null)
+            SelectedTable = Tables[0];
+
         StatusMessage = $"{Tables.Count} tabelas encontradas nas migrations.";
     }
 
