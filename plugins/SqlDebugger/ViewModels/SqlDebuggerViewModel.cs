@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Text.Json;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LTools.Core.Services;
@@ -31,33 +32,40 @@ public partial class SqlDebuggerViewModel : ObservableObject
     private string _dbUser = string.Empty;
 
     [ObservableProperty]
-    private string _statusMessage = "Selecione um projeto Laravel para depurar SQL.";
+    private string _statusMessage = "Selecione um projeto no menu lateral.";
 
     public ObservableCollection<TableInfo> Tables { get; } = [];
 
-    [RelayCommand]
-    private async Task SelectProjectAsync()
+    public SqlDebuggerViewModel()
     {
-        var window = Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
-            ? desktop.MainWindow
-            : null;
+        ProjectContext.Instance.ProjectChanged += OnProjectChanged;
+        InitFromContext();
+    }
 
-        if (window?.StorageProvider == null) return;
-
-        var folders = await window.StorageProvider.OpenFolderPickerAsync(new Avalonia.Platform.Storage.FolderPickerOpenOptions
+    private void InitFromContext()
+    {
+        var path = ProjectContext.Instance.CurrentPath;
+        if (!string.IsNullOrWhiteSpace(path))
         {
-            Title = "Selecione um projeto Laravel",
-            AllowMultiple = false
+            _projectPath = path;
+            ProjectName = ProjectContext.Instance.CurrentName ?? "";
+            _ = LoadDbConfigAsync();
+            _ = LoadTablesAsync();
+        }
+    }
+
+    private void OnProjectChanged()
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            Tables.Clear();
+            DbConnection = string.Empty;
+            DbHost = string.Empty;
+            DbPort = string.Empty;
+            DbName = string.Empty;
+            DbUser = string.Empty;
+            InitFromContext();
         });
-
-        var folder = folders?.FirstOrDefault();
-        if (folder == null) return;
-
-        _projectPath = folder.Path.LocalPath;
-        ProjectName = Path.GetFileName(_projectPath);
-
-        await LoadDbConfigAsync();
-        await LoadTablesAsync();
     }
 
     private async Task LoadDbConfigAsync()

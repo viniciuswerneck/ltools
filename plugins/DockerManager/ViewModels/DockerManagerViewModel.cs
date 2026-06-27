@@ -1,3 +1,4 @@
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LTools.Core.Services;
@@ -22,42 +23,37 @@ public partial class DockerManagerViewModel : ObservableObject
     private bool _hasDockerCompose;
 
     [ObservableProperty]
-    private string _statusMessage = "Selecione um projeto Laravel com Docker Compose.";
+    private string _statusMessage = "Selecione um projeto no menu lateral.";
 
-    [RelayCommand]
-    private async Task SelectProjectAsync()
+    public DockerManagerViewModel()
     {
-        var window = Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
-            ? desktop.MainWindow
-            : null;
+        ProjectContext.Instance.ProjectChanged += OnProjectChanged;
+        InitFromContext();
+    }
 
-        if (window?.StorageProvider == null) return;
-
-        var folders = await window.StorageProvider.OpenFolderPickerAsync(new Avalonia.Platform.Storage.FolderPickerOpenOptions
+    private void InitFromContext()
+    {
+        var path = ProjectContext.Instance.CurrentPath;
+        if (!string.IsNullOrWhiteSpace(path))
         {
-            Title = "Selecione um projeto Laravel",
-            AllowMultiple = false
-        });
-
-        var folder = folders?.FirstOrDefault();
-        if (folder == null) return;
-
-        _projectPath = folder.Path.LocalPath;
-
-        if (!File.Exists(Path.Combine(_projectPath, "artisan")))
-        {
-            StatusMessage = "A pasta selecionada não contém um projeto Laravel.";
-            return;
+            _projectPath = path;
+            ProjectName = ProjectContext.Instance.CurrentName ?? "";
+            HasDockerCompose = File.Exists(Path.Combine(_projectPath, "docker-compose.yml"))
+                || File.Exists(Path.Combine(_projectPath, "docker-compose.yaml"));
+            if (HasDockerCompose)
+                StatusMessage = "Docker Compose detectado!";
+            else
+                StatusMessage = "Nenhum docker-compose.yml encontrado no projeto.";
         }
+    }
 
-        ProjectName = Path.GetFileName(_projectPath);
-        HasDockerCompose = File.Exists(Path.Combine(_projectPath, "docker-compose.yml"))
-            || File.Exists(Path.Combine(_projectPath, "docker-compose.yaml"));
-
-        if (HasDockerCompose)
-            StatusMessage = "Docker Compose detectado!";
-        else
-            StatusMessage = "Nenhum docker-compose.yml encontrado no projeto.";
+    private void OnProjectChanged()
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            OutputText = string.Empty;
+            InitFromContext();
+        });
     }
 
     private async Task RunDockerAsync(string arguments)

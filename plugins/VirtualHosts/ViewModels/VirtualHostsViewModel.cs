@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LTools.Core.Services;
 using LTools.VirtualHosts.Models;
 
 namespace LTools.VirtualHosts.ViewModels;
@@ -8,7 +10,7 @@ namespace LTools.VirtualHosts.ViewModels;
 public partial class VirtualHostsViewModel : ObservableObject
 {
     [ObservableProperty]
-    private string _statusMessage = "Selecione uma pasta com projetos Laravel para gerenciar hosts virtuais.";
+    private string _statusMessage = "Selecione um projeto no menu lateral.";
 
     [ObservableProperty]
     private string _projectName = string.Empty;
@@ -26,29 +28,28 @@ public partial class VirtualHostsViewModel : ObservableObject
 
     public ObservableCollection<VirtualHost> Hosts { get; } = [];
 
-    [RelayCommand]
-    private async Task SelectProjectAsync()
+    public VirtualHostsViewModel()
     {
-        var window = Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
-            ? desktop.MainWindow
-            : null;
+        ProjectContext.Instance.ProjectChanged += OnProjectChanged;
+        InitFromContext();
+    }
 
-        if (window?.StorageProvider == null) return;
-
-        var folders = await window.StorageProvider.OpenFolderPickerAsync(new Avalonia.Platform.Storage.FolderPickerOpenOptions
+    private void InitFromContext()
+    {
+        var path = ProjectContext.Instance.CurrentPath;
+        if (!string.IsNullOrWhiteSpace(path))
         {
-            Title = "Selecione um projeto Laravel",
-            AllowMultiple = false
-        });
+            _projectPath = path;
+            ProjectName = ProjectContext.Instance.CurrentName ?? "";
+            RootPath = _projectPath;
+            ServerName = $"{ProjectName}.test";
+            StatusMessage = $"Projeto selecionado: {ProjectName}";
+        }
+    }
 
-        var folder = folders?.FirstOrDefault();
-        if (folder == null) return;
-
-        _projectPath = folder.Path.LocalPath;
-        ProjectName = Path.GetFileName(_projectPath);
-        RootPath = _projectPath;
-        ServerName = $"{ProjectName}.test";
-        StatusMessage = $"Projeto selecionado: {ProjectName}";
+    private void OnProjectChanged()
+    {
+        Dispatcher.UIThread.Post(() => InitFromContext());
     }
 
     [RelayCommand]

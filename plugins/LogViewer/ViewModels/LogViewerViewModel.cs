@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LTools.Core.Services;
 using LTools.LogViewer.Models;
 
 namespace LTools.LogViewer.ViewModels;
@@ -23,40 +25,47 @@ public partial class LogViewerViewModel : ObservableObject
     private bool _autoRefresh;
 
     [ObservableProperty]
-    private string _statusMessage = "Selecione um projeto Laravel para visualizar logs.";
+    private string _statusMessage = "Selecione um projeto no menu lateral.";
 
     public ObservableCollection<LogFile> LogFiles { get; } = [];
 
-    [RelayCommand]
-    private async Task SelectProjectAsync()
+    public LogViewerViewModel()
     {
-        var window = Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
-            ? desktop.MainWindow
-            : null;
+        ProjectContext.Instance.ProjectChanged += OnProjectChanged;
+        InitFromContext();
+    }
 
-        if (window?.StorageProvider == null) return;
-
-        var folders = await window.StorageProvider.OpenFolderPickerAsync(new Avalonia.Platform.Storage.FolderPickerOpenOptions
+    private void InitFromContext()
+    {
+        var path = ProjectContext.Instance.CurrentPath;
+        if (!string.IsNullOrWhiteSpace(path))
         {
-            Title = "Selecione um projeto Laravel",
-            AllowMultiple = false
-        });
-
-        var folder = folders?.FirstOrDefault();
-        if (folder == null) return;
-
-        _projectPath = folder.Path.LocalPath;
-        ProjectName = Path.GetFileName(_projectPath);
-
-        var logsDir = Path.Combine(_projectPath, "storage", "logs");
-        if (!Directory.Exists(logsDir))
-        {
-            StatusMessage = "Diretório storage/logs não encontrado.";
-            return;
+            _projectPath = path;
+            ProjectName = ProjectContext.Instance.CurrentName ?? "";
+            var logsDir = Path.Combine(_projectPath, "storage", "logs");
+            if (Directory.Exists(logsDir))
+            {
+                StartWatching(logsDir);
+                _ = LoadLogFilesAsync();
+            }
+            else
+            {
+                StatusMessage = "Diretório storage/logs não encontrado.";
+            }
         }
+    }
 
-        StartWatching(logsDir);
-        await LoadLogFilesAsync();
+    private void OnProjectChanged()
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            _watcher?.Dispose();
+            _watcher = null;
+            LogFiles.Clear();
+            LogContent = string.Empty;
+            SelectedLogName = string.Empty;
+            InitFromContext();
+        });
     }
 
     private void StartWatching(string logsDir)

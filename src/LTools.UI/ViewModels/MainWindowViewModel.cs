@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LTools.Core.Interfaces;
@@ -17,11 +19,16 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private string _currentPluginName = "Dashboard";
 
+    [ObservableProperty]
+    private string _globalProjectName = string.Empty;
+
     public ObservableCollection<PluginItemViewModel> Plugins { get; } = [];
 
     public MainWindowViewModel()
     {
         _pluginLoader = new PluginLoader();
+        ProjectContext.Instance.ProjectChanged += OnProjectChanged;
+        UpdateProjectName();
     }
 
     public async Task InitializeAsync()
@@ -34,6 +41,44 @@ public partial class MainWindowViewModel : ViewModelBase
 
         if (Plugins.Count > 0)
             SelectPlugin(Plugins[0]);
+    }
+
+    private void OnProjectChanged()
+    {
+        Avalonia.Threading.Dispatcher.UIThread.Post(UpdateProjectName);
+    }
+
+    private void UpdateProjectName()
+    {
+        GlobalProjectName = ProjectContext.Instance.CurrentName ?? "";
+    }
+
+    [RelayCommand]
+    private async Task SelectGlobalProjectAsync()
+    {
+        var window = Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
+            ? desktop.MainWindow
+            : null;
+
+        if (window?.StorageProvider == null) return;
+
+        var folders = await window.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        {
+            Title = "Selecione um projeto Laravel",
+            AllowMultiple = false
+        });
+
+        var folder = folders?.FirstOrDefault();
+        if (folder == null) return;
+
+        var path = folder.Path.LocalPath;
+
+        if (!ProjectContext.IsLaravelProject(path))
+        {
+            return;
+        }
+
+        ProjectContext.Instance.CurrentPath = path;
     }
 
     [RelayCommand]

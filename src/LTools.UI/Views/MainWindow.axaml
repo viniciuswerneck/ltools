@@ -22,26 +22,44 @@
                 </Border>
 
                 <ScrollViewer Padding="8">
-                    <ItemsControl ItemsSource="{Binding Plugins}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="vm:PluginItemViewModel">
-                                <Border Margin="0,2" CornerRadius="6">
-                                    <Button Command="{Binding $parent[Window].DataContext.SelectPluginCommand}"
-                                            CommandParameter="{Binding .}"
-                                            Background="Transparent"
-                                            BorderThickness="0"
-                                            HorizontalContentAlignment="Stretch"
-                                            Padding="8,6">
-                                        <Grid ColumnDefinitions="Auto,*">
-                                            <TextBlock Text="{Binding Icon}" FontSize="16" VerticalAlignment="Center" />
-                                            <TextBlock Grid.Column="1" Text="{Binding Name}" Margin="10,0,0,0"
-                                                       VerticalAlignment="Center" FontSize="14" />
-                                        </Grid>
-                                    </Button>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                    <StackPanel Spacing="4">
+                        <Border Padding="4" CornerRadius="6" Background="#1A0078D4">
+                            <Button Command="{Binding SelectGlobalProjectCommand}"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    HorizontalContentAlignment="Stretch"
+                                    Padding="8,6">
+                                <StackPanel Spacing="4">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <TextBlock Text="📂" FontSize="14" VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding GlobalProjectName, TargetNullValue='Abrir Projeto...'}"
+                                                   FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Button>
+                        </Border>
+
+                        <ItemsControl ItemsSource="{Binding Plugins}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:PluginItemViewModel">
+                                    <Border Margin="0,2" CornerRadius="6">
+                                        <Button Command="{Binding $parent[Window].DataContext.SelectPluginCommand}"
+                                                CommandParameter="{Binding .}"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                HorizontalContentAlignment="Stretch"
+                                                Padding="8,6">
+                                            <Grid ColumnDefinitions="Auto,*">
+                                                <TextBlock Text="{Binding Icon}" FontSize="16" VerticalAlignment="Center" />
+                                                <TextBlock Grid.Column="1" Text="{Binding Name}" Margin="10,0,0,0"
+                                                           VerticalAlignment="Center" FontSize="14" />
+                                            </Grid>
+                                        </Button>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
                 </ScrollViewer>
             </DockPanel>
         </Border>

@@ -1,7 +1,9 @@
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LTools.Core.Services;
 using LTools.DatabaseDiagram.Models;
 
 namespace LTools.DatabaseDiagram.ViewModels;
@@ -17,32 +19,35 @@ public partial class DatabaseDiagramViewModel : ObservableObject
     private TableSchema? _selectedTable;
 
     [ObservableProperty]
-    private string _statusMessage = "Selecione um projeto Laravel para analisar o banco.";
+    private string _statusMessage = "Selecione um projeto no menu lateral.";
 
     public ObservableCollection<TableSchema> Tables { get; } = [];
 
-    [RelayCommand]
-    private async Task SelectProjectAsync()
+    public DatabaseDiagramViewModel()
     {
-        var window = Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
-            ? desktop.MainWindow
-            : null;
+        ProjectContext.Instance.ProjectChanged += OnProjectChanged;
+        InitFromContext();
+    }
 
-        if (window?.StorageProvider == null) return;
-
-        var folders = await window.StorageProvider.OpenFolderPickerAsync(new Avalonia.Platform.Storage.FolderPickerOpenOptions
+    private void InitFromContext()
+    {
+        var path = ProjectContext.Instance.CurrentPath;
+        if (!string.IsNullOrWhiteSpace(path))
         {
-            Title = "Selecione um projeto Laravel",
-            AllowMultiple = false
+            _projectPath = path;
+            ProjectName = ProjectContext.Instance.CurrentName ?? "";
+            _ = AnalyzeMigrationsAsync();
+        }
+    }
+
+    private void OnProjectChanged()
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            Tables.Clear();
+            SelectedTable = null;
+            InitFromContext();
         });
-
-        var folder = folders?.FirstOrDefault();
-        if (folder == null) return;
-
-        _projectPath = folder.Path.LocalPath;
-        ProjectName = Path.GetFileName(_projectPath);
-
-        await AnalyzeMigrationsAsync();
     }
 
     private async Task AnalyzeMigrationsAsync()

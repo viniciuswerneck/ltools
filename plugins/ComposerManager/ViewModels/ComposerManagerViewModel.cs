@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Text.Json;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LTools.ComposerManager.Models;
@@ -22,7 +23,7 @@ public partial class ComposerManagerViewModel : ObservableObject
     private bool _isRunning;
 
     [ObservableProperty]
-    private string _statusMessage = "Selecione um projeto Laravel para gerenciar dependências Composer.";
+    private string _statusMessage = "Selecione um projeto no menu lateral.";
 
     [ObservableProperty]
     private string _packageName = string.Empty;
@@ -30,40 +31,32 @@ public partial class ComposerManagerViewModel : ObservableObject
     public ObservableCollection<ComposerPackage> Packages { get; } = [];
     public ObservableCollection<ComposerHistory> History { get; } = [];
 
-    [RelayCommand]
-    private async Task SelectProjectAsync()
+    public ComposerManagerViewModel()
     {
-        var window = Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
-            ? desktop.MainWindow
-            : null;
-
-        if (window?.StorageProvider == null) return;
-
-        var folders = await window.StorageProvider.OpenFolderPickerAsync(new Avalonia.Platform.Storage.FolderPickerOpenOptions
-        {
-            Title = "Selecione um projeto Laravel",
-            AllowMultiple = false
-        });
-
-        var folder = folders?.FirstOrDefault();
-        if (folder == null) return;
-
-        _projectPath = folder.Path.LocalPath;
-
-        if (!IsLaravelProject(_projectPath))
-        {
-            StatusMessage = "A pasta selecionada não contém um projeto Laravel.";
-            return;
-        }
-
-        ProjectName = Path.GetFileName(_projectPath);
-        await LoadPackagesAsync();
+        ProjectContext.Instance.ProjectChanged += OnProjectChanged;
+        InitFromContext();
     }
 
-    private static bool IsLaravelProject(string path)
+    private void InitFromContext()
     {
-        return File.Exists(Path.Combine(path, "artisan"))
-            && File.Exists(Path.Combine(path, "composer.json"));
+        var path = ProjectContext.Instance.CurrentPath;
+        if (!string.IsNullOrWhiteSpace(path))
+        {
+            _projectPath = path;
+            ProjectName = ProjectContext.Instance.CurrentName ?? "";
+            _ = LoadPackagesAsync();
+        }
+    }
+
+    private void OnProjectChanged()
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            Packages.Clear();
+            History.Clear();
+            OutputText = string.Empty;
+            InitFromContext();
+        });
     }
 
     private async Task LoadPackagesAsync()

@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LTools.Core.Services;
@@ -21,37 +22,35 @@ public partial class ProjectDoctorViewModel : ObservableObject
     private string _healthLabel = string.Empty;
 
     [ObservableProperty]
-    private string _statusMessage = "Selecione um projeto Laravel para executar diagnósticos.";
+    private string _statusMessage = "Selecione um projeto no menu lateral.";
 
     public ObservableCollection<DoctorCheck> Checks { get; } = [];
 
-    [RelayCommand]
-    private async Task SelectProjectAsync()
+    public ProjectDoctorViewModel()
     {
-        var window = Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
-            ? desktop.MainWindow
-            : null;
+        ProjectContext.Instance.ProjectChanged += OnProjectChanged;
+        InitFromContext();
+    }
 
-        if (window?.StorageProvider == null) return;
-
-        var folders = await window.StorageProvider.OpenFolderPickerAsync(new Avalonia.Platform.Storage.FolderPickerOpenOptions
+    private void InitFromContext()
+    {
+        var path = ProjectContext.Instance.CurrentPath;
+        if (!string.IsNullOrWhiteSpace(path))
         {
-            Title = "Selecione um projeto Laravel",
-            AllowMultiple = false
-        });
-
-        var folder = folders?.FirstOrDefault();
-        if (folder == null) return;
-
-        _projectPath = folder.Path.LocalPath;
-
-        if (!File.Exists(Path.Combine(_projectPath, "artisan")))
-        {
-            StatusMessage = "A pasta selecionada não contém um projeto Laravel.";
-            return;
+            _projectPath = path;
+            ProjectName = ProjectContext.Instance.CurrentName ?? "";
         }
+    }
 
-        ProjectName = Path.GetFileName(_projectPath);
+    private void OnProjectChanged()
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            Checks.Clear();
+            HealthScore = 0;
+            HealthLabel = string.Empty;
+            InitFromContext();
+        });
     }
 
     [RelayCommand]
