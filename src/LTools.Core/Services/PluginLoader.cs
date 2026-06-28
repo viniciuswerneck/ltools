@@ -6,10 +6,28 @@ namespace LTools.Core.Services;
 
 public class PluginLoader : IPluginLoader
 {
+    private static string? _pluginsResolvePath;
+
     public List<ILToolsPlugin> LoadedPlugins { get; } = [];
+
+    static PluginLoader()
+    {
+        AssemblyLoadContext.Default.Resolving += (context, assemblyName) =>
+        {
+            if (_pluginsResolvePath == null)
+                return null;
+
+            var name = assemblyName.Name;
+            if (name == null) return null;
+
+            var path = Path.Combine(_pluginsResolvePath, $"{name}.dll");
+            return File.Exists(path) ? context.LoadFromAssemblyPath(path) : null;
+        };
+    }
 
     public Task<List<ILToolsPlugin>> LoadPluginsAsync(string pluginsPath)
     {
+        _pluginsResolvePath = pluginsPath;
         LoadedPlugins.Clear();
         var plugins = new List<ILToolsPlugin>();
 

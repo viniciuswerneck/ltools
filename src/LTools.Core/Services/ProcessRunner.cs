@@ -61,11 +61,14 @@ public class ProcessRunner : IProcessRunner
     {
         var output = new StringWriter();
 
-        void Handler(string data) => output.WriteLine(data);
+        void OutHandler(string data) => output.WriteLine(data);
+        void ErrHandler(string data) => output.WriteLine(data);
 
-        OutputReceived += Handler;
+        OutputReceived += OutHandler;
+        ErrorReceived += ErrHandler;
         await RunAsync(workingDirectory, command, arguments);
-        OutputReceived -= Handler;
+        OutputReceived -= OutHandler;
+        ErrorReceived -= ErrHandler;
 
         return output.ToString();
     }

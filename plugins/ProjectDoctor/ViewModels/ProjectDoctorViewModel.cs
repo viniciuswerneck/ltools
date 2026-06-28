@@ -316,7 +316,7 @@ public partial class ProjectDoctorViewModel : ObservableObject
 
             try
             {
-                var latestOutput = await _runner.RunAndGetOutputAsync(_projectPath, "composer", "show laravel/framework --latest --no-ansi 2>&1");
+                var latestOutput = await _runner.RunAndGetOutputAsync(_projectPath, "composer", "show laravel/framework --latest --no-ansi");
                 var latestMatch = System.Text.RegularExpressions.Regex.Match(latestOutput, @"latest\s*:\s*([^\s,]+)");
 
                 if (latestMatch.Success)
@@ -363,7 +363,7 @@ public partial class ProjectDoctorViewModel : ObservableObject
 
         try
         {
-            var output = await _runner.RunAndGetOutputAsync(_projectPath, "npm", "outdated --no-ansi 2>&1");
+            var output = await _runner.RunAndGetOutputAsync(_projectPath, "npm", "outdated --no-ansi");
             var lines = output.Split('\n', StringSplitOptions.RemoveEmptyEntries);
             check.Status = lines.Length > 1 ? CheckStatus.Warning : CheckStatus.Passed;
             check.Message = lines.Length > 1 ? $"{lines.Length - 1} pacote(s) desatualizado(s)" : "Todos atualizados";

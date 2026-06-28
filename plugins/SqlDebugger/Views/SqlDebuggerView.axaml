@@ -1,64 +1,149 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:LTools.SqlDebugger.ViewModels"
+             xmlns:models="using:LTools.SqlDebugger.Models"
              x:DataType="vm:SqlDebuggerViewModel"
              x:Class="LTools.SqlDebugger.Views.SqlDebuggerView">
 
-    <Grid RowDefinitions="Auto,Auto,*">
-        <Border Padding="12 8" BorderBrush="#33000000" BorderThickness="0 0 0 1">
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
+
+        <!-- ═══ ROW 0: STATUS + ACTIONS ═══ -->
+        <Border Padding="12 8" BorderBrush="#33FFFFFF" BorderThickness="0 0 0 1">
             <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" FontSize="12" Opacity="0.7" />
-                <Button Grid.Column="1" Command="{Binding RefreshCommand}" Height="28" Padding="10 0"
-                        Background="#3A3A3A" Foreground="#E0E0E0" FontSize="12"
-                        CornerRadius="4" BorderThickness="0"
-                        VerticalContentAlignment="Center">
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                        <TextBlock Text="🔄" FontSize="12" />
-                        <TextBlock Text="Atualizar" />
-                    </StackPanel>
+                <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center"
+                           FontSize="12" Opacity="0.8" TextTrimming="CharacterEllipsis" />
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                    <Button Command="{Binding StartMonitoringCommand}"
+                            IsEnabled="{Binding CanMonitor}"
+                            Height="28" Padding="10 0"
+                            Background="#1A28A745" Foreground="#5CBD6E"
+                            FontSize="12" CornerRadius="4" BorderThickness="0"
+                            ToolTip.Tip="Iniciar monitoramento de queries">
+                        ▶ Monitorar
+                    </Button>
+
+                    <Button Command="{Binding StopMonitoringCommand}"
+                            IsEnabled="{Binding CanStop}"
+                            Height="28" Padding="10 0"
+                            Background="#1ADC3545" Foreground="#F06A7A"
+                            FontSize="12" CornerRadius="4" BorderThickness="0"
+                            ToolTip.Tip="Parar monitoramento">
+                        ■ Parar
+                    </Button>
+
+                    <Button Command="{Binding ClearQueriesCommand}" Height="28" Padding="8 0"
+                            Background="#3A3A3A" Foreground="#E0E0E0" FontSize="12"
+                            CornerRadius="4" BorderThickness="0"
+                            ToolTip.Tip="Limpar histórico">
+                        ✕ Limpar
+                    </Button>
+
+                    <Button Command="{Binding ExportQueriesCommand}" Height="28" Padding="8 0"
+                            Background="#3A3A3A" Foreground="#E0E0E0" FontSize="12"
+                            CornerRadius="4" BorderThickness="0" Margin="4 0 0 0"
+                            ToolTip.Tip="Salvar queries em arquivo TXT">
+                        💾 Salvar
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ═══ ROW 1: DB INFO ═══ -->
+        <Border Grid.Row="1" Padding="12 6" BorderBrush="#33FFFFFF" BorderThickness="0 0 0 1"
+                Background="#1A1A1A">
+            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*">
+                <Border CornerRadius="3" Padding="6 2" Background="#1A0078D4">
+                    <TextBlock Text="{Binding DbConnection, StringFormat='{}🔗 {0}'}"
+                               FontSize="11" Foreground="#4C9AFF" />
+                </Border>
+                <TextBlock Grid.Column="1" Text="{Binding DbName, StringFormat='{}📦 {0}'}"
+                           FontSize="11" Opacity="0.7" Margin="8 0" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="2" Text="{Binding DbHost, StringFormat='{}🖥 {0}'}"
+                           FontSize="11" Opacity="0.5" Margin="8 0" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="3" Text="{Binding TotalQueries, StringFormat='{}📊 {0} queries'}"
+                           FontSize="11" Opacity="0.5" Margin="8 0" VerticalAlignment="Center" />
+                <Button Grid.Column="4" Command="{Binding RefreshCommand}" Height="24" Padding="6 0"
+                        Background="Transparent" Foreground="#888" FontSize="10"
+                        CornerRadius="3" BorderThickness="0"
+                        ToolTip.Tip="Recarregar configuração do .env">
+                    🔄
                 </Button>
             </Grid>
         </Border>
 
-        <Border Grid.Row="1" Margin="8 8 8 0" Padding="12" CornerRadius="4" Background="#1A0078D4">
-            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
-                <TextBlock Text="Conexão:" FontWeight="Bold" Margin="0 0 16 4" />
-                <TextBlock Grid.Column="1" Text="{Binding DbConnection, TargetNullValue='—'}" />
+        <!-- ═══ ROW 2: SEARCH ═══ -->
+        <Border Grid.Row="2" Padding="12 6" BorderBrush="#33FFFFFF" BorderThickness="0 0 0 1"
+                Background="#1A1A1A">
+            <Grid ColumnDefinitions="200,Auto,*">
+                <TextBox Text="{Binding SearchText}" PlaceholderText="🔍 Buscar queries..."
+                         FontSize="12" Height="28" CornerRadius="4" Padding="8 0"
+                         Background="#2A2A2A" Foreground="#E0E0E0" BorderBrush="#444" />
 
-                <TextBlock Grid.Row="1" Text="Host:" FontWeight="Bold" Margin="0 0 16 4" />
-                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DbHost, TargetNullValue='—'}" />
+                <CheckBox Grid.Column="1" IsChecked="{Binding ShowSlowOnly}" Content="Lentas (&gt;1s)"
+                          Margin="8 0 0 0" VerticalAlignment="Center" FontSize="11" />
 
-                <TextBlock Grid.Row="2" Text="Porta:" FontWeight="Bold" Margin="0 0 16 4" />
-                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding DbPort, TargetNullValue='—'}" />
-
-                <TextBlock Grid.Row="3" Text="Database:" FontWeight="Bold" Margin="0 0 16 4" />
-                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding DbName, TargetNullValue='—'}" />
-
-                <TextBlock Grid.Row="4" Text="Usuário:" FontWeight="Bold" Margin="0 0 16 4" />
-                <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding DbUser, TargetNullValue='—'}" />
+                <TextBlock Grid.Column="2" VerticalAlignment="Center" FontSize="11" Opacity="0.5"
+                           HorizontalAlignment="Right" Margin="0 0 4 0">
+                    <Run Text="{Binding FilteredCount}" />
+                    <Run Text=" query(s)" />
+                </TextBlock>
             </Grid>
         </Border>
 
-        <ListBox Grid.Row="2" ItemsSource="{Binding Tables}" Margin="8"
-                 BorderThickness="0" Background="Transparent">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Border Padding="10 6" Margin="0 0 0 3" CornerRadius="4"
-                            BorderBrush="#22000000" BorderThickness="0 0 0 1">
-                        <Grid ColumnDefinitions="*,Auto,Auto,Auto">
-                            <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
-                            <TextBlock Grid.Column="1" Text="{Binding Rows, StringFormat='{}{0} linhas'}"
-                                       FontSize="11" Opacity="0.6" VerticalAlignment="Center" Margin="8 0" />
-                            <TextBlock Grid.Column="2" Text="{Binding Size}" FontSize="11" Opacity="0.6"
-                                       VerticalAlignment="Center" Margin="8 0" />
-                            <Border Grid.Column="3" CornerRadius="3" Padding="4 2" Background="#33000000" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding Engine}" FontSize="10" Opacity="0.6" />
-                            </Border>
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <!-- ═══ ROW 3: CONTENT ═══ -->
+        <Grid Grid.Row="3">
+
+            <!-- Nenhum banco configurado -->
+            <Border IsVisible="{Binding HasNoDb}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <StackPanel Spacing="8" HorizontalAlignment="Center">
+                    <TextBlock Text="🔌" FontSize="40" HorizontalAlignment="Center" />
+                    <TextBlock Text="Nenhum banco configurado"
+                               FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                    <TextBlock Text="Selecione um projeto Laravel com MySQL para monitorar queries."
+                               FontSize="12" Opacity="0.6" HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
+
+            <!-- Lista de queries -->
+            <ListBox ItemsSource="{Binding FilteredQueries}"
+                     BorderThickness="0" Background="Transparent">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:SqlQuery">
+                        <Border Padding="8 4" Margin="2 1" CornerRadius="4" Background="#1E1E1E">
+                            <Border.Styles>
+                                <Style Selector="Border:pointerover">
+                                    <Setter Property="Background" Value="#2A2A2A" />
+                                </Style>
+                            </Border.Styles>
+                            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8">
+                                <!-- Timestamp -->
+                                <TextBlock Text="{Binding TimestampDisplay}"
+                                           FontSize="11" Opacity="0.4" VerticalAlignment="Top" />
+
+                                <!-- SQL > 1s: red background badge -->
+                                <Border Grid.Column="2" CornerRadius="3" Padding="4 2"
+                                        Background="{Binding DurationBg}"
+                                        VerticalAlignment="Top">
+                                    <TextBlock Text="{Binding DurationDisplay}"
+                                               FontSize="10"
+                                               Foreground="{Binding DurationColor}" />
+                                </Border>
+
+                                <!-- SQL text -->
+                                <TextBlock Grid.Column="1" Grid.ColumnSpan="2"
+                                           Text="{Binding Sql}" FontSize="12"
+                                           FontFamily="Consolas"
+                                           TextWrapping="NoWrap" VerticalAlignment="Top"
+                                           ToolTip.Tip="{Binding Sql}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+        </Grid>
+
     </Grid>
 
 </UserControl>
