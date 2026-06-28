@@ -58,15 +58,15 @@ LTools
 ├── RouteExplorer
 ├── LogViewer
 ├── SqlDebugger
-├── QueueMonitor
-├── Scheduler
+├── ~~QueueMonitor~~
+├── ~~Scheduler~~
 ├── DatabaseDiagram
 ├── EnvManager
 ├── CacheExplorer
 ├── ProjectDoctor
 ├── ComposerManager
-├── DockerManager
-└── VirtualHosts
+├── ~~DockerManager~~
+└── ~~VirtualHosts~~
 ```
 
 ---

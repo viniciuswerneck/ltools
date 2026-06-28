@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 using LTools.Core.Interfaces;
 
 namespace LTools.Core.Services;
@@ -59,18 +60,48 @@ public class ProcessRunner : IProcessRunner
 
     public async Task<string> RunAndGetOutputAsync(string workingDirectory, string command, string arguments)
     {
-        var output = new StringWriter();
+        var tcs = new TaskCompletionSource<string>();
 
-        void OutHandler(string data) => output.WriteLine(data);
-        void ErrHandler(string data) => output.WriteLine(data);
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                WorkingDirectory = workingDirectory,
+                FileName = command,
+                Arguments = arguments,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            },
+            EnableRaisingEvents = true
+        };
 
-        OutputReceived += OutHandler;
-        ErrorReceived += ErrHandler;
-        await RunAsync(workingDirectory, command, arguments);
-        OutputReceived -= OutHandler;
-        ErrorReceived -= ErrHandler;
+        var output = new StringBuilder();
+        var error = new StringBuilder();
 
-        return output.ToString();
+        process.OutputDataReceived += (_, e) =>
+        {
+            if (e.Data != null) output.AppendLine(e.Data);
+        };
+        process.ErrorDataReceived += (_, e) =>
+        {
+            if (e.Data != null) error.AppendLine(e.Data);
+        };
+
+        process.Exited += (_, _) =>
+        {
+            process.WaitForExit();
+            tcs.TrySetResult(output.ToString() + error.ToString());
+        };
+
+        process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+
+        var result = await tcs.Task;
+        process.Dispose();
+        return result;
     }
 
     public void Kill()

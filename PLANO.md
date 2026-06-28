@@ -26,16 +26,16 @@ D:\www\laravel_tool_kit\
 │   ├── ComposerManager/     ✅
 │   ├── Dashboard/           ✅
 │   ├── DatabaseDiagram/     ✅
-│   ├── DockerManager/       ✅
+│   ├── DockerManager/       ❌ Removido
 │   ├── EnvManager/          ✅
 │   ├── LogViewer/           ✅
 │   ├── ProjectDoctor/       ✅
 │   ├── ProjectManager/      ✅
-│   ├── QueueMonitor/        ✅
+│   ├── QueueMonitor/        ❌ Removido
 │   ├── RouteExplorer/       ✅
-│   ├── Scheduler/           ✅
+│   ├── Scheduler/           ❌ Removido
 │   ├── SqlDebugger/         ✅
-│   └── VirtualHosts/        ✅
+│   └── VirtualHosts/        ❌ Removido
 │
 ├── LTools.sln
 ├── readme.md
@@ -151,30 +151,11 @@ Permite:
 - Exportar para CSV
 - Visualizar método HTTP, URI, nome, action, middleware
 
-#### Módulo 08 — Scheduler ✅
-**Pasta:** `plugins/Scheduler/` ✅
+#### Módulo 08 — Scheduler ❌ Removido
 
-Lista tarefas agendadas do `php artisan schedule:list`:
-- Schedule (cron)
-- Comando
-- Descrição
-- Próxima execução
+#### Módulo 09 — Docker Manager ❌ Removido
 
-#### Módulo 09 — Docker Manager ✅
-**Pasta:** `plugins/DockerManager/` ✅
-
-Detecta Docker Compose. Permite:
-- Iniciar, parar, down, rebuild
-- Visualizar logs e status
-- Terminal output em tempo real
-
-#### Módulo 10 — Virtual Hosts ✅
-**Pasta:** `plugins/VirtualHosts/` ✅
-
-Gerenciamento de Virtual Hosts Apache:
-- Criar host com ServerName e DocumentRoot
-- Suporte a SSL
-- Listar e remover hosts criados
+#### Módulo 10 — Virtual Hosts ❌ Removido
 
 #### Módulo 11 — Log Viewer ✅
 **Pasta:** `plugins/LogViewer/` ✅
@@ -187,14 +168,7 @@ Recursos:
 - Auto-refresh com FileSystemWatcher
 - Suporte a logs grandes (truncamento em 50000 chars)
 
-#### Módulo 12 — Queue Monitor ✅
-**Pasta:** `plugins/QueueMonitor/` ✅
-
-Monitoramento completo das filas via Artisan:
-- Ver jobs falhos, retentar, limpar
-- Executar worker (once), restart
-- Monitoramento de filas
-- Terminal output em tempo real
+#### Módulo 12 — Queue Monitor ❌ Removido
 
 #### Módulo 13 — Project Doctor ✅
 **Pasta:** `plugins/ProjectDoctor/` ✅
@@ -252,11 +226,11 @@ Cada plugin é um projeto **Class Library** que gera uma DLL. A UI principal car
 | 5 | ComposerManager | Core + ProcessRunner | ★★ | ✅ |
 | 6 | CacheExplorer | Core + ProcessRunner | ★★ | ✅ |
 | 7 | RouteExplorer | Core + ProcessRunner | ★★ | ✅ |
-| 8 | Scheduler | Core + ProcessRunner | ★★ | ✅ |
-| 9 | DockerManager | Core + ProcessRunner | ★★ | ✅ |
-| 10 | VirtualHosts | Core | ★★ | ✅ |
+| 8 | ~~Scheduler~~ | ~~Core + ProcessRunner~~ | ~~★★~~ | ❌ Removido |
+| 9 | ~~DockerManager~~ | ~~Core + ProcessRunner~~ | ~~★★~~ | ❌ Removido |
+| 10 | ~~VirtualHosts~~ | ~~Core~~ | ~~★★~~ | ❌ Removido |
 | 11 | LogViewer | Core + FileWatcher | ★★★ | ✅ |
-| 12 | QueueMonitor | Core + ProcessRunner | ★★★ | ✅ |
+| 12 | ~~QueueMonitor~~ | ~~Core + ProcessRunner~~ | ~~★★★~~ | ❌ Removido |
 | 13 | ProjectDoctor | Core + vários serviços | ★★★ | ✅ |
 | 14 | SqlDebugger | Core + Plugin Laravel | ★★★★ | ✅ |
 | 15 | DatabaseDiagram | Core + DB connection | ★★★★★ | ✅ |
