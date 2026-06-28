@@ -1,108 +1,62 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:LTools.QueueMonitor.ViewModels"
+             xmlns:models="using:LTools.QueueMonitor.Models"
+             xmlns:local="using:LTools.QueueMonitor.Views"
              x:DataType="vm:QueueMonitorViewModel"
              x:Class="LTools.QueueMonitor.Views.QueueMonitorView">
 
-    <Grid RowDefinitions="Auto,Auto,*">
-        <Border Padding="12 8" BorderBrush="#33000000" BorderThickness="0 0 0 1">
-            <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" FontSize="12" Opacity="0.7" />
+    <UserControl.Resources>
+        <local:InverseBoolConverter x:Key="InverseBool" />
+        <local:BoolToTabBgConverter x:Key="TabBg" />
+        <local:BoolToStatusColorConverter x:Key="StatusColor" />
+    </UserControl.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- ═══ STATUS BAR ═══ -->
+        <Border Padding="12 8" BorderBrush="#33FFFFFF" BorderThickness="0 0 0 1">
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+                <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center"
+                           FontSize="12" Opacity="0.8" TextTrimming="CharacterEllipsis" />
+
+                <Border Grid.Column="1" CornerRadius="3" Padding="6 2" Margin="0 0 8 0"
+                        Background="#33CC3333" VerticalAlignment="Center"
+                        IsVisible="{Binding HasFailedJobs}">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="⚠" FontSize="12" />
+                        <TextBlock Text="{Binding FailedJobsSummary}"
+                                   FontSize="11" FontWeight="SemiBold" />
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Grid.Column="2" VerticalAlignment="Center" FontSize="11"
+                           Opacity="0.4" Margin="0 0 12 0"
+                           Text="{Binding LastCheckLabel}" />
+
+                <ToggleButton Grid.Column="3" IsChecked="{Binding IsAutoRefreshEnabled}"
+                              Height="26" Padding="8 0" FontSize="11"
+                              Background="#3A3A3A" Foreground="#E0E0E0"
+                              CornerRadius="3" BorderThickness="0"
+                              VerticalContentAlignment="Center"
+                              ToolTip.Tip="Auto-refresh a cada 30s">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="⏱" FontSize="11" />
+                        <TextBlock Text="Auto" FontSize="11" />
+                    </StackPanel>
+                </ToggleButton>
+            </Grid>
         </Border>
 
-        <WrapPanel Grid.Row="1" Margin="8 8 8 0">
-            <Button Command="{Binding CheckFailedCommand}" Height="32" Padding="14 0" Margin="0 0 10 8"
-                    Background="{DynamicResource SystemAccentColor}" Foreground="White" FontWeight="SemiBold" FontSize="13"
-                    CornerRadius="4" BorderThickness="0"
-                    VerticalContentAlignment="Center">
-                <StackPanel Orientation="Horizontal" Spacing="5">
-                    <TextBlock Text="❌" FontSize="13" />
-                    <TextBlock Text="Falhos" />
-                </StackPanel>
-            </Button>
-            <Button Command="{Binding RetryFailedCommand}" Height="32" Padding="14 0" Margin="0 0 10 8"
-                    Background="#3A3A3A" Foreground="#E0E0E0" FontSize="13"
-                    CornerRadius="4" BorderThickness="0"
-                    VerticalContentAlignment="Center">
-                <StackPanel Orientation="Horizontal" Spacing="5">
-                    <TextBlock Text="🔄" FontSize="13" />
-                    <TextBlock Text="Retry All" />
-                </StackPanel>
-            </Button>
-            <Button Command="{Binding FlushFailedCommand}" Height="32" Padding="14 0" Margin="0 0 10 8"
-                    Background="#CC3333" Foreground="White" FontWeight="SemiBold" FontSize="13"
-                    CornerRadius="4" BorderThickness="0"
-                    VerticalContentAlignment="Center">
-                <StackPanel Orientation="Horizontal" Spacing="5">
-                    <TextBlock Text="🗑" FontSize="13" />
-                    <TextBlock Text="Limpar Falhos" />
-                </StackPanel>
-            </Button>
-            <Button Command="{Binding WorkCommand}" Height="32" Padding="14 0" Margin="0 0 10 8"
-                    Background="#3A3A3A" Foreground="#E0E0E0" FontSize="13"
-                    CornerRadius="4" BorderThickness="0"
-                    VerticalContentAlignment="Center">
-                <StackPanel Orientation="Horizontal" Spacing="5">
-                    <TextBlock Text="⚙️" FontSize="13" />
-                    <TextBlock Text="Work (once)" />
-                </StackPanel>
-            </Button>
-            <Button Command="{Binding RestartCommand}" Height="32" Padding="14 0" Margin="0 0 10 8"
-                    Background="#3A3A3A" Foreground="#E0E0E0" FontSize="13"
-                    CornerRadius="4" BorderThickness="0"
-                    VerticalContentAlignment="Center">
-                <StackPanel Orientation="Horizontal" Spacing="5">
-                    <TextBlock Text="🔁" FontSize="13" />
-                    <TextBlock Text="Restart" />
-                </StackPanel>
-            </Button>
-            <Button Command="{Binding MonitorCommand}" Height="32" Padding="14 0" Margin="0 0 10 8"
-                    Background="#3A3A3A" Foreground="#E0E0E0" FontSize="13"
-                    CornerRadius="4" BorderThickness="0"
-                    VerticalContentAlignment="Center">
-                <StackPanel Orientation="Horizontal" Spacing="5">
-                    <TextBlock Text="📊" FontSize="13" />
-                    <TextBlock Text="Monitor" />
-                </StackPanel>
-            </Button>
-        </WrapPanel>
+        <!-- ═══ SIMPLE CONTENT (adding sections gradually) ═══ -->
+        <ScrollViewer Grid.Row="1">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+                <TextBlock Text="QUEUE MONITOR" FontSize="20" FontWeight="Bold"
+                           Foreground="#88DD88" HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding StatusMessage}" FontSize="13"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </ScrollViewer>
 
-        <Grid Grid.Row="2" Margin="8" RowDefinitions="Auto,*">
-            <Grid ColumnDefinitions="Auto,*,Auto">
-                <TextBlock Text="Saída" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" />
-                <Button Grid.Column="2" Command="{Binding ClearOutputCommand}" Height="28" Padding="10 0"
-                        Background="#3A3A3A" Foreground="#E0E0E0" FontSize="12"
-                        CornerRadius="4" BorderThickness="0"
-                        VerticalContentAlignment="Center">
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                        <TextBlock Text="🗑" FontSize="12" />
-                        <TextBlock Text="Limpar" />
-                    </StackPanel>
-                </Button>
-            </Grid>
-            <TextBox Grid.Row="1" Text="{Binding OutputText}"
-                     FontFamily="Consolas" FontSize="13"
-                     Foreground="#D4D4D4" Background="#1E1E1E"
-                     BorderBrush="#333333" BorderThickness="1"
-                     IsReadOnly="True"
-                     TextWrapping="Wrap"
-                     AcceptsReturn="True"
-                     Padding="8"
-                     Margin="0 6 0 0">
-                <TextBox.Styles>
-                    <Style Selector="TextBox /template/ Border#border">
-                        <Setter Property="Background" Value="#1E1E1E" />
-                    </Style>
-                    <Style Selector="TextBox:pointerover /template/ Border#border">
-                        <Setter Property="Background" Value="#1E1E1E" />
-                        <Setter Property="BorderBrush" Value="#333333" />
-                    </Style>
-                    <Style Selector="TextBox:focus /template/ Border#border">
-                        <Setter Property="Background" Value="#1E1E1E" />
-                        <Setter Property="BorderBrush" Value="#333333" />
-                    </Style>
-                </TextBox.Styles>
-            </TextBox>
-        </Grid>
     </Grid>
-
 </UserControl>

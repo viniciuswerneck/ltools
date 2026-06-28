@@ -30,6 +30,20 @@ public partial class ProjectDoctorViewModel : ObservableObject
     [ObservableProperty]
     private bool _isRunning;
 
+    public bool NotRunning => !IsRunning;
+
+    [ObservableProperty]
+    private string _currentCheckName = string.Empty;
+
+    [ObservableProperty]
+    private int _passedCount;
+
+    [ObservableProperty]
+    private int _warningCount;
+
+    [ObservableProperty]
+    private int _failedCount;
+
     public ObservableCollection<DoctorCheck> Checks { get; } = [];
     public ObservableCollection<DoctorGroup> CheckGroups { get; } = [];
 
@@ -69,46 +83,48 @@ public partial class ProjectDoctorViewModel : ObservableObject
     {
         return
         [
-            new DoctorCheck { Name = ".env", Category = "Arquivos Essenciais", WhatItChecks = "Arquivo de configuração de ambiente", FixCommand = "php -r copy('.env.example','.env');" },
-            new DoctorCheck { Name = ".env.example", Category = "Arquivos Essenciais", WhatItChecks = "Modelo do arquivo de ambiente" },
-            new DoctorCheck { Name = "composer.json", Category = "Arquivos Essenciais", WhatItChecks = "Definição de dependências do PHP" },
-            new DoctorCheck { Name = "package.json", Category = "Arquivos Essenciais", WhatItChecks = "Definição de dependências do Node" },
-            new DoctorCheck { Name = "Dockerfile", Category = "Arquivos Essenciais", WhatItChecks = "Imagem personalizada do container" },
-            new DoctorCheck { Name = "docker-compose.yml", Category = "Arquivos Essenciais", WhatItChecks = "Orquestração de containers" },
-            new DoctorCheck { Name = ".gitignore", Category = "Arquivos Essenciais", WhatItChecks = "Arquivos ignorados pelo Git" },
+            new DoctorCheck { Name = ".env", Category = "Arquivos Essenciais", WhatItChecks = "Arquivo de configuração de ambiente", Severity = CheckSeverity.Critical, FixCommand = "php -r copy('.env.example','.env');" },
+            new DoctorCheck { Name = ".env.example", Category = "Arquivos Essenciais", WhatItChecks = "Modelo do arquivo de ambiente", Severity = CheckSeverity.Info },
+            new DoctorCheck { Name = "composer.json", Category = "Arquivos Essenciais", WhatItChecks = "Definição de dependências do PHP", Severity = CheckSeverity.Critical },
+            new DoctorCheck { Name = "package.json", Category = "Arquivos Essenciais", WhatItChecks = "Definição de dependências do Node", Severity = CheckSeverity.Info },
+            new DoctorCheck { Name = "Dockerfile", Category = "Arquivos Essenciais", WhatItChecks = "Imagem personalizada do container", Severity = CheckSeverity.Info },
+            new DoctorCheck { Name = "docker-compose.yml", Category = "Arquivos Essenciais", WhatItChecks = "Orquestração de containers", Severity = CheckSeverity.Info },
+            new DoctorCheck { Name = ".gitignore", Category = "Arquivos Essenciais", WhatItChecks = "Arquivos ignorados pelo Git", Severity = CheckSeverity.Critical },
 
-            new DoctorCheck { Name = "APP_KEY", Category = "Segurança", WhatItChecks = "Chave de criptografia da aplicação", FixCommand = "php artisan key:generate" },
-            new DoctorCheck { Name = "APP_DEBUG", Category = "Segurança", WhatItChecks = "Modo debug desligado em produção" },
-            new DoctorCheck { Name = "APP_ENV", Category = "Segurança", WhatItChecks = "Ambiente configurado (local/production)" },
+            new DoctorCheck { Name = "APP_KEY", Category = "Segurança", WhatItChecks = "Chave de criptografia da aplicação", Severity = CheckSeverity.Critical, FixCommand = "php artisan key:generate" },
+            new DoctorCheck { Name = "APP_DEBUG", Category = "Segurança", WhatItChecks = "Modo debug desligado em produção", Severity = CheckSeverity.Critical },
+            new DoctorCheck { Name = "APP_ENV", Category = "Segurança", WhatItChecks = "Ambiente configurado (local/production)", Severity = CheckSeverity.Warning },
+            new DoctorCheck { Name = ".env no .gitignore", Category = "Segurança", WhatItChecks = ".env não está versionado no Git", Severity = CheckSeverity.Critical },
 
-            new DoctorCheck { Name = "Storage Link", Category = "Estrutura", WhatItChecks = "Link simbólico public/storage \u2192 storage/app/public", FixCommand = "php artisan storage:link" },
-            new DoctorCheck { Name = "Migrations", Category = "Estrutura", WhatItChecks = "Todas as migrations foram executadas", FixCommand = "php artisan migrate" },
-            new DoctorCheck { Name = "Routes", Category = "Estrutura", WhatItChecks = "Arquivos de rota definidos (web, api)" },
+            new DoctorCheck { Name = "Storage Link", Category = "Estrutura", WhatItChecks = "Link simbólico public/storage \u2192 storage/app/public", Severity = CheckSeverity.Warning, FixCommand = "php artisan storage:link" },
+            new DoctorCheck { Name = "Migrations", Category = "Estrutura", WhatItChecks = "Todas as migrations foram executadas", Severity = CheckSeverity.Critical, FixCommand = "php artisan migrate" },
+            new DoctorCheck { Name = "Laravel Version", Category = "Estrutura", WhatItChecks = "Versão do Laravel instalada vs última disponível", Severity = CheckSeverity.Warning, FixCommand = "composer update laravel/framework --with-dependencies" },
+            new DoctorCheck { Name = "Routes", Category = "Estrutura", WhatItChecks = "Arquivos de rota definidos (web, api)", Severity = CheckSeverity.Warning },
 
-            new DoctorCheck { Name = "DB_CONNECTION", Category = "Banco de Dados", WhatItChecks = "Conexão com banco configurada no .env" },
-            new DoctorCheck { Name = "DB_HOST", Category = "Banco de Dados", WhatItChecks = "Host do banco configurado" },
-            new DoctorCheck { Name = "DB_DATABASE", Category = "Banco de Dados", WhatItChecks = "Nome do banco configurado" },
+            new DoctorCheck { Name = "DB_CONNECTION", Category = "Banco de Dados", WhatItChecks = "Conexão com banco configurada no .env", Severity = CheckSeverity.Critical },
+            new DoctorCheck { Name = "DB_HOST", Category = "Banco de Dados", WhatItChecks = "Host do banco configurado", Severity = CheckSeverity.Warning },
+            new DoctorCheck { Name = "DB_DATABASE", Category = "Banco de Dados", WhatItChecks = "Nome do banco configurado", Severity = CheckSeverity.Warning },
 
-            new DoctorCheck { Name = "CACHE_STORE", Category = "Cache e Sessão", WhatItChecks = "Driver de cache configurado" },
-            new DoctorCheck { Name = "SESSION_DRIVER", Category = "Cache e Sessão", WhatItChecks = "Driver de sessão configurado" },
-            new DoctorCheck { Name = "Config Cache", Category = "Cache e Sessão", WhatItChecks = "Cache de config otimizado (production)", FixCommand = "php artisan config:cache" },
-            new DoctorCheck { Name = "Route Cache", Category = "Cache e Sessão", WhatItChecks = "Cache de rotas otimizado (production)", FixCommand = "php artisan route:cache" },
+            new DoctorCheck { Name = "CACHE_STORE", Category = "Cache e Sessão", WhatItChecks = "Driver de cache configurado", Severity = CheckSeverity.Warning },
+            new DoctorCheck { Name = "SESSION_DRIVER", Category = "Cache e Sessão", WhatItChecks = "Driver de sessão configurado", Severity = CheckSeverity.Warning },
+            new DoctorCheck { Name = "Config Cache", Category = "Cache e Sessão", WhatItChecks = "Cache de config otimizado (production)", Severity = CheckSeverity.Info, FixCommand = "php artisan config:cache" },
+            new DoctorCheck { Name = "Route Cache", Category = "Cache e Sessão", WhatItChecks = "Cache de rotas otimizado (production)", Severity = CheckSeverity.Info, FixCommand = "php artisan route:cache" },
 
-            new DoctorCheck { Name = "MAIL_MAILER", Category = "Email", WhatItChecks = "Driver de email configurado" },
-            new DoctorCheck { Name = "MAIL_FROM_ADDRESS", Category = "Email", WhatItChecks = "Remetente padrão configurado" },
+            new DoctorCheck { Name = "MAIL_MAILER", Category = "Email", WhatItChecks = "Driver de email configurado", Severity = CheckSeverity.Warning },
+            new DoctorCheck { Name = "MAIL_FROM_ADDRESS", Category = "Email", WhatItChecks = "Remetente padrão configurado", Severity = CheckSeverity.Info },
 
-            new DoctorCheck { Name = "QUEUE_CONNECTION", Category = "Fila", WhatItChecks = "Conexão de fila configurada" },
+            new DoctorCheck { Name = "QUEUE_CONNECTION", Category = "Fila", WhatItChecks = "Conexão de fila configurada", Severity = CheckSeverity.Info },
 
-            new DoctorCheck { Name = "PHP", Category = "Ferramentas", WhatItChecks = "PHP instalado e acessível" },
-            new DoctorCheck { Name = "Composer", Category = "Ferramentas", WhatItChecks = "Composer instalado e acessível" },
-            new DoctorCheck { Name = "Git", Category = "Ferramentas", WhatItChecks = "Git instalado e acessível" },
-            new DoctorCheck { Name = "Node.js", Category = "Ferramentas", WhatItChecks = "Node.js instalado e acessível" },
-            new DoctorCheck { Name = "NPM", Category = "Ferramentas", WhatItChecks = "NPM instalado e acessível" },
-            new DoctorCheck { Name = "Pacotes Composer", Category = "Ferramentas", WhatItChecks = "Pacotes Composer desatualizados", FixCommand = "composer update" },
-            new DoctorCheck { Name = "Pacotes NPM", Category = "Ferramentas", WhatItChecks = "Pacotes NPM desatualizados", FixCommand = "npm update" },
+            new DoctorCheck { Name = "PHP", Category = "Ferramentas", WhatItChecks = "PHP instalado e acessível", Severity = CheckSeverity.Critical },
+            new DoctorCheck { Name = "Composer", Category = "Ferramentas", WhatItChecks = "Composer instalado e acessível", Severity = CheckSeverity.Critical },
+            new DoctorCheck { Name = "Git", Category = "Ferramentas", WhatItChecks = "Git instalado e acessível", Severity = CheckSeverity.Warning },
+            new DoctorCheck { Name = "Node.js", Category = "Ferramentas", WhatItChecks = "Node.js instalado e acessível", Severity = CheckSeverity.Info },
+            new DoctorCheck { Name = "NPM", Category = "Ferramentas", WhatItChecks = "NPM instalado e acessível", Severity = CheckSeverity.Info },
+            new DoctorCheck { Name = "Pacotes Composer", Category = "Ferramentas", WhatItChecks = "Pacotes Composer desatualizados", Severity = CheckSeverity.Warning, FixCommand = "composer update" },
+            new DoctorCheck { Name = "Pacotes NPM", Category = "Ferramentas", WhatItChecks = "Pacotes NPM desatualizados", Severity = CheckSeverity.Warning, FixCommand = "npm update" },
 
-            new DoctorCheck { Name = "Laravel Sail", Category = "Docker", WhatItChecks = "laravel/sail instalado no composer.json", FixCommand = "composer require laravel/sail --dev" },
-            new DoctorCheck { Name = "Vendor", Category = "Docker", WhatItChecks = "Dependências PHP instaladas (vendor/)", FixCommand = "composer install" },
+            new DoctorCheck { Name = "Laravel Sail", Category = "Docker", WhatItChecks = "laravel/sail instalado no composer.json", Severity = CheckSeverity.Info, FixCommand = "composer require laravel/sail --dev" },
+            new DoctorCheck { Name = "Vendor", Category = "Docker", WhatItChecks = "Dependências PHP instaladas (vendor/)", Severity = CheckSeverity.Critical, FixCommand = "composer install" },
         ];
     }
 
@@ -146,29 +162,67 @@ public partial class ProjectDoctorViewModel : ObservableObject
         StatusMessage = "Analisando projeto...";
 
         DefineChecks();
-        await Task.Delay(50);
 
-        await Task.Run(() =>
-        {
-            CheckEssentialFiles();
-            CheckSecurity();
-            CheckStructure();
-            CheckDatabase();
-            CheckCache();
-            CheckMail();
-            CheckQueue();
-            CheckTools();
-            CheckDocker();
-        });
+        CurrentCheckName = "Arquivos essenciais";
+        CheckEssentialFiles();
 
+        CurrentCheckName = "Segurança";
+        CheckSecurity();
+
+        CurrentCheckName = "Banco de Dados";
+        CheckDatabase();
+
+        CurrentCheckName = "Cache e Sessão";
+        CheckCache();
+
+        CurrentCheckName = "Email";
+        CheckMail();
+
+        CurrentCheckName = "Fila";
+        CheckQueue();
+
+        CurrentCheckName = "Estrutura do projeto";
+        await CheckStructureAsync();
+
+        CurrentCheckName = "Ferramentas";
+        CheckTools();
+
+        CurrentCheckName = "Docker";
+        CheckDocker();
+
+        CurrentCheckName = "Versão do Laravel";
+        await CheckLaravelVersionAsync();
+
+        CurrentCheckName = "Pacotes desatualizados";
         await CheckOutdatedComposer();
         await CheckOutdatedNpm();
 
-        var passed = Checks.Count(c => c.Status == CheckStatus.Passed);
-        var warnings = Checks.Count(c => c.Status == CheckStatus.Warning);
-        var total = Math.Max(Checks.Count, 1);
+        CalculateHealthScore();
 
-        HealthScore = (int)((double)(passed + warnings * 0.5) / total * 100);
+        StatusMessage = $"Diagnóstico: {PassedCount} OK" +
+            (FailedCount > 0 ? $", {FailedCount} falha(s)" : "") +
+            (WarningCount > 0 ? $", {WarningCount} alerta(s)" : "");
+
+        CurrentCheckName = "";
+        RebuildGroups();
+        IsRunning = false;
+    }
+
+    private void CalculateHealthScore()
+    {
+        PassedCount = Checks.Count(c => c.Status == CheckStatus.Passed);
+        WarningCount = Checks.Count(c => c.Status == CheckStatus.Warning);
+        FailedCount = Checks.Count(c => c.Status == CheckStatus.Failed);
+
+        var totalWeight = Checks.Sum(c => c.Weight);
+        var earnedWeight = Checks.Sum(c => c.Status switch
+        {
+            CheckStatus.Passed => c.Weight,
+            CheckStatus.Warning => c.Weight * 0.5,
+            _ => 0
+        });
+
+        HealthScore = totalWeight > 0 ? (int)(earnedWeight / totalWeight * 100) : 0;
 
         (HealthLabel, HealthColor) = HealthScore switch
         {
@@ -177,16 +231,63 @@ public partial class ProjectDoctorViewModel : ObservableObject
             >= 50 => ("Regular", "#FF9800"),
             _ => ("Crítico", "#F44336")
         };
+    }
 
-        StatusMessage = $"Diagnóstico: {passed}/{total} OK" + (warnings > 0 ? $", {warnings} alerta(s)" : "");
-        RebuildGroups();
-        IsRunning = false;
+    [RelayCommand]
+    private async Task FixAllAsync()
+    {
+        var toFix = Checks
+            .Where(c => c.ShowFixButton && c.IsSafeFix)
+            .ToList();
+
+        if (toFix.Count == 0)
+        {
+            StatusMessage = "Nenhum item pendente de correção segura.";
+            return;
+        }
+
+        IsRunning = true;
+        var fixed_count = 0;
+        var failed_count = 0;
+
+        foreach (var check in toFix)
+        {
+            StatusMessage = $"Corrigindo: {check.Name}...";
+            CurrentCheckName = check.Name;
+            check.IsFixing = true;
+
+            try
+            {
+                var parts = check.FixCommand!.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+                var cmd = parts[0];
+                var args = parts.Length > 1 ? parts[1] : "";
+
+                await _runner.RunAndGetOutputAsync(_projectPath, cmd, args);
+                fixed_count++;
+            }
+            catch
+            {
+                failed_count++;
+            }
+        }
+
+        await RunDiagnosticsAsync();
+        StatusMessage = $"Correção em massa: {fixed_count} corrigido(s)" +
+            (failed_count > 0 ? $", {failed_count} falha(s)" : "") +
+            $". Diagnóstico re-executado.";
     }
 
     private async Task CheckOutdatedComposer()
     {
         var check = Checks.FirstOrDefault(c => c.Name == "Pacotes Composer");
         if (check == null) return;
+
+        if (!File.Exists(Path.Combine(_projectPath, "composer.json")))
+        {
+            check.Status = CheckStatus.Passed;
+            check.Message = "Sem dependências Composer";
+            return;
+        }
 
         try
         {
@@ -198,8 +299,53 @@ public partial class ProjectDoctorViewModel : ObservableObject
         }
         catch
         {
+            check.Status = CheckStatus.Passed;
+            check.Message = "Composer não instalado";
+        }
+    }
+
+    private async Task CheckLaravelVersionAsync()
+    {
+        var check = Checks.FirstOrDefault(c => c.Name == "Laravel Version");
+        if (check == null) return;
+
+        try
+        {
+            var versionOutput = await _runner.RunAndGetOutputAsync(_projectPath, "php", "artisan --version");
+            var currentVersion = versionOutput.Split('\n').FirstOrDefault()?.Trim() ?? "desconhecida";
+
+            try
+            {
+                var latestOutput = await _runner.RunAndGetOutputAsync(_projectPath, "composer", "show laravel/framework --latest --no-ansi 2>&1");
+                var latestMatch = System.Text.RegularExpressions.Regex.Match(latestOutput, @"latest\s*:\s*([^\s,]+)");
+
+                if (latestMatch.Success)
+                {
+                    var latestVersion = latestMatch.Groups[1].Value;
+                    var needsUpdate = !currentVersion.Contains(latestVersion, StringComparison.OrdinalIgnoreCase)
+                        && !latestOutput.Contains("You are using the latest");
+
+                    check.Status = needsUpdate ? CheckStatus.Warning : CheckStatus.Passed;
+                    check.Message = needsUpdate
+                        ? $"{currentVersion} → {latestVersion} disponível"
+                        : $"{currentVersion} (última)";
+                }
+                else
+                {
+                    check.Status = CheckStatus.Passed;
+                    check.Message = currentVersion;
+                }
+            }
+            catch
+            {
+                check.Status = CheckStatus.Passed;
+                check.Message = currentVersion;
+            }
+        }
+        catch
+        {
             check.Status = CheckStatus.Warning;
-            check.Message = "Não foi possível verificar";
+            check.Message = "Não foi possível detectar";
         }
     }
 
@@ -208,17 +354,24 @@ public partial class ProjectDoctorViewModel : ObservableObject
         var check = Checks.FirstOrDefault(c => c.Name == "Pacotes NPM");
         if (check == null) return;
 
+        if (!File.Exists(Path.Combine(_projectPath, "package.json")))
+        {
+            check.Status = CheckStatus.Passed;
+            check.Message = "Sem dependências NPM";
+            return;
+        }
+
         try
         {
             var output = await _runner.RunAndGetOutputAsync(_projectPath, "npm", "outdated --no-ansi 2>&1");
             var lines = output.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-            check.Status = lines.Length > 0 ? CheckStatus.Warning : CheckStatus.Passed;
-            check.Message = lines.Length > 0 ? $"{lines.Length} pacote(s) desatualizado(s)" : "Todos atualizados";
+            check.Status = lines.Length > 1 ? CheckStatus.Warning : CheckStatus.Passed;
+            check.Message = lines.Length > 1 ? $"{lines.Length - 1} pacote(s) desatualizado(s)" : "Todos atualizados";
         }
         catch
         {
-            check.Status = CheckStatus.Warning;
-            check.Message = "Não foi possível verificar";
+            check.Status = CheckStatus.Passed;
+            check.Message = "NPM não instalado";
         }
     }
 
@@ -296,6 +449,7 @@ public partial class ProjectDoctorViewModel : ObservableObject
             SetCheck("APP_KEY", CheckStatus.Failed, ".env não encontrado");
             SetCheck("APP_DEBUG", CheckStatus.Failed, ".env não encontrado");
             SetCheck("APP_ENV", CheckStatus.Failed, ".env não encontrado");
+            SetCheck(".env no .gitignore", CheckStatus.Failed, ".env não encontrado");
             return;
         }
 
@@ -309,7 +463,7 @@ public partial class ProjectDoctorViewModel : ObservableObject
         var isProd = env.Contains("APP_ENV=production");
         var debugOff = env.Contains("APP_DEBUG=false");
         var debugOk = !isProd || debugOff;
-        SetCheck("APP_DEBUG", debugOk ? CheckStatus.Passed : CheckStatus.Warning,
+        SetCheck("APP_DEBUG", debugOk ? CheckStatus.Passed : CheckStatus.Failed,
             isProd && !debugOff ? "APP_DEBUG=true em produção!" : debugOff ? "APP_DEBUG=false" : "APP_DEBUG=true (ambiente local)",
             isProd ? "Defina APP_DEBUG=false em produção" : null);
 
@@ -320,9 +474,29 @@ public partial class ProjectDoctorViewModel : ObservableObject
         SetCheck("APP_ENV", envType == "production" || envType == "local" ? CheckStatus.Passed : CheckStatus.Warning,
             $"APP_ENV={envType}",
             envType == "outro" ? "Defina APP_ENV=local ou production" : null);
+
+        CheckEnvInGitIgnore();
     }
 
-    private void CheckStructure()
+    private void CheckEnvInGitIgnore()
+    {
+        var gitignorePath = Path.Combine(_projectPath, ".gitignore");
+        if (!File.Exists(gitignorePath))
+        {
+            SetCheck(".env no .gitignore", CheckStatus.Failed,
+                ".gitignore não encontrado",
+                "Crie um .gitignore com .env listado");
+            return;
+        }
+
+        var gitignore = File.ReadAllText(gitignorePath);
+        var hasEnv = gitignore.Contains(".env") && !gitignore.Contains(".env.example");
+        SetCheck(".env no .gitignore", hasEnv ? CheckStatus.Passed : CheckStatus.Failed,
+            hasEnv ? ".env está no .gitignore" : ".env NÃO está no .gitignore!",
+            "Adicione .env ao .gitignore para evitar vazar credenciais");
+    }
+
+    private async Task CheckStructureAsync()
     {
         var link = Path.Combine(_projectPath, "public", "storage");
         var hasLink = Directory.Exists(link);
@@ -332,7 +506,7 @@ public partial class ProjectDoctorViewModel : ObservableObject
 
         try
         {
-            var output = _runner.RunAndGetOutputAsync(_projectPath, "php", "artisan migrate:status --no-ansi").Result;
+            var output = await _runner.RunAndGetOutputAsync(_projectPath, "php", "artisan migrate:status --no-ansi");
             var pending = output.Contains("No migrations found") || output.Contains("Pending") || output.Contains("Nenhuma");
             SetCheck("Migrations", !pending ? CheckStatus.Passed : CheckStatus.Failed,
                 pending ? "Migrations pendentes" : "Todas as migrations executadas",
@@ -528,6 +702,11 @@ public partial class ProjectDoctorViewModel : ObservableObject
         return null;
     }
 
+    partial void OnIsRunningChanged(bool value)
+    {
+        OnPropertyChanged(nameof(NotRunning));
+    }
+
     private static string? RunVersion(string command, string args)
     {
         var psi = new System.Diagnostics.ProcessStartInfo
@@ -554,6 +733,10 @@ public partial class ProjectDoctorViewModel : ObservableObject
         HealthScore = 0;
         HealthLabel = "";
         HealthColor = "#888888";
+        PassedCount = 0;
+        WarningCount = 0;
+        FailedCount = 0;
+        CurrentCheckName = "";
         StatusMessage = "Resultados limpos. Execute o diagnóstico novamente.";
     }
 }

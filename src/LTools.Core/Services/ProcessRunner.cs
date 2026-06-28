@@ -15,7 +15,7 @@ public class ProcessRunner : IProcessRunner
     {
         var tcs = new TaskCompletionSource<int>();
 
-        _process = new Process
+        var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
@@ -30,27 +30,29 @@ public class ProcessRunner : IProcessRunner
             EnableRaisingEvents = true
         };
 
-        _process.OutputDataReceived += (_, e) =>
+        _process = process;
+
+        process.OutputDataReceived += (_, e) =>
         {
             if (e.Data != null)
                 OutputReceived?.Invoke(e.Data);
         };
 
-        _process.ErrorDataReceived += (_, e) =>
+        process.ErrorDataReceived += (_, e) =>
         {
             if (e.Data != null)
                 ErrorReceived?.Invoke(e.Data);
         };
 
-        _process.Exited += (_, _) =>
+        process.Exited += (_, _) =>
         {
             ProcessExited?.Invoke();
-            tcs.TrySetResult(_process!.ExitCode);
+            tcs.TrySetResult(process.ExitCode);
         };
 
-        _process.Start();
-        _process.BeginOutputReadLine();
-        _process.BeginErrorReadLine();
+        process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
 
         return await tcs.Task;
     }
