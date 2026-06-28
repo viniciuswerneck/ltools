@@ -28,3 +28,4 @@ Thumbs.db
 ## dotnet
 *.nupkg
 nul
+plugins/runtimes/
