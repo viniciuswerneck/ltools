@@ -14,8 +14,6 @@ public class ProcessRunner : IProcessRunner
 
     public async Task<int> RunAsync(string workingDirectory, string command, string arguments)
     {
-        var tcs = new TaskCompletionSource<int>();
-
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
@@ -45,24 +43,26 @@ public class ProcessRunner : IProcessRunner
                 ErrorReceived?.Invoke(e.Data);
         };
 
-        process.Exited += (_, _) =>
-        {
-            ProcessExited?.Invoke();
-            tcs.TrySetResult(process.ExitCode);
-        };
-
         process.Start();
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
 
-        return await tcs.Task;
+        await process.WaitForExitAsync();
+
+        // Drain async output buffers — recommended .NET pattern
+        // WaitForExit() after WaitForExitAsync() ensures all async
+        // OutputDataReceived/ErrorDataReceived events are delivered
+        process.WaitForExit();
+
+        ProcessExited?.Invoke();
+
+        return process.ExitCode;
     }
 
     public async Task<string> RunAndGetOutputAsync(string workingDirectory, string command, string arguments)
     {
-        var tcs = new TaskCompletionSource<string>();
-
-        var process = new Process
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+        using var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
@@ -73,8 +73,7 @@ public class ProcessRunner : IProcessRunner
                 RedirectStandardError = true,
                 UseShellExecute = false,
                 CreateNoWindow = true
-            },
-            EnableRaisingEvents = true
+            }
         };
 
         var output = new StringBuilder();
@@ -89,19 +88,13 @@ public class ProcessRunner : IProcessRunner
             if (e.Data != null) error.AppendLine(e.Data);
         };
 
-        process.Exited += (_, _) =>
-        {
-            process.WaitForExit();
-            tcs.TrySetResult(output.ToString() + error.ToString());
-        };
-
         process.Start();
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
 
-        var result = await tcs.Task;
-        process.Dispose();
-        return result;
+        await process.WaitForExitAsync(cts.Token);
+
+        return output.ToString() + error.ToString();
     }
 
     public void Kill()

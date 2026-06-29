@@ -1,0 +1,294 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LTools.MigrationStudio.ViewModels"
+             xmlns:models="using:LTools.MigrationStudio.Models"
+             xmlns:conv="using:LTools.MigrationStudio.Views"
+             x:DataType="vm:MigrationStudioViewModel"
+             x:Class="LTools.MigrationStudio.Views.MigrationStudioView">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Border Padding="12 8" BorderBrush="#33000000" BorderThickness="0 0 0 1">
+            <Grid ColumnDefinitions="2*,*,Auto,Auto,Auto" ColumnSpacing="12">
+                <TextBox Text="{Binding TableName}" PlaceholderText="Nome da tabela (ex: produtos)"
+                         FontSize="14" Padding="6" />
+                <TextBlock Grid.Column="1" Text="{Binding StatusMessage}"
+                           VerticalAlignment="Center" FontSize="12" Opacity="0.7" />
+                <CheckBox Grid.Column="2" IsChecked="{Binding Timestamps}"
+                          Content="timestamps()" VerticalAlignment="Center" />
+                <CheckBox Grid.Column="3" IsChecked="{Binding SoftDeletes}"
+                          Content="softDeletes()" VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" ColumnDefinitions="280,*" RowDefinitions="*,Auto,Auto,Auto">
+            <Border BorderBrush="#33000000" BorderThickness="0 0 1 0">
+                <DockPanel>
+                    <Border DockPanel.Dock="Bottom" Padding="6"
+                            BorderBrush="#22000000" BorderThickness="0 1 0 0">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <Button Command="{Binding AddColumnCommand}" Padding="8 4" FontSize="12">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <TextBlock Text="+" FontWeight="Bold" />
+                                    <TextBlock Text="Campo" />
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding RemoveColumnCommand}" Padding="8 4" FontSize="12"
+                                    IsEnabled="{Binding SelectedColumn, Converter={x:Static conv:IsNotNullConverter.Instance}}">
+                                <TextBlock Text="Remover" />
+                            </Button>
+                            <Button Command="{Binding MoveColumnUpCommand}" Padding="6 4" FontSize="12"
+                                    IsEnabled="{Binding SelectedColumn, Converter={x:Static conv:IsNotNullConverter.Instance}}">
+                                <TextBlock Text="↑" />
+                            </Button>
+                            <Button Command="{Binding MoveColumnDownCommand}" Padding="6 4" FontSize="12"
+                                    IsEnabled="{Binding SelectedColumn, Converter={x:Static conv:IsNotNullConverter.Instance}}">
+                                <TextBlock Text="↓" />
+                            </Button>
+                        </StackPanel>
+                    </Border>
+
+                    <ListBox ItemsSource="{Binding Columns}"
+                             SelectedItem="{Binding SelectedColumn}"
+                             BorderThickness="0" Background="Transparent">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="models:ColumnDefinition">
+                                <Border Padding="8 6" BorderBrush="#22FFFFFF" BorderThickness="0 0 0 1">
+                                    <Grid RowDefinitions="Auto,Auto">
+                                        <TextBlock Text="{Binding DisplayName}" FontSize="13" FontWeight="SemiBold" />
+                                        <TextBlock Grid.Row="1" Text="{Binding DisplayInfo}" FontSize="11" Opacity="0.6" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+
+            <Border Grid.Column="1">
+                <Grid RowDefinitions="*" ColumnDefinitions="*">
+                    <ScrollViewer Padding="12"
+                                  IsVisible="{Binding SelectedColumn, Converter={x:Static conv:IsNotNullConverter.Instance}}">
+                        <StackPanel Spacing="8" DataContext="{Binding SelectedColumn}">
+                            <TextBlock Text="Propriedades do Campo" FontSize="14" FontWeight="Bold" />
+
+                            <Grid ColumnDefinitions="100,*" ColumnSpacing="8">
+                                <TextBlock Text="Nome:" VerticalAlignment="Center" FontSize="13" />
+                                <TextBox Grid.Column="1" Text="{Binding Name}" PlaceholderText="ex: nome_cliente"
+                                         FontSize="13" Padding="6" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="100,*" ColumnSpacing="8">
+                                <TextBlock Text="Tipo:" VerticalAlignment="Center" FontSize="13" />
+                                <ComboBox Grid.Column="1" ItemsSource="{Binding $parent[UserControl].DataContext.TiposColuna}"
+                                          SelectedItem="{Binding Type}" FontSize="13" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="100,*" ColumnSpacing="8"
+                                  IsVisible="{Binding Type, Converter={x:Static conv:TypeShowLengthConverter.Instance}}">
+                                <TextBlock Text="Tamanho:" VerticalAlignment="Center" FontSize="13" />
+                                <TextBox Grid.Column="1" Text="{Binding Length}" FontSize="13" Padding="6" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="100,*,Auto,100,*" ColumnSpacing="8"
+                                  IsVisible="{Binding Type, Converter={x:Static conv:TypeShowPrecisionConverter.Instance}}">
+                                <TextBlock Text="Precisão:" VerticalAlignment="Center" FontSize="13" />
+                                <TextBox Grid.Column="1" Text="{Binding Precision}" FontSize="13" Padding="6" />
+                                <TextBlock Grid.Column="2" Text="Escala:" VerticalAlignment="Center" FontSize="13" Margin="8 0" />
+                                <TextBox Grid.Column="3" Text="{Binding Scale}" FontSize="13" Padding="6" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="100,*" ColumnSpacing="8">
+                                <TextBlock Text="Valor padrão:" VerticalAlignment="Center" FontSize="13" />
+                                <TextBox Grid.Column="1" Text="{Binding DefaultValue}" PlaceholderText="ex: 0 ou 'ativo'"
+                                         FontSize="13" Padding="6" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="100,*" ColumnSpacing="8">
+                                <TextBlock Text="Comentário:" VerticalAlignment="Center" FontSize="13" />
+                                <TextBox Grid.Column="1" Text="{Binding Comment}" PlaceholderText="Comentário da coluna"
+                                         FontSize="13" Padding="6" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="100,*" ColumnSpacing="8"
+                                  IsVisible="{Binding Type, Converter={x:Static conv:TypeShowEnumConverter.Instance}}">
+                                <TextBlock Text="Valores Enum:" VerticalAlignment="Center" FontSize="13" />
+                                <TextBox Grid.Column="1" Text="{Binding EnumValues}"
+                                         PlaceholderText="ex: ativo,inativo,pendente"
+                                         FontSize="13" Padding="6" />
+                            </Grid>
+
+                            <Separator Margin="0 4" />
+
+                            <WrapPanel>
+                                <CheckBox IsChecked="{Binding Nullable}" Content="Nullable" Margin="0 0 12 4" />
+                                <CheckBox IsChecked="{Binding Unique}" Content="Unique" Margin="0 0 12 4" />
+                                <CheckBox IsChecked="{Binding Unsigned}" Content="Unsigned" Margin="0 0 12 4" />
+                                <CheckBox IsChecked="{Binding AutoIncrement}" Content="Auto Increment" Margin="0 0 12 4" />
+                                <CheckBox IsChecked="{Binding Primary}" Content="Primary Key" />
+                            </WrapPanel>
+
+                            <Separator Margin="0 4" />
+
+                            <Grid ColumnDefinitions="100,*" ColumnSpacing="8">
+                                <TextBlock Text="FK ativa:" VerticalAlignment="Center" FontSize="13" />
+                                <CheckBox Grid.Column="1" IsChecked="{Binding Foreign}" Content="É chave estrangeira"
+                                          VerticalAlignment="Center" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="100,*,Auto,100,*" ColumnSpacing="8"
+                                  IsVisible="{Binding Foreign}">
+                                <TextBlock Text="Tabela ref.:" VerticalAlignment="Center" FontSize="13" />
+                                <TextBox Grid.Column="1" Text="{Binding ForeignTable}" PlaceholderText="tabela"
+                                         FontSize="13" Padding="6" />
+                                <TextBlock Grid.Column="2" Text="Coluna:" VerticalAlignment="Center" FontSize="13" Margin="8 0" />
+                                <TextBox Grid.Column="3" Text="{Binding ForeignColumn}" FontSize="13" Padding="6" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="100,*,100,*" ColumnSpacing="8"
+                                  IsVisible="{Binding Foreign}">
+                                <TextBlock Text="On Delete:" VerticalAlignment="Center" FontSize="13" />
+                                <ComboBox Grid.Column="1" ItemsSource="{Binding $parent[UserControl].DataContext.OpcoesOnDelete}"
+                                          SelectedItem="{Binding OnDelete}" FontSize="13" />
+                                <TextBlock Grid.Column="2" Text="On Update:" VerticalAlignment="Center" FontSize="13" />
+                                <ComboBox Grid.Column="3" ItemsSource="{Binding $parent[UserControl].DataContext.OpcoesOnDelete}"
+                                          SelectedItem="{Binding OnUpdate}" FontSize="13" />
+                            </Grid>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <Border IsVisible="{Binding SelectedColumn, Converter={x:Static conv:IsNullConverter.Instance}}"
+                            Padding="40" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock Text="Clique em + Campo para adicionar uma coluna"
+                                   FontSize="14" Opacity="0.4" />
+                    </Border>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1" Grid.ColumnSpan="2" BorderBrush="#33000000" BorderThickness="0 1 0 0"
+                    Padding="8">
+                <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="6">
+                    <Button Command="{Binding MigrateCommand}" IsEnabled="{Binding !IsRunning}"
+                            Padding="10 5" FontWeight="Bold"
+                            Background="{DynamicResource SystemAccentColor}" Foreground="White">
+                        <StackPanel Orientation="Horizontal" Spacing="3">
+                            <TextBlock Text="▶" />
+                            <TextBlock Text="Migrate" />
+                        </StackPanel>
+                    </Button>
+                    <Button Grid.Column="1" Command="{Binding RollbackCommand}" IsEnabled="{Binding !IsRunning}"
+                            Padding="10 5" FontWeight="Bold">
+                        <StackPanel Orientation="Horizontal" Spacing="3">
+                            <TextBlock Text="↩" />
+                            <TextBlock Text="Rollback" />
+                        </StackPanel>
+                    </Button>
+                    <Button Grid.Column="2" Command="{Binding FreshCommand}" IsEnabled="{Binding !IsRunning}"
+                            Padding="10 5" FontWeight="Bold">
+                        <StackPanel Orientation="Horizontal" Spacing="3">
+                            <TextBlock Text="🔄" />
+                            <TextBlock Text="Fresh" />
+                        </StackPanel>
+                    </Button>
+                    <Button Grid.Column="3" Command="{Binding RefreshCommand}" IsEnabled="{Binding !IsRunning}"
+                            Padding="10 5" FontWeight="Bold">
+                        <StackPanel Orientation="Horizontal" Spacing="3">
+                            <TextBlock Text="♻" />
+                            <TextBlock Text="Refresh" />
+                        </StackPanel>
+                    </Button>
+                    <Button Grid.Column="4" Command="{Binding SaveMigrationCommand}"
+                            Padding="10 5" FontWeight="Bold">
+                        <StackPanel Orientation="Horizontal" Spacing="3">
+                            <TextBlock Text="💾" />
+                            <TextBlock Text="Salvar" />
+                        </StackPanel>
+                    </Button>
+                    <Button Grid.Column="5" Command="{Binding CompareMigrationsCommand}"
+                            Padding="10 5" FontWeight="Bold">
+                        <StackPanel Orientation="Horizontal" Spacing="3">
+                            <TextBlock Text="🔍" />
+                            <TextBlock Text="Comparar" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="2" Grid.ColumnSpan="2" BorderBrush="#33000000" BorderThickness="0 1 0 0"
+                    Padding="8 4" Background="#0D000000">
+                <Grid ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="6">
+                    <Button Command="{Binding TestButtonCommand}"
+                            Padding="4 4" FontSize="11">
+                        <TextBlock Text="🧪" />
+                    </Button>
+                    <Button Grid.Column="1" Command="{Binding LoadMigrationsCommand}" IsEnabled="{Binding !IsRunning}"
+                            Padding="8 4" FontSize="12">
+                        <StackPanel Orientation="Horizontal" Spacing="3">
+                            <TextBlock Text="🔄" />
+                            <TextBlock Text="Carregar" />
+                        </StackPanel>
+                    </Button>
+                    <ComboBox Grid.Column="2" ItemsSource="{Binding MigrationList}"
+                              SelectedItem="{Binding SelectedMigration}"
+                              PlaceholderText="Selecione uma migration para rollback..."
+                              FontSize="12">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="models:MigrationInfo">
+                                <TextBlock Text="{Binding Display}" FontSize="12" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <Button Grid.Column="3" Command="{Binding RollbackToSelectedCommand}"
+                            IsEnabled="{Binding !IsRunning}"
+                            Padding="8 4" FontSize="12" FontWeight="Bold">
+                        <StackPanel Orientation="Horizontal" Spacing="3">
+                            <TextBlock Text="↩" />
+                            <TextBlock Text="Rollback até aqui" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- Output Log Console -->
+            <Border Grid.Row="3" Grid.ColumnSpan="2" BorderBrush="#33000000" BorderThickness="0 1 0 0"
+                    Padding="8 4" Background="#1E1E1E" MinHeight="60" MaxHeight="120"
+                    IsVisible="{Binding OutputText, Converter={x:Static conv:HasTextConverter.Instance}}">
+                <Grid RowDefinitions="Auto,*">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <TextBlock Text="Log de execução" FontSize="11" FontWeight="SemiBold"
+                                   Foreground="#888" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="1" Text="{Binding StatusMessage}"
+                                   FontSize="11" Foreground="#666" VerticalAlignment="Center"
+                                   Margin="12 0" />
+                        <Button Grid.Column="2" Command="{Binding ClearOutputCommand}"
+                                Padding="4 2" FontSize="10">
+                            <TextBlock Text="Limpar" Foreground="#888" />
+                        </Button>
+                    </Grid>
+                    <TextBox Grid.Row="1" Text="{Binding OutputText}"
+                             FontFamily="Consolas" FontSize="11"
+                             Foreground="#D4D4D4" Background="Transparent"
+                             BorderThickness="0"
+                             IsReadOnly="True" AcceptsReturn="True"
+                             TextWrapping="NoWrap"
+                             Padding="4" Margin="0 2 0 0" />
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="2" Padding="12 8" BorderBrush="#33000000" BorderThickness="0 1 0 0">
+            <Grid RowDefinitions="Auto,*">
+                <TextBlock Text="Código Gerado" FontSize="12" FontWeight="SemiBold" Opacity="0.7" />
+                <TextBox Grid.Row="1" Text="{Binding GeneratedCode}"
+                         FontFamily="Consolas" FontSize="12"
+                         Foreground="#D4D4D4" Background="#1E1E1E"
+                         BorderBrush="#333" BorderThickness="1"
+                         IsReadOnly="True" AcceptsReturn="True"
+                         TextWrapping="NoWrap"
+                         MinHeight="80" MaxHeight="120"
+                         Padding="8" Margin="0 4 0 0" />
+            </Grid>
+        </Border>
+
+    </Grid>
+
+</UserControl>

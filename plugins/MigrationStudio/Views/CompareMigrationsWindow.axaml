@@ -1,0 +1,144 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:LTools.MigrationStudio.ViewModels"
+        xmlns:models="using:LTools.MigrationStudio.Models"
+        x:DataType="vm:CompareMigrationsViewModel"
+        x:Class="LTools.MigrationStudio.Views.CompareMigrationsWindow"
+        Title="Comparar Migrations vs Tabelas"
+        Width="800" Height="600"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Border Padding="12 8" BorderBrush="#33000000" BorderThickness="0 0 0 1">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                <TextBlock Text="Análise de Migrations" FontSize="16" FontWeight="Bold"
+                           VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding StatusMessage}"
+                           VerticalAlignment="Center" FontSize="12" Opacity="0.7" />
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6">
+                    <Button Command="{Binding LoadCommand}" IsEnabled="{Binding !IsLoading}"
+                            Padding="10 5" FontWeight="Bold">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="🔄" />
+                            <TextBlock Text="Analisar" />
+                        </StackPanel>
+                    </Button>
+                    <Button IsVisible="{Binding !IsLoading}" Padding="10 5"
+                            Click="OnCloseClick" FontWeight="Bold">
+                        <TextBlock Text="Fechar" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" RowDefinitions="Auto,*,Auto"
+              IsVisible="{Binding !IsLoading}">
+
+            <!-- Summary bar -->
+            <Border Padding="12 6" Background="#0D000000">
+                <StackPanel Orientation="Horizontal" Spacing="16">
+                    <TextBlock FontSize="12" FontWeight="SemiBold">
+                        <Run Text="✅ " /><Run Text="{Binding RanCount}" /><Run Text=" executadas" />
+                    </TextBlock>
+                    <TextBlock FontSize="12" FontWeight="SemiBold"
+                               IsVisible="{Binding HasPending}">
+                        <Run Text="⏳ " /><Run Text="{Binding PendingCount}" /><Run Text=" pendentes" />
+                    </TextBlock>
+                    <TextBlock FontSize="12" FontWeight="SemiBold"
+                               IsVisible="{Binding HasOrphans}">
+                        <Run Text="🆕 " /><Run Text="{Binding OrphanTableCount}" /><Run Text=" tabelas órfãs" />
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <ScrollViewer Grid.Row="1" Padding="12">
+                <StackPanel Spacing="16">
+
+                    <!-- Pending Migrations -->
+                    <Border IsVisible="{Binding HasPending}"
+                            BorderThickness="0" CornerRadius="6"
+                            Background="#1ACC3333">
+                        <StackPanel>
+                            <Border Padding="10 6" Background="#33CC3333">
+                                <TextBlock FontSize="13" FontWeight="Bold">
+                                    <Run Text="⏳ Migrations Pendentes (" />
+                                    <Run Text="{Binding PendingCount}" />
+                                    <Run Text=")" />
+                                </TextBlock>
+                            </Border>
+                            <ItemsControl ItemsSource="{Binding PendingMigrations}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="models:CompareMigrationItem">
+                                        <Border Padding="8 5" BorderBrush="#22FFFFFF" BorderThickness="0 0 0 1">
+                                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                                <TextBlock Text="⏳" Margin="0 0 6 0" VerticalAlignment="Center" />
+                                                <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12"
+                                                           FontFamily="Consolas" VerticalAlignment="Center" />
+                                                <TextBlock Grid.Column="2" Text="Pendente" FontSize="11"
+                                                           Foreground="#FF8080" VerticalAlignment="Center" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Orphan Tables -->
+                    <Border IsVisible="{Binding HasOrphans}"
+                            BorderThickness="0" CornerRadius="6"
+                            Background="#1ACC8800">
+                        <StackPanel>
+                            <Border Padding="10 6" Background="#33CC8800">
+                                <TextBlock FontSize="13" FontWeight="Bold">
+                                    <Run Text="🆕 Tabelas sem Migration (" />
+                                    <Run Text="{Binding OrphanTableCount}" />
+                                    <Run Text=")" />
+                                </TextBlock>
+                            </Border>
+                            <ItemsControl ItemsSource="{Binding OrphanTables}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="models:CompareMigrationItem">
+                                        <Border Padding="8 5" BorderBrush="#22FFFFFF" BorderThickness="0 0 0 1">
+                                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                                <TextBlock Text="🆕" Margin="0 0 6 0" VerticalAlignment="Center" />
+                                                <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12"
+                                                           FontFamily="Consolas" VerticalAlignment="Center" />
+                                                <TextBlock Grid.Column="2" Text="Sem migration" FontSize="11"
+                                                           Foreground="#FFAA33" VerticalAlignment="Center" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- All Clear -->
+                    <Border IsVisible="{Binding !HasDivergences}"
+                            Padding="20" HorizontalAlignment="Center">
+                        <TextBlock Text="✅ Nenhuma divergência encontrada. Todas as migrations estão em dia!"
+                                   FontSize="14" Opacity="0.7" />
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Loading overlay -->
+        <Border Grid.Row="1" IsVisible="{Binding IsLoading}"
+                VerticalAlignment="Center" HorizontalAlignment="Center">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <ProgressBar IsIndeterminate="True" Width="200" />
+                <TextBlock Text="Analisando..." FontSize="14" VerticalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="2" Padding="8 4" BorderBrush="#33000000" BorderThickness="0 1 0 0"
+                Background="#0D000000">
+            <TextBlock Text="Dica: tabelas órfãs podem ser de pacotes externos ou criadas manualmente."
+                       FontSize="11" Opacity="0.5" />
+        </Border>
+    </Grid>
+
+</Window>
