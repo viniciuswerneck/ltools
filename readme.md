@@ -582,7 +582,8 @@ Este projeto está licenciado sob a **MIT License** — veja o arquivo [LICENSE]
 <div align="center">
   <br/>
   <p>
-    Desenvolvido com ❤️ pela comunidade Laravel<br/>
+    Desenvolvido por <a href="https://lab.werneck.dev.br/"><strong>Werneck Lab</strong></a> — inovação open source para o ecossistema Laravel<br/>
+    Com ❤️ pela comunidade Laravel<br/>
     <strong>LTools</strong> — <em>The Ultimate Desktop Toolkit for Laravel Developers</em>
   </p>
   <br/>
