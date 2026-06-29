@@ -418,7 +418,7 @@ Monitor de **queries MySQL em tempo real**.
 
 ### Download
 
-1. Acesse a [página de releases](https://github.com/werneck-lab/LTools/releases)
+1. Acesse a [página de releases](https://github.com/viniciuswerneck/ltools/releases)
 2. Baixe o arquivo correspondente ao seu sistema operacional:
    - 🪟 Windows: `LTools-win-x64.zip`
    - 🐧 Linux: `LTools-linux-x64.tar.gz`
@@ -438,7 +438,7 @@ LTools.UI.exe
 
 ```bash
 # Clone o repositório
-git clone https://github.com/werneck-lab/LTools.git
+git clone https://github.com/viniciuswerneck/ltools.git
 cd LTools
 
 # Compile toda a solução
@@ -459,7 +459,7 @@ O LTools é um projeto **100% open source** e toda contribuição é bem-vinda!
 
 ### Formas de contribuir
 
-- 🐛 **Reportar bugs** — Abra uma [issue](https://github.com/werneck-lab/LTools/issues)
+- 🐛 **Reportar bugs** — Abra uma [issue](https://github.com/viniciuswerneck/ltools/issues)
 - 💡 **Sugerir funcionalidades** — Compartilhe suas ideias
 - 🔧 **Enviar PRs** — Corrija bugs, adicione plugins, melhore a documentação
 - 📖 **Melhorar a documentação** — README, wiki, tutoriais
@@ -573,8 +573,8 @@ Este projeto está licenciado sob a **MIT License** — veja o arquivo [LICENSE]
 
 ## 💬 Comunidade
 
-- 🐛 **Reporte bugs**: [github.com/werneck-lab/LTools/issues](https://github.com/werneck-lab/LTools/issues)
-- ⭐ **Deixe uma estrela**: [github.com/werneck-lab/LTools](https://github.com/werneck-lab/LTools)
+- 🐛 **Reporte bugs**: [github.com/viniciuswerneck/ltools/issues](https://github.com/viniciuswerneck/ltools/issues)
+- ⭐ **Deixe uma estrela**: [github.com/viniciuswerneck/ltools](https://github.com/viniciuswerneck/ltools)
 - 🔄 **Faça um fork**: contribua com código, plugins, documentação ou traduções
 
 ---
@@ -587,10 +587,10 @@ Este projeto está licenciado sob a **MIT License** — veja o arquivo [LICENSE]
   </p>
   <br/>
   <p>
-    <a href="https://github.com/werneck-lab/LTools">
+    <a href="https://github.com/viniciuswerneck/ltools">
       <img src="https://img.shields.io/badge/⭐ Star-0052CC?style=for-the-badge" alt="Star us on GitHub"/>
     </a>
-    <a href="https://github.com/werneck-lab/LTools/fork">
+    <a href="https://github.com/viniciuswerneck/ltools/fork">
       <img src="https://img.shields.io/badge/🍴 Fork-24292f?style=for-the-badge" alt="Fork this repository"/>
     </a>
   </p>
