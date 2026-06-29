@@ -1,0 +1,16 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:System="clr-namespace:System;assembly=mscorlib">
+    <Styles.Resources>
+        <ResourceDictionary>
+            <System:Double x:Key="SpacingMicro">2</System:Double>
+            <System:Double x:Key="SpacingXXS">4</System:Double>
+            <System:Double x:Key="SpacingXS">6</System:Double>
+            <System:Double x:Key="SpacingSM">8</System:Double>
+            <System:Double x:Key="SpacingMD">12</System:Double>
+            <System:Double x:Key="SpacingLG">16</System:Double>
+            <System:Double x:Key="SpacingXL">20</System:Double>
+            <System:Double x:Key="SpacingXXL">24</System:Double>
+        </ResourceDictionary>
+    </Styles.Resources>
+</Styles>

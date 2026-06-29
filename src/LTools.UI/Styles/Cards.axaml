@@ -1,0 +1,42 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ═══ Default Card ═══ -->
+    <Style Selector="Border.Card">
+        <Setter Property="Background" Value="{DynamicResource CardBackground}" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="16" />
+    </Style>
+    <Style Selector="Border.CardBorder">
+        <Setter Property="Background" Value="{DynamicResource CardBackground}" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="16" />
+    </Style>
+
+    <!-- ═══ Card with hover ═══ -->
+    <Style Selector="Border.CardHover">
+        <Setter Property="Background" Value="{DynamicResource CardBackground}" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="16" />
+    </Style>
+    <Style Selector="Border.CardHover:pointerover">
+        <Setter Property="Background" Value="{DynamicResource CardHoverBackground}" />
+    </Style>
+
+    <!-- ═══ Section header separator ═══ -->
+    <Style Selector="Border.SectionHeader">
+        <Setter Property="Background" Value="{DynamicResource AccentBg}" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="10,6" />
+    </Style>
+
+    <!-- ═══ Status bar item ═══ -->
+    <Style Selector="Border.StatusBar">
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
+    </Style>
+
+</Styles>

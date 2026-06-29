@@ -1,0 +1,50 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ═══ TextBox — only basic props, FluentTheme handles hover/focus ═══ -->
+    <Style Selector="TextBox">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Padding" Value="8" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Background" Value="{DynamicResource CardBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderLight}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <!-- ═══ ComboBox ═══ -->
+    <Style Selector="ComboBox">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Padding" Value="8" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Background" Value="{DynamicResource CardBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderLight}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Height" Value="32" />
+    </Style>
+    <Style Selector="ComboBox:pointerover /template/ Border#border">
+        <Setter Property="BorderBrush" Value="{DynamicResource AccentLight}" />
+    </Style>
+    <Style Selector="ComboBox:focus /template/ Border#border">
+        <Setter Property="BorderBrush" Value="{DynamicResource AccentColor}" />
+    </Style>
+
+    <!-- ═══ CheckBox ═══ -->
+    <Style Selector="CheckBox">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <!-- ═══ DatePicker ═══ -->
+    <Style Selector="DatePicker">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Background" Value="{DynamicResource CardBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderLight}" />
+        <Setter Property="Height" Value="28" />
+    </Style>
+
+</Styles>

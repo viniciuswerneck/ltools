@@ -5,42 +5,30 @@
              x:Class="LTools.ComposerManager.Views.ComposerManagerView">
 
     <Grid RowDefinitions="Auto,Auto,*">
-        <Border Padding="12 8" BorderBrush="#33000000" BorderThickness="0 0 0 1">
+        <Border Padding="12 8" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0 0 0 1">
             <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" FontSize="12" Opacity="0.7" />
         </Border>
 
         <WrapPanel Grid.Row="1" Margin="8 8 8 0">
-            <Button Command="{Binding InstallCommand}" Height="32" Padding="14 0" Margin="0 0 10 8"
-                    Background="{DynamicResource SystemAccentColor}" Foreground="White" FontWeight="SemiBold" FontSize="13"
-                    CornerRadius="4" BorderThickness="0"
-                    VerticalContentAlignment="Center">
+            <Button Command="{Binding InstallCommand}" Classes="Primary" Margin="0 0 10 8">
                 <StackPanel Orientation="Horizontal" Spacing="5">
                     <TextBlock Text="📥" FontSize="13" />
                     <TextBlock Text="Install" />
                 </StackPanel>
             </Button>
-            <Button Command="{Binding UpdateCommand}" Height="32" Padding="14 0" Margin="0 0 10 8"
-                    Background="#3A3A3A" Foreground="#E0E0E0" FontSize="13"
-                    CornerRadius="4" BorderThickness="0"
-                    VerticalContentAlignment="Center">
+            <Button Command="{Binding UpdateCommand}" Classes="Secondary" Margin="0 0 10 8">
                 <StackPanel Orientation="Horizontal" Spacing="5">
                     <TextBlock Text="🔄" FontSize="13" />
                     <TextBlock Text="Update" />
                 </StackPanel>
             </Button>
-            <Button Command="{Binding OutdatedCommand}" Height="32" Padding="14 0" Margin="0 0 10 8"
-                    Background="#3A3A3A" Foreground="#E0E0E0" FontSize="13"
-                    CornerRadius="4" BorderThickness="0"
-                    VerticalContentAlignment="Center">
+            <Button Command="{Binding OutdatedCommand}" Classes="Secondary" Margin="0 0 10 8">
                 <StackPanel Orientation="Horizontal" Spacing="5">
                     <TextBlock Text="🔍" FontSize="13" />
                     <TextBlock Text="Outdated" />
                 </StackPanel>
             </Button>
-            <Button Command="{Binding ShowCommand}" Height="32" Padding="14 0" Margin="0 0 10 8"
-                    Background="#3A3A3A" Foreground="#E0E0E0" FontSize="13"
-                    CornerRadius="4" BorderThickness="0"
-                    VerticalContentAlignment="Center">
+            <Button Command="{Binding ShowCommand}" Classes="Secondary" Margin="0 0 10 8">
                 <StackPanel Orientation="Horizontal" Spacing="5">
                     <TextBlock Text="📋" FontSize="13" />
                     <TextBlock Text="Show" />
@@ -48,19 +36,13 @@
             </Button>
             <TextBox Text="{Binding PackageName}" PlaceholderText="pacote/exemplo" MinWidth="180" Height="32"
                      FontSize="13" Padding="8 0" Margin="0 0 10 8" />
-            <Button Command="{Binding RequireCommand}" Height="32" Padding="14 0" Margin="0 0 10 8"
-                    Background="{DynamicResource SystemAccentColor}" Foreground="White" FontWeight="SemiBold" FontSize="13"
-                    CornerRadius="4" BorderThickness="0"
-                    VerticalContentAlignment="Center">
+            <Button Command="{Binding RequireCommand}" Classes="Primary" Margin="0 0 10 8">
                 <StackPanel Orientation="Horizontal" Spacing="5">
                     <TextBlock Text="➕" FontSize="13" />
                     <TextBlock Text="Require" />
                 </StackPanel>
             </Button>
-            <Button Command="{Binding RemoveCommand}" Height="32" Padding="14 0" Margin="0 0 10 8"
-                    Background="#CC3333" Foreground="White" FontWeight="SemiBold" FontSize="13"
-                    CornerRadius="4" BorderThickness="0"
-                    VerticalContentAlignment="Center">
+            <Button Command="{Binding RemoveCommand}" Classes="Danger" Margin="0 0 10 8">
                 <StackPanel Orientation="Horizontal" Spacing="5">
                     <TextBlock Text="➖" FontSize="13" />
                     <TextBlock Text="Remove" />
@@ -69,20 +51,20 @@
         </WrapPanel>
 
         <Grid Grid.Row="2" ColumnDefinitions="280,*" Margin="8 8 8 8">
-            <Border BorderBrush="#33000000" BorderThickness="0 0 1 0" Padding="0 0 8 0">
+            <Border BorderBrush="{DynamicResource BorderColor}" BorderThickness="0 0 1 0" Padding="0 0 8 0">
                 <Grid RowDefinitions="Auto,*">
                     <TextBlock Text="Dependências" FontWeight="SemiBold" FontSize="14" Margin="0 0 0 8" />
                     <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
                         <ListBox ItemsSource="{Binding Packages}" BorderThickness="0" Background="Transparent">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Padding="6 4" Margin="0 0 0 2" CornerRadius="4" Background="#1A0078D4">
+                                    <Border Padding="6 4" Margin="0 0 0 2" CornerRadius="4" Background="{DynamicResource AccentBg}">
                                         <Grid ColumnDefinitions="*,Auto">
                                             <StackPanel>
                                                 <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" />
                                                 <TextBlock Text="{Binding Version}" FontSize="11" Opacity="0.7" />
                                             </StackPanel>
-                                            <Border Grid.Column="1" CornerRadius="3" Padding="4 2" Background="#33000000" VerticalAlignment="Center">
+                                            <Border Grid.Column="1" CornerRadius="3" Padding="4 2" Background="{DynamicResource BorderColor}" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Type}" FontSize="10" Opacity="0.6" />
                                             </Border>
                                         </Grid>
@@ -107,29 +89,11 @@
                         </StackPanel>
                     </Button>
                 </Grid>
-                <TextBox Grid.Row="1" Text="{Binding OutputText}"
-                         FontFamily="Consolas" FontSize="13"
-                         Foreground="#D4D4D4" Background="#1E1E1E"
-                         BorderBrush="#333333" BorderThickness="1"
-                         IsReadOnly="True"
-                         TextWrapping="Wrap"
-                         AcceptsReturn="True"
-                         Padding="8"
-                         Margin="0 6 0 0">
-                    <TextBox.Styles>
-                        <Style Selector="TextBox /template/ Border#border">
-                            <Setter Property="Background" Value="#1E1E1E" />
-                        </Style>
-                        <Style Selector="TextBox:pointerover /template/ Border#border">
-                            <Setter Property="Background" Value="#1E1E1E" />
-                            <Setter Property="BorderBrush" Value="#333333" />
-                        </Style>
-                        <Style Selector="TextBox:focus /template/ Border#border">
-                            <Setter Property="Background" Value="#1E1E1E" />
-                            <Setter Property="BorderBrush" Value="#333333" />
-                        </Style>
-                    </TextBox.Styles>
-                </TextBox>
+                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0 6 0 0">
+                    <TextBox Text="{Binding OutputText}"
+                             Classes="Console"
+                             TextWrapping="Wrap" />
+                </ScrollViewer>
             </Grid>
         </Grid>
     </Grid>

@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:LTools.UI.ViewModels"
+        xmlns:conv="using:LTools.UI.Converters"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
@@ -8,79 +9,114 @@
         x:DataType="vm:MainWindowViewModel"
         Title="LTools — Laravel Toolkit"
         Icon="/Assets/avalonia-logo.ico"
-        Width="1100" Height="700"
-        MinWidth="800" MinHeight="500">
+         Width="1100" Height="700"
+         MinWidth="800" MinHeight="500"
+         WindowState="Maximized">
 
     <Design.DataContext>
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
     <Grid RowDefinitions="Auto,*,Auto">
-        <Border Padding="12 8" Background="#100078D4">
+
+        <!-- ════════════════════════════════════════
+             ROW 0: CommandBar
+             ════════════════════════════════════════ -->
+        <Border Background="{DynamicResource AccentColor}" Padding="12,8">
             <Grid ColumnDefinitions="Auto,*,Auto">
-                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                    <Button Command="{Binding SelectGlobalProjectCommand}"
-                            Background="#33FFFFFF" BorderThickness="0"
-                            Padding="12 6" CornerRadius="4">
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                            <TextBlock Text="📂" FontSize="14" VerticalAlignment="Center" />
-                            <TextBlock Text="{Binding GlobalProjectName, TargetNullValue='Abrir Projeto'}"
-                                       FontSize="13" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    <TextBlock Text="{Binding GlobalProjectPath}"
-                               FontSize="13" Foreground="#CCFFFFFF" VerticalAlignment="Center"
-                               IsVisible="{Binding HasGlobalProject}" />
-                </StackPanel>
-                <TextBlock Grid.Column="2" Text="LTools" FontSize="18" FontWeight="Bold" Foreground="White" VerticalAlignment="Center" />
+                <Button Classes="Icon"
+                        Command="{Binding SelectGlobalProjectCommand}"
+                        ToolTip.Tip="Abrir projeto Laravel">
+                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <TextBlock Text="📂" FontSize="16" />
+                        <TextBlock Text="{Binding GlobalProjectName, TargetNullValue='Abrir Projeto'}"
+                                   FontSize="14" FontWeight="SemiBold" Foreground="White"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+
+                <TextBlock Grid.Column="1" Text="{Binding GlobalProjectPath}"
+                           FontSize="12" Foreground="#CCFFFFFF" VerticalAlignment="Center"
+                           Margin="12,0,0,0"
+                           IsVisible="{Binding HasGlobalProject}"
+                           TextTrimming="CharacterEllipsis" />
+
+                <TextBlock Grid.Column="2" Text="Laravel Toolkit" FontSize="18" FontWeight="Bold"
+                           Foreground="White" VerticalAlignment="Center" />
             </Grid>
         </Border>
 
+        <!-- ════════════════════════════════════════
+             ROW 1: Sidebar + Content
+             ════════════════════════════════════════ -->
         <Grid Grid.Row="1" ColumnDefinitions="220,*">
-            <Border Background="#100078D4">
-                <ScrollViewer Padding="8">
-                    <StackPanel Spacing="4">
-                        <ItemsControl ItemsSource="{Binding Plugins}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="vm:PluginItemViewModel">
-                                    <Border Margin="0,2" CornerRadius="6">
-                                        <Button Command="{Binding $parent[Window].DataContext.SelectPluginCommand}"
-                                                CommandParameter="{Binding .}"
-                                                Background="Transparent"
-                                                BorderThickness="0"
-                                                HorizontalContentAlignment="Stretch"
-                                                Padding="8,6">
-                                            <Grid ColumnDefinitions="Auto,*">
-                                                <TextBlock Text="{Binding Icon}" FontSize="16" VerticalAlignment="Center" />
-                                                <TextBlock Grid.Column="1" Text="{Binding Name}" Margin="10,0,0,0"
-                                                           VerticalAlignment="Center" FontSize="14" />
-                                            </Grid>
-                                        </Button>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </ScrollViewer>
+
+            <!-- Sidebar -->
+            <Border Background="{DynamicResource SidebarBackground}">
+                <DockPanel>
+                    <ScrollViewer Padding="6">
+                        <StackPanel Spacing="2">
+                            <ItemsControl ItemsSource="{Binding Plugins}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:PluginItemViewModel">
+                                        <Border CornerRadius="6"
+                                                Background="{Binding IsSelected, Converter={x:Static conv:BoolToBgConverter.Instance}}">
+                                            <Button Command="{Binding $parent[Window].DataContext.SelectPluginCommand}"
+                                                    CommandParameter="{Binding .}"
+                                                    Background="Transparent"
+                                                    BorderThickness="0"
+                                                    HorizontalContentAlignment="Stretch"
+                                                    Padding="8,6"
+                                                    Cursor="Hand">
+                                                <Grid ColumnDefinitions="Auto,*">
+                                                    <TextBlock Text="{Binding Icon}" FontSize="16"
+                                                               VerticalAlignment="Center" />
+                                                    <TextBlock Grid.Column="1" Text="{Binding Name}"
+                                                               Margin="10,0,0,0"
+                                                               VerticalAlignment="Center"
+                                                               FontSize="14"
+                                                               Foreground="{DynamicResource TextPrimary}" />
+                                                </Grid>
+                                            </Button>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
             </Border>
 
+            <!-- Content Panel -->
             <Border Grid.Column="1">
                 <Grid RowDefinitions="Auto,*">
-                    <Border Padding="16 8" Background="#05000000">
-                        <TextBlock Text="{Binding CurrentPluginName}" FontSize="16" FontWeight="SemiBold" />
+                    <!-- Page header -->
+                    <Border Padding="16,8" Background="{DynamicResource OverlayLight}">
+                        <TextBlock Text="{Binding CurrentPluginName}" FontSize="{DynamicResource FontSizeSectionTitle}"
+                                   FontWeight="SemiBold" />
                     </Border>
 
+                    <!-- Plugin content -->
                     <ContentControl Grid.Row="1" Content="{Binding CurrentView}" />
                 </Grid>
             </Border>
         </Grid>
 
-        <Border Grid.Row="2" Padding="10 4" Background="#0A000000" BorderBrush="#33000000" BorderThickness="0 1 0 0">
-            <Grid ColumnDefinitions="Auto,*,Auto">
-                <TextBlock Text="{Binding AppVersion, StringFormat='v{0}'}" FontSize="11" Opacity="0.4" VerticalAlignment="Center" />
-                <Button Grid.Column="2" Command="{Binding OpenSiteCommand}"
-                        Background="Transparent" BorderThickness="0"
-                        Padding="4" Cursor="Hand">
+        <!-- ════════════════════════════════════════
+             ROW 2: Status Bar
+             ════════════════════════════════════════ -->
+        <Border Grid.Row="2" Padding="10,4" Background="{DynamicResource OverlayMedium}"
+                BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                <TextBlock Text="{Binding AppVersion, StringFormat='v{0}'}" FontSize="11"
+                           Opacity="0.4" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Command="{Binding ToggleThemeCommand}"
+                        Classes="Small" ToolTip.Tip="Alternar tema"
+                        Margin="8,0,0,0" Background="{DynamicResource CardBackground}">
+                    <TextBlock Text="{Binding ThemeToggleIcon}" FontSize="12" />
+                </Button>
+                <Button Grid.Column="3" Command="{Binding OpenSiteCommand}"
+                        Classes="Icon" ToolTip.Tip="lab.werneck.dev.br">
                     <TextBlock Text="Desenvolvido por Werneck Lab" FontSize="11" Opacity="0.5" />
                 </Button>
             </Grid>

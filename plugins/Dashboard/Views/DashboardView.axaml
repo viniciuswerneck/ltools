@@ -7,23 +7,23 @@
     <ScrollViewer Padding="20">
         <StackPanel Spacing="16">
             <TextBlock Text="Dashboard"
-                       FontSize="24"
+                       FontSize="{DynamicResource FontSizePageTitle}"
                        FontWeight="Bold" />
 
             <TextBlock Text="{Binding StatusMessage}"
-                       FontSize="14"
+                       FontSize="{DynamicResource FontSizeBody}"
                        Opacity="0.7" />
 
             <!-- Project Info -->
-            <Border Background="#1A0078D4"
+            <Border Background="{DynamicResource AccentBg}"
                     CornerRadius="8"
                     Padding="20"
                     IsVisible="{Binding HasProject}">
                 <StackPanel Spacing="12">
                     <TextBlock Text="Projeto Atual"
-                               FontSize="18"
+                               FontSize="{DynamicResource FontSizeSectionTitle}"
                                FontWeight="SemiBold"
-                               Foreground="{DynamicResource SystemAccentColor}" />
+                               Foreground="{DynamicResource TextAccent}" />
 
                     <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
                         <TextBlock Text="Nome:" FontWeight="Bold" Margin="0,0,16,4" />
@@ -66,134 +66,134 @@
             </Border>
 
             <!-- File Counts -->
-            <Border Background="#1A1A1A"
+            <Border Background="{DynamicResource SurfaceBackground}"
                     CornerRadius="8"
                     Padding="20"
                     IsVisible="{Binding HasProject}">
                 <StackPanel Spacing="12">
                     <TextBlock Text="Artefatos do Projeto"
-                               FontSize="18"
+                               FontSize="{DynamicResource FontSizeSectionTitle}"
                                FontWeight="SemiBold"
-                               Foreground="{DynamicResource SystemAccentColor}" />
+                               Foreground="{DynamicResource TextAccent}" />
 
                     <UniformGrid Columns="3" Margin="0 0 0 0">
-                        <Border CornerRadius="6" Background="#2A2A2A" Padding="12 10" Margin="0 0 6 6">
+                        <Border CornerRadius="6" Background="{DynamicResource CardBackground}" Padding="12 10" Margin="0 0 6 6">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding MigrationsCount}" FontSize="22" FontWeight="Bold" Foreground="#E67E22" />
-                                <TextBlock Text="migrations" FontSize="12" Opacity="0.7" />
+                                <TextBlock Text="{Binding MigrationsCount}"                                FontSize="{DynamicResource FontSizeCardNumber}" FontWeight="Bold" Foreground="#E67E22" />
+                                <TextBlock Text="migrations" FontSize="{DynamicResource FontSizeSmall}" Opacity="0.7" />
                             </StackPanel>
                         </Border>
-                        <Border CornerRadius="6" Background="#2A2A2A" Padding="12 10" Margin="0 0 6 6">
+                        <Border CornerRadius="6" Background="{DynamicResource CardBackground}" Padding="12 10" Margin="0 0 6 6">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding ModelsCount}" FontSize="22" FontWeight="Bold" Foreground="#E67E22" />
+                                <TextBlock Text="{Binding ModelsCount}"                                FontSize="{DynamicResource FontSizeCardNumber}" FontWeight="Bold" Foreground="#E67E22" />
                                 <TextBlock Text="models" FontSize="12" Opacity="0.7" />
                             </StackPanel>
                         </Border>
-                        <Border CornerRadius="6" Background="#2A2A2A" Padding="12 10" Margin="0 0 0 6">
+                        <Border CornerRadius="6" Background="{DynamicResource CardBackground}" Padding="12 10" Margin="0 0 0 6">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding ControllersCount}" FontSize="22" FontWeight="Bold" Foreground="#E67E22" />
+                                <TextBlock Text="{Binding ControllersCount}"                                FontSize="{DynamicResource FontSizeCardNumber}" FontWeight="Bold" Foreground="#E67E22" />
                                 <TextBlock Text="controllers" FontSize="12" Opacity="0.7" />
                             </StackPanel>
                         </Border>
-                        <Border CornerRadius="6" Background="#2A2A2A" Padding="12 10" Margin="0 0 6 6">
+                        <Border CornerRadius="6" Background="{DynamicResource CardBackground}" Padding="12 10" Margin="0 0 6 6">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding JobsCount}" FontSize="22" FontWeight="Bold" Foreground="#E67E22" />
+                                <TextBlock Text="{Binding JobsCount}"                                FontSize="{DynamicResource FontSizeCardNumber}" FontWeight="Bold" Foreground="#E67E22" />
                                 <TextBlock Text="jobs" FontSize="12" Opacity="0.7" />
                             </StackPanel>
                         </Border>
-                        <Border CornerRadius="6" Background="#2A2A2A" Padding="12 10" Margin="0 0 6 6">
+                        <Border CornerRadius="6" Background="{DynamicResource CardBackground}" Padding="12 10" Margin="0 0 6 6">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding ServicesCount}" FontSize="22" FontWeight="Bold" Foreground="#E67E22" />
+                                <TextBlock Text="{Binding ServicesCount}"                                FontSize="{DynamicResource FontSizeCardNumber}" FontWeight="Bold" Foreground="#E67E22" />
                                 <TextBlock Text="services" FontSize="12" Opacity="0.7" />
                             </StackPanel>
                         </Border>
-                        <Border CornerRadius="6" Background="#2A2A2A" Padding="12 10" Margin="0 0 0 6">
+                        <Border CornerRadius="6" Background="{DynamicResource CardBackground}" Padding="12 10" Margin="0 0 0 6">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding MiddlewareCount}" FontSize="22" FontWeight="Bold" Foreground="#E67E22" />
+                                <TextBlock Text="{Binding MiddlewareCount}"                                FontSize="{DynamicResource FontSizeCardNumber}" FontWeight="Bold" Foreground="#E67E22" />
                                 <TextBlock Text="middleware" FontSize="12" Opacity="0.7" />
                             </StackPanel>
                         </Border>
-                        <Border CornerRadius="6" Background="#2A2A2A" Padding="12 10" Margin="0 0 6 6">
+                        <Border CornerRadius="6" Background="{DynamicResource CardBackground}" Padding="12 10" Margin="0 0 6 6">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding EventsCount}" FontSize="22" FontWeight="Bold" Foreground="#E67E22" />
+                                <TextBlock Text="{Binding EventsCount}"                                FontSize="{DynamicResource FontSizeCardNumber}" FontWeight="Bold" Foreground="#E67E22" />
                                 <TextBlock Text="events" FontSize="12" Opacity="0.7" />
                             </StackPanel>
                         </Border>
-                        <Border CornerRadius="6" Background="#2A2A2A" Padding="12 10" Margin="0 0 6 6">
+                        <Border CornerRadius="6" Background="{DynamicResource CardBackground}" Padding="12 10" Margin="0 0 6 6">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding ListenersCount}" FontSize="22" FontWeight="Bold" Foreground="#E67E22" />
+                                <TextBlock Text="{Binding ListenersCount}"                                FontSize="{DynamicResource FontSizeCardNumber}" FontWeight="Bold" Foreground="#E67E22" />
                                 <TextBlock Text="listeners" FontSize="12" Opacity="0.7" />
                             </StackPanel>
                         </Border>
-                        <Border CornerRadius="6" Background="#2A2A2A" Padding="12 10" Margin="0 0 0 6">
+                        <Border CornerRadius="6" Background="{DynamicResource CardBackground}" Padding="12 10" Margin="0 0 0 6">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding NotificationsCount}" FontSize="22" FontWeight="Bold" Foreground="#E67E22" />
+                                <TextBlock Text="{Binding NotificationsCount}"                                FontSize="{DynamicResource FontSizeCardNumber}" FontWeight="Bold" Foreground="#E67E22" />
                                 <TextBlock Text="notifications" FontSize="12" Opacity="0.7" />
                             </StackPanel>
                         </Border>
-                        <Border CornerRadius="6" Background="#2A2A2A" Padding="12 10" Margin="0 0 6 6">
+                        <Border CornerRadius="6" Background="{DynamicResource CardBackground}" Padding="12 10" Margin="0 0 6 6">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding MailCount}" FontSize="22" FontWeight="Bold" Foreground="#E67E22" />
+                                <TextBlock Text="{Binding MailCount}"                                FontSize="{DynamicResource FontSizeCardNumber}" FontWeight="Bold" Foreground="#E67E22" />
                                 <TextBlock Text="mail" FontSize="12" Opacity="0.7" />
                             </StackPanel>
                         </Border>
-                        <Border CornerRadius="6" Background="#2A2A2A" Padding="12 10" Margin="0 0 6 6">
+                        <Border CornerRadius="6" Background="{DynamicResource CardBackground}" Padding="12 10" Margin="0 0 6 6">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding ObserversCount}" FontSize="22" FontWeight="Bold" Foreground="#E67E22" />
+                                <TextBlock Text="{Binding ObserversCount}"                                FontSize="{DynamicResource FontSizeCardNumber}" FontWeight="Bold" Foreground="#E67E22" />
                                 <TextBlock Text="observers" FontSize="12" Opacity="0.7" />
                             </StackPanel>
                         </Border>
-                        <Border CornerRadius="6" Background="#2A2A2A" Padding="12 10" Margin="0 0 0 6">
+                        <Border CornerRadius="6" Background="{DynamicResource CardBackground}" Padding="12 10" Margin="0 0 0 6">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding PoliciesCount}" FontSize="22" FontWeight="Bold" Foreground="#E67E22" />
+                                <TextBlock Text="{Binding PoliciesCount}"                                FontSize="{DynamicResource FontSizeCardNumber}" FontWeight="Bold" Foreground="#E67E22" />
                                 <TextBlock Text="policies" FontSize="12" Opacity="0.7" />
                             </StackPanel>
                         </Border>
-                        <Border CornerRadius="6" Background="#2A2A2A" Padding="12 10" Margin="0 0 6 6">
+                        <Border CornerRadius="6" Background="{DynamicResource CardBackground}" Padding="12 10" Margin="0 0 6 6">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding ProvidersCount}" FontSize="22" FontWeight="Bold" Foreground="#E67E22" />
+                                <TextBlock Text="{Binding ProvidersCount}"                                FontSize="{DynamicResource FontSizeCardNumber}" FontWeight="Bold" Foreground="#E67E22" />
                                 <TextBlock Text="providers" FontSize="12" Opacity="0.7" />
                             </StackPanel>
                         </Border>
-                        <Border CornerRadius="6" Background="#2A2A2A" Padding="12 10" Margin="0 0 6 6">
+                        <Border CornerRadius="6" Background="{DynamicResource CardBackground}" Padding="12 10" Margin="0 0 6 6">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding CommandsCount}" FontSize="22" FontWeight="Bold" Foreground="#E67E22" />
+                                <TextBlock Text="{Binding CommandsCount}"                                FontSize="{DynamicResource FontSizeCardNumber}" FontWeight="Bold" Foreground="#E67E22" />
                                 <TextBlock Text="commands" FontSize="12" Opacity="0.7" />
                             </StackPanel>
                         </Border>
-                        <Border CornerRadius="6" Background="#2A2A2A" Padding="12 10" Margin="0 0 0 6">
+                        <Border CornerRadius="6" Background="{DynamicResource CardBackground}" Padding="12 10" Margin="0 0 0 6">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding RoutesCount}" FontSize="22" FontWeight="Bold" Foreground="#E67E22" />
+                                <TextBlock Text="{Binding RoutesCount}"                                FontSize="{DynamicResource FontSizeCardNumber}" FontWeight="Bold" Foreground="#E67E22" />
                                 <TextBlock Text="routes (arquivos)" FontSize="12" Opacity="0.7" />
                             </StackPanel>
                         </Border>
-                        <Border CornerRadius="6" Background="#2A2A2A" Padding="12 10" Margin="0 0 6 6">
+                        <Border CornerRadius="6" Background="{DynamicResource CardBackground}" Padding="12 10" Margin="0 0 6 6">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding FactoriesCount}" FontSize="22" FontWeight="Bold" Foreground="#E67E22" />
+                                <TextBlock Text="{Binding FactoriesCount}"                                FontSize="{DynamicResource FontSizeCardNumber}" FontWeight="Bold" Foreground="#E67E22" />
                                 <TextBlock Text="factories" FontSize="12" Opacity="0.7" />
                             </StackPanel>
                         </Border>
-                        <Border CornerRadius="6" Background="#2A2A2A" Padding="12 10" Margin="0 0 6 6">
+                        <Border CornerRadius="6" Background="{DynamicResource CardBackground}" Padding="12 10" Margin="0 0 6 6">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding SeedersCount}" FontSize="22" FontWeight="Bold" Foreground="#E67E22" />
+                                <TextBlock Text="{Binding SeedersCount}"                                FontSize="{DynamicResource FontSizeCardNumber}" FontWeight="Bold" Foreground="#E67E22" />
                                 <TextBlock Text="seeders" FontSize="12" Opacity="0.7" />
                             </StackPanel>
                         </Border>
-                        <Border CornerRadius="6" Background="#2A2A2A" Padding="12 10" Margin="0 0 0 6">
+                        <Border CornerRadius="6" Background="{DynamicResource CardBackground}" Padding="12 10" Margin="0 0 0 6">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding TestsCount}" FontSize="22" FontWeight="Bold" Foreground="#E67E22" />
+                                <TextBlock Text="{Binding TestsCount}"                                FontSize="{DynamicResource FontSizeCardNumber}" FontWeight="Bold" Foreground="#E67E22" />
                                 <TextBlock Text="tests" FontSize="12" Opacity="0.7" />
                             </StackPanel>
                         </Border>
-                        <Border CornerRadius="6" Background="#2A2A2A" Padding="12 10" Margin="0 0 6 0">
+                        <Border CornerRadius="6" Background="{DynamicResource CardBackground}" Padding="12 10" Margin="0 0 6 0">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding PackagesCount}" FontSize="22" FontWeight="Bold" Foreground="#E67E22" />
+                                <TextBlock Text="{Binding PackagesCount}"                                FontSize="{DynamicResource FontSizeCardNumber}" FontWeight="Bold" Foreground="#E67E22" />
                                 <TextBlock Text="pacotes" FontSize="12" Opacity="0.7" />
                             </StackPanel>
                         </Border>
-                        <Border CornerRadius="6" Background="#2A2A2A" Padding="12 10" Margin="0 0 6 0">
+                        <Border CornerRadius="6" Background="{DynamicResource CardBackground}" Padding="12 10" Margin="0 0 6 0">
                             <StackPanel Spacing="2">
-                                <TextBlock Text="{Binding DevPackagesCount}" FontSize="22" FontWeight="Bold" Foreground="#E67E22" />
+                                <TextBlock Text="{Binding DevPackagesCount}"                                FontSize="{DynamicResource FontSizeCardNumber}" FontWeight="Bold" Foreground="#E67E22" />
                                 <TextBlock Text="pacotes (dev)" FontSize="12" Opacity="0.7" />
                             </StackPanel>
                         </Border>
@@ -202,14 +202,14 @@
             </Border>
 
             <!-- Global Tools -->
-            <Border Background="#1A0078D4"
+            <Border Background="{DynamicResource AccentBg}"
                     CornerRadius="8"
                     Padding="20">
                 <StackPanel Spacing="12">
                     <TextBlock Text="Ferramentas Detectadas"
-                               FontSize="18"
+                               FontSize="{DynamicResource FontSizeSectionTitle}"
                                FontWeight="SemiBold"
-                               Foreground="{DynamicResource SystemAccentColor}" />
+                               Foreground="{DynamicResource TextAccent}" />
 
                     <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
                         <TextBlock Text="PHP:" FontWeight="Bold" Margin="0,0,16,4" />

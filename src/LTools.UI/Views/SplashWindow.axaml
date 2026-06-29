@@ -1,0 +1,20 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="LTools.UI.Views.SplashWindow"
+        Title="Laravel Toolkit"
+        Width="600" Height="400"
+        WindowStartupLocation="CenterScreen"
+        WindowDecorations="None"
+        Background="Transparent"
+        ShowInTaskbar="False"
+        CanResize="False"
+        Topmost="True"
+        IsHitTestVisible="False">
+
+    <Border CornerRadius="8" Background="#1A1A2E" BorderBrush="#2E2E48" BorderThickness="1">
+        <Image Source="avares://LTools.UI/Assets/splash.png"
+               Stretch="Uniform"
+               VerticalAlignment="Center"
+               HorizontalAlignment="Center" />
+    </Border>
+</Window>

@@ -3,13 +3,28 @@
              x:Class="LTools.UI.App"
              xmlns:local="using:LTools.UI"
              RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
-  
+
     <Application.Styles>
         <FluentTheme />
+
+        <StyleInclude Source="/Styles/Typography.axaml" />
+        <StyleInclude Source="/Styles/Spacing.axaml" />
+        <StyleInclude Source="/Styles/Buttons.axaml" />
+        <StyleInclude Source="/Styles/Cards.axaml" />
+        <StyleInclude Source="/Styles/Inputs.axaml" />
+        <StyleInclude Source="/Styles/Console.axaml" />
+
+        <Style Selector="Window">
+            <Setter Property="Background" Value="{DynamicResource PageBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+        </Style>
+        <Style Selector="UserControl">
+            <Setter Property="Background" Value="{DynamicResource PageBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+        </Style>
     </Application.Styles>
 </Application>

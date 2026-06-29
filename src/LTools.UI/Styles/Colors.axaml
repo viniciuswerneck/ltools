@@ -1,0 +1,110 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Dark">
+            <Color x:Key="PageBackground">#1A1A2E</Color>
+            <Color x:Key="SurfaceBackground">#222238</Color>
+            <Color x:Key="CardBackground">#2A2A40</Color>
+            <Color x:Key="CardHoverBackground">#333350</Color>
+            <Color x:Key="SidebarBackground">#16162A</Color>
+
+            <Color x:Key="TextPrimary">#F0F0F8</Color>
+            <Color x:Key="TextSecondary">#A0A0B8</Color>
+            <Color x:Key="TextMuted">#6A6A88</Color>
+            <Color x:Key="TextAccent">#60A5FA</Color>
+
+            <Color x:Key="BorderColor">#2E2E48</Color>
+            <Color x:Key="BorderLight">#3A3A58</Color>
+            <Color x:Key="BorderFocused">#60A5FA</Color>
+
+            <Color x:Key="AccentColor">#0078D4</Color>
+            <Color x:Key="AccentLight">#4C9AFF</Color>
+            <Color x:Key="AccentBg">#1A0078D4</Color>
+            <Color x:Key="DangerColor">#C42B2B</Color>
+            <Color x:Key="DangerLight">#F06A7A</Color>
+            <Color x:Key="DangerBg">#1AC42B2B</Color>
+            <Color x:Key="SuccessColor">#27AE60</Color>
+            <Color x:Key="SuccessBg">#1A27AE60</Color>
+            <Color x:Key="WarningColor">#CC8800</Color>
+            <Color x:Key="WarningBg">#1ACC8800</Color>
+            <Color x:Key="InfoColor">#4C9AFF</Color>
+            <Color x:Key="InfoBg">#1A4C9AFF</Color>
+
+            <Color x:Key="ConsoleBackground">#12121E</Color>
+            <Color x:Key="ConsoleForeground">#D4D4D4</Color>
+            <Color x:Key="ConsoleBorder">#2A2A3E</Color>
+
+            <Color x:Key="ShadowColor">#40000000</Color>
+            <Color x:Key="OverlayLight">#08000000</Color>
+            <Color x:Key="OverlayMedium">#0D000000</Color>
+
+            <Color x:Key="BadgeGetBg">#1A4C9AFF</Color>
+            <Color x:Key="BadgeGetFg">#4C9AFF</Color>
+            <Color x:Key="BadgePostBg">#1A27AE60</Color>
+            <Color x:Key="BadgePostFg">#5CBD6E</Color>
+            <Color x:Key="BadgePutBg">#1AFFC107</Color>
+            <Color x:Key="BadgePutFg">#FFC107</Color>
+            <Color x:Key="BadgeDeleteBg">#1AC42B2B</Color>
+            <Color x:Key="BadgeDeleteFg">#F06A7A</Color>
+            <Color x:Key="BadgePatchBg">#1AFF9800</Color>
+            <Color x:Key="BadgePatchFg">#FF9800</Color>
+            <Color x:Key="BadgeHeadBg">#1A555555</Color>
+            <Color x:Key="BadgeHeadFg">#999999</Color>
+            <Color x:Key="BadgeOptionsBg">#1A6F42C1</Color>
+            <Color x:Key="BadgeOptionsFg">#B388FF</Color>
+        </ResourceDictionary>
+
+        <ResourceDictionary x:Key="Light">
+            <Color x:Key="PageBackground">#F2F2F7</Color>
+            <Color x:Key="SurfaceBackground">#FFFFFF</Color>
+            <Color x:Key="CardBackground">#FFFFFF</Color>
+            <Color x:Key="CardHoverBackground">#E8E8F0</Color>
+            <Color x:Key="SidebarBackground">#E6E6EE</Color>
+
+            <Color x:Key="TextPrimary">#1A1A2E</Color>
+            <Color x:Key="TextSecondary">#5A5A72</Color>
+            <Color x:Key="TextMuted">#9A9AB0</Color>
+            <Color x:Key="TextAccent">#0078D4</Color>
+
+            <Color x:Key="BorderColor">#C8C8D8</Color>
+            <Color x:Key="BorderLight">#DCDCE8</Color>
+            <Color x:Key="BorderFocused">#0078D4</Color>
+
+            <Color x:Key="AccentColor">#0078D4</Color>
+            <Color x:Key="AccentLight">#4C9AFF</Color>
+            <Color x:Key="AccentBg">#1A0078D4</Color>
+            <Color x:Key="DangerColor">#C42B2B</Color>
+            <Color x:Key="DangerLight">#F06A7A</Color>
+            <Color x:Key="DangerBg">#1AC42B2B</Color>
+            <Color x:Key="SuccessColor">#27AE60</Color>
+            <Color x:Key="SuccessBg">#1A27AE60</Color>
+            <Color x:Key="WarningColor">#CC8800</Color>
+            <Color x:Key="WarningBg">#1ACC8800</Color>
+            <Color x:Key="InfoColor">#4C9AFF</Color>
+            <Color x:Key="InfoBg">#1A4C9AFF</Color>
+
+            <Color x:Key="ConsoleBackground">#1E1E2E</Color>
+            <Color x:Key="ConsoleForeground">#D4D4D4</Color>
+            <Color x:Key="ConsoleBorder">#2E2E48</Color>
+
+            <Color x:Key="ShadowColor">#20000000</Color>
+            <Color x:Key="OverlayLight">#08000000</Color>
+            <Color x:Key="OverlayMedium">#0D000000</Color>
+
+            <Color x:Key="BadgeGetBg">#1A4C9AFF</Color>
+            <Color x:Key="BadgeGetFg">#4C9AFF</Color>
+            <Color x:Key="BadgePostBg">#1A27AE60</Color>
+            <Color x:Key="BadgePostFg">#5CBD6E</Color>
+            <Color x:Key="BadgePutBg">#1AFFC107</Color>
+            <Color x:Key="BadgePutFg">#FFC107</Color>
+            <Color x:Key="BadgeDeleteBg">#1AC42B2B</Color>
+            <Color x:Key="BadgeDeleteFg">#F06A7A</Color>
+            <Color x:Key="BadgePatchBg">#1AFF9800</Color>
+            <Color x:Key="BadgePatchFg">#FF9800</Color>
+            <Color x:Key="BadgeHeadBg">#1A555555</Color>
+            <Color x:Key="BadgeHeadFg">#999999</Color>
+            <Color x:Key="BadgeOptionsBg">#1A6F42C1</Color>
+            <Color x:Key="BadgeOptionsFg">#B388FF</Color>
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

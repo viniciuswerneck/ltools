@@ -5,7 +5,7 @@
              x:Class="LTools.ProjectManager.Views.ProjectManagerView">
 
     <DockPanel>
-        <Border DockPanel.Dock="Top" Padding="16" BorderBrush="#33000000" BorderThickness="0 0 0 1">
+        <Border DockPanel.Dock="Top" Padding="16" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0 0 0 1">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Text="{Binding SearchPath}" VerticalAlignment="Center"
                            Opacity="0.6" TextTrimming="CharacterEllipsis" />
@@ -28,9 +28,9 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:ProjectItemViewModel">
                             <Border CornerRadius="8" Padding="16"
-                                    BorderBrush="#33000000"
+                                    BorderBrush="{DynamicResource BorderColor}"
                                     BorderThickness="1"
-                                    Background="#0A000000">
+                                    Background="{DynamicResource CardBackground}">
                                 <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto">
                                     <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold" />
                                     <Button Grid.Column="1" Grid.RowSpan="2"
@@ -43,31 +43,31 @@
                                             ToolTip.Tip="Abrir pasta" />
 
                                     <WrapPanel Grid.Row="1" Margin="0 8 0 0">
-                                        <Border CornerRadius="4" Padding="6 2" Background="#1A0078D4" Margin="0 0 8 4">
+                                        <Border CornerRadius="4" Padding="6 2" Background="{DynamicResource AccentBg}" Margin="0 0 8 4">
                                             <TextBlock FontSize="11">
                                                 <Run Text="Laravel " />
                                                 <Run Text="{Binding LaravelVersion}" FontWeight="Bold" />
                                             </TextBlock>
                                         </Border>
-                                        <Border CornerRadius="4" Padding="6 2" Background="#1A0078D4" Margin="0 0 8 4">
+                                        <Border CornerRadius="4" Padding="6 2" Background="{DynamicResource AccentBg}" Margin="0 0 8 4">
                                             <TextBlock FontSize="11">
                                                 <Run Text="PHP " />
                                                 <Run Text="{Binding PhpVersion}" FontWeight="Bold" />
                                             </TextBlock>
                                         </Border>
-                                        <Border CornerRadius="4" Padding="6 2" Background="#1A0078D4" Margin="0 0 8 4">
+                                        <Border CornerRadius="4" Padding="6 2" Background="{DynamicResource AccentBg}" Margin="0 0 8 4">
                                             <TextBlock FontSize="11">
                                                 <Run Text="DB: " />
                                                 <Run Text="{Binding Database}" FontWeight="Bold" />
                                             </TextBlock>
                                         </Border>
-                                        <Border CornerRadius="4" Padding="6 2" Background="#1A0078D4" Margin="0 0 8 4">
+                                        <Border CornerRadius="4" Padding="6 2" Background="{DynamicResource AccentBg}" Margin="0 0 8 4">
                                             <TextBlock FontSize="11">
                                                 <Run Text="Ambiente: " />
                                                 <Run Text="{Binding Environment}" FontWeight="Bold" />
                                             </TextBlock>
                                         </Border>
-                                        <Border CornerRadius="4" Padding="6 2" Background="#1A0078D4" Margin="0 0 8 4">
+                                        <Border CornerRadius="4" Padding="6 2" Background="{DynamicResource AccentBg}" Margin="0 0 8 4">
                                             <TextBlock FontSize="11" Text="{Binding FormattedSize}" />
                                         </Border>
                                     </WrapPanel>

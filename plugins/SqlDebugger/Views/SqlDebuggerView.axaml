@@ -8,7 +8,7 @@
     <Grid RowDefinitions="Auto,Auto,Auto,*">
 
         <!-- ═══ ROW 0: STATUS + ACTIONS ═══ -->
-        <Border Padding="12 8" BorderBrush="#33FFFFFF" BorderThickness="0 0 0 1">
+        <Border Padding="12 8" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0 0 0 1">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center"
                            FontSize="12" Opacity="0.8" TextTrimming="CharacterEllipsis" />
@@ -16,32 +16,24 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
                     <Button Command="{Binding StartMonitoringCommand}"
                             IsEnabled="{Binding CanMonitor}"
-                            Height="28" Padding="10 0"
-                            Background="#1A28A745" Foreground="#5CBD6E"
-                            FontSize="12" CornerRadius="4" BorderThickness="0"
+                            Classes="Small Success"
                             ToolTip.Tip="Iniciar monitoramento de queries">
                         ▶ Monitorar
                     </Button>
 
                     <Button Command="{Binding StopMonitoringCommand}"
                             IsEnabled="{Binding CanStop}"
-                            Height="28" Padding="10 0"
-                            Background="#1ADC3545" Foreground="#F06A7A"
-                            FontSize="12" CornerRadius="4" BorderThickness="0"
+                            Classes="Small Danger"
                             ToolTip.Tip="Parar monitoramento">
                         ■ Parar
                     </Button>
 
-                    <Button Command="{Binding ClearQueriesCommand}" Height="28" Padding="8 0"
-                            Background="#3A3A3A" Foreground="#E0E0E0" FontSize="12"
-                            CornerRadius="4" BorderThickness="0"
+                    <Button Command="{Binding ClearQueriesCommand}" Classes="Small Secondary"
                             ToolTip.Tip="Limpar histórico">
                         ✕ Limpar
                     </Button>
 
-                    <Button Command="{Binding ExportQueriesCommand}" Height="28" Padding="8 0"
-                            Background="#3A3A3A" Foreground="#E0E0E0" FontSize="12"
-                            CornerRadius="4" BorderThickness="0" Margin="4 0 0 0"
+                    <Button Command="{Binding ExportQueriesCommand}" Classes="Small Secondary" Margin="4 0 0 0"
                             ToolTip.Tip="Salvar queries em arquivo TXT">
                         💾 Salvar
                     </Button>
@@ -50,10 +42,10 @@
         </Border>
 
         <!-- ═══ ROW 1: DB INFO ═══ -->
-        <Border Grid.Row="1" Padding="12 6" BorderBrush="#33FFFFFF" BorderThickness="0 0 0 1"
-                Background="#1A1A1A">
+        <Border Grid.Row="1" Padding="12 6" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0 0 0 1"
+                Background="{DynamicResource SurfaceBackground}">
             <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*">
-                <Border CornerRadius="3" Padding="6 2" Background="#1A0078D4">
+                <Border CornerRadius="3" Padding="6 2" Background="{DynamicResource AccentBg}">
                     <TextBlock Text="{Binding DbConnection, StringFormat='{}🔗 {0}'}"
                                FontSize="11" Foreground="#4C9AFF" />
                 </Border>
@@ -63,9 +55,7 @@
                            FontSize="11" Opacity="0.5" Margin="8 0" VerticalAlignment="Center" />
                 <TextBlock Grid.Column="3" Text="{Binding TotalQueries, StringFormat='{}📊 {0} queries'}"
                            FontSize="11" Opacity="0.5" Margin="8 0" VerticalAlignment="Center" />
-                <Button Grid.Column="4" Command="{Binding RefreshCommand}" Height="24" Padding="6 0"
-                        Background="Transparent" Foreground="#888" FontSize="10"
-                        CornerRadius="3" BorderThickness="0"
+                <Button Grid.Column="4" Command="{Binding RefreshCommand}" Classes="Icon"
                         ToolTip.Tip="Recarregar configuração do .env">
                     🔄
                 </Button>
@@ -73,12 +63,11 @@
         </Border>
 
         <!-- ═══ ROW 2: SEARCH ═══ -->
-        <Border Grid.Row="2" Padding="12 6" BorderBrush="#33FFFFFF" BorderThickness="0 0 0 1"
-                Background="#1A1A1A">
+        <Border Grid.Row="2" Padding="12 6" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0 0 0 1"
+                Background="{DynamicResource SurfaceBackground}">
             <Grid ColumnDefinitions="200,Auto,*">
                 <TextBox Text="{Binding SearchText}" PlaceholderText="🔍 Buscar queries..."
-                         FontSize="12" Height="28" CornerRadius="4" Padding="8 0"
-                         Background="#2A2A2A" Foreground="#E0E0E0" BorderBrush="#444" />
+                         Height="28" Padding="8 0" />
 
                 <CheckBox Grid.Column="1" IsChecked="{Binding ShowSlowOnly}" Content="Lentas (&gt;1s)"
                           Margin="8 0 0 0" VerticalAlignment="Center" FontSize="11" />
@@ -110,10 +99,10 @@
                      BorderThickness="0" Background="Transparent">
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="models:SqlQuery">
-                        <Border Padding="8 4" Margin="2 1" CornerRadius="4" Background="#1E1E1E">
+                        <Border Padding="8 4" Margin="2 1" CornerRadius="4" Background="{DynamicResource CardBackground}">
                             <Border.Styles>
                                 <Style Selector="Border:pointerover">
-                                    <Setter Property="Background" Value="#2A2A2A" />
+                                    <Setter Property="Background" Value="{DynamicResource CardHoverBackground}" />
                                 </Style>
                             </Border.Styles>
                             <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8">

@@ -33,6 +33,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public ObservableCollection<PluginItemViewModel> Plugins { get; } = [];
 
     public string AppVersion { get; } = GetVersion();
+    public string ThemeToggleIcon => App.ThemeService.CurrentTheme == ThemeVariant.Light ? "☀️ Claro" : "🌙 Escuro";
 
     private static string GetVersion()
     {
@@ -45,6 +46,13 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         try { Process.Start(new ProcessStartInfo("https://lab.werneck.dev.br/") { UseShellExecute = true }); }
         catch { }
+    }
+
+    [RelayCommand]
+    private void ToggleTheme()
+    {
+        App.ThemeService.Toggle();
+        OnPropertyChanged(nameof(ThemeToggleIcon));
     }
 
     public MainWindowViewModel()
@@ -111,6 +119,10 @@ public partial class MainWindowViewModel : ViewModelBase
         if (pluginItem?.Plugin == null)
             return;
 
+        foreach (var p in Plugins)
+            p.IsSelected = false;
+
+        pluginItem.IsSelected = true;
         CurrentPluginName = pluginItem.Plugin.Name;
         CurrentView = pluginItem.Plugin.GetView();
     }
@@ -134,6 +146,9 @@ public partial class PluginItemViewModel : ObservableObject
 
     public string Name => Plugin.Name;
     public string Icon => Plugin.Icon;
+
+    [ObservableProperty]
+    private bool _isSelected;
 
     public PluginItemViewModel(ILToolsPlugin plugin)
     {

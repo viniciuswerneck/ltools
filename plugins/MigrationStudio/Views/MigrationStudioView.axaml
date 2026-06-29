@@ -7,7 +7,7 @@
              x:Class="LTools.MigrationStudio.Views.MigrationStudioView">
 
     <Grid RowDefinitions="Auto,*,Auto">
-        <Border Padding="12 8" BorderBrush="#33000000" BorderThickness="0 0 0 1">
+        <Border Padding="12 8" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0 0 0 1">
             <Grid ColumnDefinitions="2*,*,Auto,Auto,Auto" ColumnSpacing="12">
                 <TextBox Text="{Binding TableName}" PlaceholderText="Nome da tabela (ex: produtos)"
                          FontSize="14" Padding="6" />
@@ -21,10 +21,10 @@
         </Border>
 
         <Grid Grid.Row="1" ColumnDefinitions="280,*" RowDefinitions="*,Auto,Auto,Auto">
-            <Border BorderBrush="#33000000" BorderThickness="0 0 1 0">
+            <Border BorderBrush="{DynamicResource BorderColor}" BorderThickness="0 0 1 0">
                 <DockPanel>
                     <Border DockPanel.Dock="Bottom" Padding="6"
-                            BorderBrush="#22000000" BorderThickness="0 1 0 0">
+                            BorderBrush="{DynamicResource BorderColor}" BorderThickness="0 1 0 0">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <Button Command="{Binding AddColumnCommand}" Padding="8 4" FontSize="12">
                                 <StackPanel Orientation="Horizontal" Spacing="4">
@@ -52,7 +52,7 @@
                              BorderThickness="0" Background="Transparent">
                         <ListBox.ItemTemplate>
                             <DataTemplate x:DataType="models:ColumnDefinition">
-                                <Border Padding="8 6" BorderBrush="#22FFFFFF" BorderThickness="0 0 0 1">
+                                <Border Padding="8 6" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0 0 0 1">
                                     <Grid RowDefinitions="Auto,Auto">
                                         <TextBlock Text="{Binding DisplayName}" FontSize="13" FontWeight="SemiBold" />
                                         <TextBlock Grid.Row="1" Text="{Binding DisplayInfo}" FontSize="11" Opacity="0.6" />
@@ -164,47 +164,40 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Row="1" Grid.ColumnSpan="2" BorderBrush="#33000000" BorderThickness="0 1 0 0"
+            <Border Grid.Row="1" Grid.ColumnSpan="2" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0 1 0 0"
                     Padding="8">
                 <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="6">
-                    <Button Command="{Binding MigrateCommand}" IsEnabled="{Binding !IsRunning}"
-                            Padding="10 5" FontWeight="Bold"
-                            Background="{DynamicResource SystemAccentColor}" Foreground="White">
+                    <Button Command="{Binding MigrateCommand}" IsEnabled="{Binding !IsRunning}" Classes="Primary">
                         <StackPanel Orientation="Horizontal" Spacing="3">
                             <TextBlock Text="▶" />
                             <TextBlock Text="Migrate" />
                         </StackPanel>
                     </Button>
-                    <Button Grid.Column="1" Command="{Binding RollbackCommand}" IsEnabled="{Binding !IsRunning}"
-                            Padding="10 5" FontWeight="Bold">
+                    <Button Grid.Column="1" Command="{Binding RollbackCommand}" IsEnabled="{Binding !IsRunning}" Classes="Secondary">
                         <StackPanel Orientation="Horizontal" Spacing="3">
                             <TextBlock Text="↩" />
                             <TextBlock Text="Rollback" />
                         </StackPanel>
                     </Button>
-                    <Button Grid.Column="2" Command="{Binding FreshCommand}" IsEnabled="{Binding !IsRunning}"
-                            Padding="10 5" FontWeight="Bold">
+                    <Button Grid.Column="2" Command="{Binding FreshCommand}" IsEnabled="{Binding !IsRunning}" Classes="Danger">
                         <StackPanel Orientation="Horizontal" Spacing="3">
                             <TextBlock Text="🔄" />
                             <TextBlock Text="Fresh" />
                         </StackPanel>
                     </Button>
-                    <Button Grid.Column="3" Command="{Binding RefreshCommand}" IsEnabled="{Binding !IsRunning}"
-                            Padding="10 5" FontWeight="Bold">
+                    <Button Grid.Column="3" Command="{Binding RefreshCommand}" IsEnabled="{Binding !IsRunning}" Classes="Secondary">
                         <StackPanel Orientation="Horizontal" Spacing="3">
                             <TextBlock Text="♻" />
                             <TextBlock Text="Refresh" />
                         </StackPanel>
                     </Button>
-                    <Button Grid.Column="4" Command="{Binding SaveMigrationCommand}"
-                            Padding="10 5" FontWeight="Bold">
+                    <Button Grid.Column="4" Command="{Binding SaveMigrationCommand}" Classes="Primary">
                         <StackPanel Orientation="Horizontal" Spacing="3">
                             <TextBlock Text="💾" />
                             <TextBlock Text="Salvar" />
                         </StackPanel>
                     </Button>
-                    <Button Grid.Column="5" Command="{Binding CompareMigrationsCommand}"
-                            Padding="10 5" FontWeight="Bold">
+                    <Button Grid.Column="5" Command="{Binding CompareMigrationsCommand}" Classes="Secondary">
                         <StackPanel Orientation="Horizontal" Spacing="3">
                             <TextBlock Text="🔍" />
                             <TextBlock Text="Comparar" />
@@ -213,8 +206,8 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Row="2" Grid.ColumnSpan="2" BorderBrush="#33000000" BorderThickness="0 1 0 0"
-                    Padding="8 4" Background="#0D000000">
+            <Border Grid.Row="2" Grid.ColumnSpan="2" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0 1 0 0"
+                    Padding="8 4" Background="{DynamicResource SurfaceBackground}">
                 <Grid ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="6">
                     <Button Command="{Binding TestButtonCommand}"
                             Padding="4 4" FontSize="11">
@@ -249,8 +242,8 @@
             </Border>
 
             <!-- Output Log Console -->
-            <Border Grid.Row="3" Grid.ColumnSpan="2" BorderBrush="#33000000" BorderThickness="0 1 0 0"
-                    Padding="8 4" Background="#1E1E1E" MinHeight="60" MaxHeight="120"
+            <Border Grid.Row="3" Grid.ColumnSpan="2" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0 1 0 0"
+                    Padding="8 4" Background="{DynamicResource ConsoleBackground}" MinHeight="60" MaxHeight="120"
                     IsVisible="{Binding OutputText, Converter={x:Static conv:HasTextConverter.Instance}}">
                 <Grid RowDefinitions="Auto,*">
                     <Grid ColumnDefinitions="Auto,*,Auto">
@@ -264,28 +257,25 @@
                             <TextBlock Text="Limpar" Foreground="#888" />
                         </Button>
                     </Grid>
-                    <TextBox Grid.Row="1" Text="{Binding OutputText}"
-                             FontFamily="Consolas" FontSize="11"
-                             Foreground="#D4D4D4" Background="Transparent"
-                             BorderThickness="0"
-                             IsReadOnly="True" AcceptsReturn="True"
-                             TextWrapping="NoWrap"
-                             Padding="4" Margin="0 2 0 0" />
+                    <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0 2 0 0">
+                        <TextBox Text="{Binding OutputText}"
+                                 Classes="Console" Padding="4" />
+                    </ScrollViewer>
                 </Grid>
             </Border>
         </Grid>
 
-        <Border Grid.Row="2" Padding="12 8" BorderBrush="#33000000" BorderThickness="0 1 0 0">
+        <Border Grid.Row="2" Padding="12 8" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0 1 0 0">
             <Grid RowDefinitions="Auto,*">
                 <TextBlock Text="Código Gerado" FontSize="12" FontWeight="SemiBold" Opacity="0.7" />
-                <TextBox Grid.Row="1" Text="{Binding GeneratedCode}"
-                         FontFamily="Consolas" FontSize="12"
-                         Foreground="#D4D4D4" Background="#1E1E1E"
-                         BorderBrush="#333" BorderThickness="1"
-                         IsReadOnly="True" AcceptsReturn="True"
-                         TextWrapping="NoWrap"
-                         MinHeight="80" MaxHeight="120"
-                         Padding="8" Margin="0 4 0 0" />
+                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0 4 0 0">
+                    <TextBox Text="{Binding GeneratedCode}"
+                             Classes="Console"
+                             AcceptsReturn="True"
+                             TextWrapping="NoWrap"
+                             MinHeight="80" MaxHeight="120"
+                             Padding="8" />
+                </ScrollViewer>
             </Grid>
         </Border>
 

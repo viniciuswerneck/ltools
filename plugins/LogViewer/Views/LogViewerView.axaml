@@ -12,7 +12,7 @@
     <Grid RowDefinitions="Auto,Auto,*">
 
         <!-- Row 0: Status bar -->
-        <Border Padding="12 8" BorderBrush="#33000000" BorderThickness="0 0 0 1">
+        <Border Padding="12 8" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0 0 0 1">
             <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto">
                 <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" FontSize="12" Opacity="0.7" />
 
@@ -27,24 +27,17 @@
                 <CheckBox Grid.Column="2" IsChecked="{Binding AutoRefresh}" Content="Auto" Margin="0 0 8 0"
                           VerticalAlignment="Center" FontSize="12" />
 
-                <Button Grid.Column="3" Command="{Binding ToggleRawViewCommand}" Height="28" Padding="10 0"
-                        Background="#3A3A3A" Foreground="#E0E0E0" FontSize="12"
-                        CornerRadius="4" BorderThickness="0" Margin="0 0 4 0"
-                        VerticalContentAlignment="Center"
+                <Button Grid.Column="3" Command="{Binding ToggleRawViewCommand}" Classes="Small Secondary" Margin="0 0 4 0"
                         ToolTip.Tip="Alternar visualização">
                     <TextBlock Text="📄 Raw" FontSize="12" />
                 </Button>
 
                 <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="4">
-                    <Button Command="{Binding ClearLogCommand}" Height="28" Padding="8 0"
-                            Background="#3A3A3A" Foreground="#E0E0E0" FontSize="12"
-                            CornerRadius="4" BorderThickness="0" VerticalContentAlignment="Center"
+                    <Button Command="{Binding ClearLogCommand}" Classes="Small Secondary"
                             ToolTip.Tip="Limpar visualização">
                         <TextBlock Text="🗑" FontSize="12" />
                     </Button>
-                    <Button Command="{Binding RefreshCommand}" Height="28" Padding="10 0"
-                            Background="#3A3A3A" Foreground="#E0E0E0" FontSize="12"
-                            CornerRadius="4" BorderThickness="0" VerticalContentAlignment="Center"
+                    <Button Command="{Binding RefreshCommand}" Classes="Small Secondary"
                             ToolTip.Tip="Atualizar">
                         <TextBlock Text="🔄" FontSize="12" />
                     </Button>
@@ -53,23 +46,23 @@
         </Border>
 
         <!-- Row 1: Filter bar -->
-        <Border Grid.Row="1" Padding="12 6" BorderBrush="#33000000" BorderThickness="0 0 0 1"
-                Background="#1A1A1A">
+        <Border Grid.Row="1" Padding="12 6" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0 0 0 1"
+                Background="{DynamicResource SurfaceBackground}">
             <Grid ColumnDefinitions="*,Auto,100,100,100,Auto">
                 <TextBox Text="{Binding SearchText}" PlaceholderText="Buscar no log..." FontSize="12" Height="28"
                          BorderThickness="1" CornerRadius="4" Padding="8 0"
-                         Background="#2A2A2A" Foreground="#E0E0E0"
+                         Background="{DynamicResource CardBackground}" Foreground="#E0E0E0"
                          BorderBrush="#444" />
 
                 <ComboBox Grid.Column="1" ItemsSource="{Binding LevelFilters}"
                           SelectedItem="{Binding SelectedLevel}"
                           Width="90" Height="28" Margin="6 0 0 0"
-                          FontSize="12" Background="#2A2A2A" Foreground="#E0E0E0"
+                          FontSize="12" Background="{DynamicResource CardBackground}" Foreground="#E0E0E0"
                           BorderBrush="#444" />
 
                 <DatePicker Grid.Column="2" SelectedDate="{Binding StartDate, Converter={StaticResource DateConv}}"
                             Height="28" Margin="6 0 0 0" FontSize="11"
-                            Background="#2A2A2A" Foreground="#E0E0E0"
+                            Background="{DynamicResource CardBackground}" Foreground="#E0E0E0"
                             BorderBrush="#444" />
 
                 <TextBlock Grid.Column="3" Text="→" VerticalAlignment="Center" HorizontalAlignment="Center"
@@ -77,19 +70,15 @@
 
                 <DatePicker Grid.Column="4" SelectedDate="{Binding EndDate, Converter={StaticResource DateConv}}"
                             Height="28" FontSize="11"
-                            Background="#2A2A2A" Foreground="#E0E0E0"
+                            Background="{DynamicResource CardBackground}" Foreground="#E0E0E0"
                             BorderBrush="#444" />
 
                 <StackPanel Grid.Column="5" Orientation="Horizontal" Spacing="4" Margin="6 0 0 0">
-                    <Button Command="{Binding ClearFiltersCommand}" Height="28" Padding="8 0"
-                            Background="#3A3A3A" Foreground="#E0E0E0" FontSize="11"
-                            CornerRadius="4" BorderThickness="0" VerticalContentAlignment="Center"
+                    <Button Command="{Binding ClearFiltersCommand}" Classes="Small Secondary"
                             ToolTip.Tip="Limpar filtros">
                         <TextBlock Text="✕ Limpar" FontSize="11" />
                     </Button>
-                    <Button Command="{Binding CopyFilteredCommand}" Height="28" Padding="8 0"
-                            Background="#3A3A3A" Foreground="#E0E0E0" FontSize="11"
-                            CornerRadius="4" BorderThickness="0" VerticalContentAlignment="Center"
+                    <Button Command="{Binding CopyFilteredCommand}" Classes="Small Secondary"
                             ToolTip.Tip="Copiar entradas filtradas">
                         <TextBlock Text="📋 Copiar" FontSize="11" />
                     </Button>
@@ -101,14 +90,14 @@
         <Grid Grid.Row="2" ColumnDefinitions="250,*" Margin="8">
 
             <!-- Left Panel: File list -->
-            <Border BorderBrush="#33000000" BorderThickness="0 0 1 0" Padding="8">
+            <Border BorderBrush="{DynamicResource BorderColor}" BorderThickness="0 0 1 0" Padding="8">
                 <StackPanel Spacing="4">
                     <TextBlock Text="Arquivos de Log" FontWeight="SemiBold" FontSize="14" Margin="0 0 0 8" />
                     <ListBox ItemsSource="{Binding LogFiles}" BorderThickness="0" Background="Transparent">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Border Padding="8 4" Margin="0 0 0 2" CornerRadius="4"
-                                        Background="#1A0078D4" PointerPressed="OpenLog">
+                                        Background="{DynamicResource AccentBg}" PointerPressed="OpenLog">
                                     <Grid ColumnDefinitions="*,Auto">
                                         <StackPanel>
                                             <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" />
@@ -128,18 +117,12 @@
             <Grid Grid.Column="1" Margin="8 0 0 0">
 
                 <!-- Raw view -->
-                <TextBox Text="{Binding LogContent}" IsVisible="{Binding IsRawView}"
-                         FontFamily="Consolas" FontSize="12"
-                         Foreground="#D4D4D4" Background="#1E1E1E"
-                         BorderBrush="#333333" BorderThickness="1"
-                         IsReadOnly="True" TextWrapping="NoWrap"
-                         AcceptsReturn="True" Padding="12">
-                    <TextBox.Styles>
-                        <Style Selector="TextBox /template/ Border#border">
-                            <Setter Property="Background" Value="#1E1E1E" />
-                        </Style>
-                    </TextBox.Styles>
-                </TextBox>
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                              IsVisible="{Binding IsRawView}">
+                    <TextBox Text="{Binding LogContent}"
+                             Classes="Console"
+                             TextWrapping="NoWrap" Padding="12" />
+                </ScrollViewer>
 
                 <!-- Structured view -->
                 <Grid IsVisible="{Binding IsStructuredView}" RowDefinitions="*,Auto">
@@ -147,12 +130,12 @@
                     <!-- Entry list -->
                     <ListBox ItemsSource="{Binding FilteredEntries}"
                              SelectedItem="{Binding SelectedEntry}"
-                             BorderThickness="1" BorderBrush="#333"
-                             Background="#1E1E1E">
+                              BorderThickness="1" BorderBrush="{DynamicResource BorderColor}"
+                              Background="{DynamicResource CardBackground}">
                         <ListBox.ItemTemplate>
                             <DataTemplate x:DataType="models:LogEntry">
                                 <Border Padding="8 4" Margin="2 1" CornerRadius="3"
-                                        Background="#2A2A2A">
+                                        Background="{DynamicResource CardBackground}">
                                     <Grid ColumnDefinitions="55,Auto,*,Auto" ColumnSpacing="8">
                                         <Border Background="{Binding LevelBadge}" CornerRadius="3"
                                                 Padding="4 1" VerticalAlignment="Center"
@@ -167,7 +150,7 @@
                                                    VerticalAlignment="Center" />
 
                                         <TextBlock Grid.Column="2" Text="{Binding ShortMessage}"
-                                                   FontSize="12" Foreground="#D4D4D4"
+                                                   FontSize="12" Foreground="{DynamicResource ConsoleForeground}"
                                                    VerticalAlignment="Center"
                                                    TextTrimming="CharacterEllipsis" />
 
@@ -181,8 +164,8 @@
                     </ListBox>
 
                     <!-- Detail panel (when entry selected) -->
-                    <Border Grid.Row="1" BorderBrush="#333" BorderThickness="0 1 0 0"
-                            Background="#1A1A1A" Padding="8" MaxHeight="250"
+                    <Border Grid.Row="1" BorderBrush="{DynamicResource ConsoleBorder}" BorderThickness="0 1 0 0"
+                            Background="{DynamicResource ConsoleBackground}" Padding="8" MaxHeight="250"
                             IsVisible="{Binding HasSelectedEntry}">
                         <Grid RowDefinitions="Auto,*" ColumnDefinitions="*,Auto">
                             <Border CornerRadius="3" Padding="4 2"
@@ -203,17 +186,16 @@
                             </StackPanel>
 
                             <ScrollViewer Grid.Row="1" Grid.ColumnSpan="2" Margin="0 4 0 0">
-                                <TextBox Text="{Binding DetailContent}" FontFamily="Consolas" FontSize="11"
-                                         Foreground="#D4D4D4" Background="Transparent"
-                                         BorderThickness="0" IsReadOnly="True" Focusable="False"
-                                         TextWrapping="Wrap" Padding="4" />
+                    <TextBox Text="{Binding DetailContent}" Classes="Console"
+                             BorderThickness="0" Focusable="False"
+                             TextWrapping="Wrap" Padding="4" />
                             </ScrollViewer>
                         </Grid>
                     </Border>
 
                     <!-- Placeholder (no entry selected) -->
-                    <Border Grid.Row="1" BorderBrush="#333" BorderThickness="0 1 0 0"
-                            Background="#1A1A1A" Padding="8"
+                    <Border Grid.Row="1" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0 1 0 0"
+                            Background="{DynamicResource SurfaceBackground}" Padding="8"
                             IsVisible="{Binding ShowPlaceholder}">
                         <TextBlock Text="Selecione uma entrada para ver detalhes."
                                    FontSize="12" Opacity="0.4" VerticalAlignment="Center"

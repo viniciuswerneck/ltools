@@ -1,0 +1,17 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:System="clr-namespace:System;assembly=mscorlib">
+    <Styles.Resources>
+        <ResourceDictionary>
+            <System:Double x:Key="FontSizePageTitle">20</System:Double>
+            <System:Double x:Key="FontSizeSectionTitle">16</System:Double>
+            <System:Double x:Key="FontSizeSubtitle">14</System:Double>
+            <System:Double x:Key="FontSizeBody">13</System:Double>
+            <System:Double x:Key="FontSizeSmall">12</System:Double>
+            <System:Double x:Key="FontSizeBadge">11</System:Double>
+            <System:Double x:Key="FontSizeConsole">12</System:Double>
+            <System:Double x:Key="FontSizeCardNumber">22</System:Double>
+            <System:Double x:Key="FontSizeIconLarge">40</System:Double>
+        </ResourceDictionary>
+    </Styles.Resources>
+</Styles>
