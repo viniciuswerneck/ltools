@@ -14,6 +14,11 @@ namespace LTools.UI.ViewModels;
 public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly IPluginLoader _pluginLoader;
+    private readonly ILogger _logger;
+    private readonly IProjectProfileService? _profile;
+
+    [ObservableProperty]
+    private bool _isPaneOpen = true;
 
     [ObservableProperty]
     private UserControl? _currentView;
@@ -38,6 +43,15 @@ public partial class MainWindowViewModel : ViewModelBase
     public string AppVersion { get; } = GetVersion();
     public string ThemeToggleIcon => App.ThemeService.CurrentTheme == ThemeVariant.Light ? "☀️ Claro" : "🌙 Escuro";
 
+    public MainWindowViewModel(IPluginLoader pluginLoader, ILogger logger)
+    {
+        _pluginLoader = pluginLoader;
+        _logger = logger;
+        _profile = AppServices.Get<IProjectProfileService>();
+        ProjectContext.Instance.ProjectChanged += OnProjectChanged;
+        UpdateProjectName();
+    }
+
     private static string GetVersion()
     {
         var ver = Assembly.GetExecutingAssembly().GetName().Version;
@@ -47,8 +61,14 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void OpenSite()
     {
-        try { Process.Start(new ProcessStartInfo("https://lab.werneck.dev.br/") { UseShellExecute = true }); }
-        catch { }
+        try
+        {
+            Process.Start(new ProcessStartInfo("https://lab.werneck.dev.br/") { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            _logger.Warning("Falha ao abrir site", ex);
+        }
     }
 
     [RelayCommand]
@@ -58,11 +78,28 @@ public partial class MainWindowViewModel : ViewModelBase
         OnPropertyChanged(nameof(ThemeToggleIcon));
     }
 
-    public MainWindowViewModel()
+    [RelayCommand]
+    private void TogglePane()
     {
-        _pluginLoader = new PluginLoader();
-        ProjectContext.Instance.ProjectChanged += OnProjectChanged;
-        UpdateProjectName();
+        IsPaneOpen = !IsPaneOpen;
+    }
+
+    [RelayCommand]
+    private void NextPlugin()
+    {
+        if (Plugins.Count == 0) return;
+        var current = Plugins.Select((p, i) => (p, i)).FirstOrDefault(x => x.p.IsSelected);
+        var nextIndex = (current.i + 1) % Plugins.Count;
+        SelectPlugin(Plugins[nextIndex]);
+    }
+
+    [RelayCommand]
+    private void PreviousPlugin()
+    {
+        if (Plugins.Count == 0) return;
+        var current = Plugins.Select((p, i) => (p, i)).FirstOrDefault(x => x.p.IsSelected);
+        var prevIndex = (current.i - 1 + Plugins.Count) % Plugins.Count;
+        SelectPlugin(Plugins[prevIndex]);
     }
 
     public async Task InitializeAsync()
@@ -74,7 +111,13 @@ public partial class MainWindowViewModel : ViewModelBase
             Plugins.Add(new PluginItemViewModel(plugin));
 
         if (Plugins.Count > 0)
-            SelectPlugin(Plugins[0]);
+        {
+            var lastPlugin = _profile?.Get<string>("last_plugin");
+            var target = lastPlugin != null
+                ? Plugins.FirstOrDefault(p => p.Name.Equals(lastPlugin, StringComparison.OrdinalIgnoreCase))
+                : null;
+            SelectPlugin(target ?? Plugins[0]);
+        }
     }
 
     private void OnProjectChanged()
@@ -127,6 +170,7 @@ public partial class MainWindowViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
+            _logger.Error("Erro ao abrir projeto", ex);
             StatusMessage = $"Erro ao abrir projeto: {ex.Message}";
         }
     }
@@ -143,6 +187,7 @@ public partial class MainWindowViewModel : ViewModelBase
         pluginItem.IsSelected = true;
         CurrentPluginName = pluginItem.Plugin.Name;
         CurrentView = pluginItem.Plugin.GetView();
+        _profile?.Set("last_plugin", pluginItem.Plugin.Name);
     }
 
     private static string GetPluginsPath()

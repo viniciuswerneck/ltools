@@ -53,9 +53,14 @@
                             MinHeight="60" MaxHeight="100"
                             Margin="0 8 0 0">
                         <Grid RowDefinitions="Auto,*">
-                            <Grid ColumnDefinitions="Auto,*">
+                            <Grid ColumnDefinitions="Auto,*,Auto">
                                 <TextBlock Text="Histórico" FontSize="12" FontWeight="SemiBold"
                                            Opacity="0.7" />
+                                <Button Grid.Column="2" Command="{Binding ClearHistoryCommand}"
+                                        Classes="Small Secondary" Padding="6 0" Height="20" FontSize="10"
+                                        ToolTip.Tip="Limpar histórico">
+                                    <TextBlock Text="✕ Limpar" FontSize="10" />
+                                </Button>
                             </Grid>
                             <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
                                 <ItemsControl ItemsSource="{Binding History}">
@@ -80,8 +85,8 @@
                 <Border Grid.Row="1" Padding="12" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0 1 0 0"
                         Background="{Binding $parent[Window].Background}">
                     <StackPanel Spacing="8">
-                        <TextBox Text="{Binding CustomCommand}" PlaceholderText="Comando (ex: route:list) — ou selecione na lista"
-                                 FontSize="13" Padding="8" IsReadOnly="True" />
+                        <TextBox Text="{Binding CustomCommand}" PlaceholderText="Digite o comando (autocomplete automático)"
+                                 FontSize="13" Padding="8" />
                         <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="6">
                             <TextBox Text="{Binding ArgumentValues}" PlaceholderText="Argumentos (ex: --force --name=Teste)"
                                      FontSize="13" Padding="8" />

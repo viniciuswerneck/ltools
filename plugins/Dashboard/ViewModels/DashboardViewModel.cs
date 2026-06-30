@@ -1,11 +1,18 @@
+using System.Diagnostics;
 using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using LTools.Core.Interfaces;
 using LTools.Core.Services;
 
 namespace LTools.Dashboard.ViewModels;
 
 public partial class DashboardViewModel : ObservableObject
 {
+    private readonly IToolVersionService _toolVersion;
+    private readonly ILogger _logger;
+    private readonly IProjectProfileService? _profile;
+
     [ObservableProperty]
     private string _phpVersion = "Carregando...";
 
@@ -30,7 +37,6 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty]
     private string _statusMessage = "Nenhum projeto aberto.";
 
-    // Project info
     [ObservableProperty]
     private bool _hasProject;
 
@@ -76,7 +82,6 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty]
     private string _cacheViews = "";
 
-    // File counts
     [ObservableProperty]
     private int _migrationsCount;
 
@@ -139,6 +144,9 @@ public partial class DashboardViewModel : ObservableObject
 
     public DashboardViewModel()
     {
+        _toolVersion = AppServices.Get<IToolVersionService>() ?? new ToolVersionService(AppServices.Get<ILogger>() ?? new ConsoleLogger());
+        _logger = AppServices.Get<ILogger>() ?? new ConsoleLogger();
+        _profile = AppServices.Get<IProjectProfileService>();
         ProjectContext.Instance.ProjectChanged += OnProjectChanged;
         _ = LoadAsync();
         InitFromContext();
@@ -164,20 +172,17 @@ public partial class DashboardViewModel : ObservableObject
 
     private void OnProjectChanged()
     {
-        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
-        {
-            InitFromContext();
-        });
+        Avalonia.Threading.Dispatcher.UIThread.Post(InitFromContext);
     }
 
     public async Task LoadAsync()
     {
-        PhpVersion = await GetVersionAsync("php", "-v");
-        LaravelCliVersion = await GetVersionAsync("laravel", "--version");
-        ComposerVersion = await GetVersionAsync("composer", "--version");
-        GitVersion = await GetVersionAsync("git", "--version");
-        NodeVersion = await GetVersionAsync("node", "--version");
-        DockerVersion = await GetVersionAsync("docker", "--version");
+        PhpVersion = await _toolVersion.GetPhpVersionAsync();
+        LaravelCliVersion = await _toolVersion.GetLaravelCliVersionAsync();
+        ComposerVersion = await _toolVersion.GetComposerVersionAsync();
+        GitVersion = await _toolVersion.GetGitVersionAsync();
+        NodeVersion = await _toolVersion.GetNodeVersionAsync();
+        DockerVersion = await _toolVersion.GetDockerVersionAsync();
     }
 
     private async Task LoadProjectInfoAsync()
@@ -219,7 +224,7 @@ public partial class DashboardViewModel : ObservableObject
             : Path.Combine(ProjectPath, baseDir);
         if (!Directory.Exists(dir)) return 0;
         try { return Directory.GetFiles(dir, pattern).Length; }
-        catch { return 0; }
+        catch (Exception ex) { _logger.Debug($"Erro ao contar arquivos em {dir}: {ex.Message}"); return 0; }
     }
 
     private int CountRouteFiles()
@@ -227,7 +232,7 @@ public partial class DashboardViewModel : ObservableObject
         var routesDir = Path.Combine(ProjectPath, "routes");
         if (!Directory.Exists(routesDir)) return 0;
         try { return Directory.GetFiles(routesDir, "*.php").Length; }
-        catch { return 0; }
+        catch (Exception ex) { _logger.Debug($"Erro ao contar rotas: {ex.Message}"); return 0; }
     }
 
     private async Task LoadComposerInfoAsync()
@@ -244,12 +249,15 @@ public partial class DashboardViewModel : ObservableObject
             if (root.TryGetProperty("require-dev", out var dev))
                 DevPackagesCount = dev.EnumerateObject().Count();
         }
-        catch { }
+        catch (Exception ex)
+        {
+            _logger.Warning("Erro ao ler composer.json", ex);
+        }
     }
 
     private async Task LoadArtisanAboutAsync()
     {
-        var runner = new ProcessRunner();
+        var runner = AppServices.Get<IProcessRunner>() ?? new ProcessRunner();
 
         try
         {
@@ -286,7 +294,10 @@ public partial class DashboardViewModel : ObservableObject
                 }
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            _logger.Warning("Erro ao executar php artisan about", ex);
+        }
 
         if (string.IsNullOrWhiteSpace(LaravelVersion) || LaravelVersion == "Carregando...")
         {
@@ -296,7 +307,10 @@ public partial class DashboardViewModel : ObservableObject
                 if (!string.IsNullOrWhiteSpace(version))
                     LaravelVersion = version.Split('\n').FirstOrDefault()?.Trim() ?? "";
             }
-            catch { }
+            catch (Exception ex)
+            {
+                _logger.Debug("Erro ao obter versão do Laravel via artisan", ex);
+            }
         }
 
         if (string.IsNullOrWhiteSpace(LaravelVersion) || LaravelVersion == "Carregando...")
@@ -317,7 +331,10 @@ public partial class DashboardViewModel : ObservableObject
                 LaravelVersion = fw.GetString() ?? "";
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            _logger.Debug("Erro ao ler versão Laravel do composer.json", ex);
+        }
     }
 
     private static string TryGetString(JsonElement element, string property)
@@ -341,14 +358,25 @@ public partial class DashboardViewModel : ObservableObject
             }
             ProjectSize = FormatSize(size);
         }
-        catch { ProjectSize = "Desconhecido"; }
+        catch (Exception ex)
+        {
+            _logger.Debug("Erro ao calcular tamanho do projeto", ex);
+            ProjectSize = "Desconhecido";
+        }
     }
 
     private static long DirSize(DirectoryInfo d)
     {
         long size = 0;
-        try { foreach (var f in d.EnumerateFiles("*", SearchOption.AllDirectories)) size += f.Length; }
-        catch { }
+        try
+        {
+            foreach (var f in d.EnumerateFiles("*", SearchOption.AllDirectories))
+                size += f.Length;
+        }
+        catch
+        {
+            // skip inaccessible files
+        }
         return size;
     }
 
@@ -361,29 +389,32 @@ public partial class DashboardViewModel : ObservableObject
         return $"{sz:F2} {suf[place]}";
     }
 
-    private static async Task<string> GetVersionAsync(string command, string args)
+    [RelayCommand]
+    private void OpenForge()
     {
-        try
-        {
-            var psi = new System.Diagnostics.ProcessStartInfo
-            {
-                FileName = command,
-                Arguments = args,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
+        try { Process.Start(new ProcessStartInfo("https://forge.laravel.com") { UseShellExecute = true }); }
+        catch (Exception ex) { _logger.Warning("Falha ao abrir Forge", ex); }
+    }
 
-            using var process = new System.Diagnostics.Process { StartInfo = psi };
-            process.Start();
-            var output = await process.StandardOutput.ReadToEndAsync();
-            await process.WaitForExitAsync();
-            return output.Split('\n').FirstOrDefault()?.Trim() ?? "Não detectado";
-        }
-        catch
-        {
-            return "Não instalado";
-        }
+    [RelayCommand]
+    private void OpenVapor()
+    {
+        try { Process.Start(new ProcessStartInfo("https://vapor.laravel.com") { UseShellExecute = true }); }
+        catch (Exception ex) { _logger.Warning("Falha ao abrir Vapor", ex); }
+    }
+
+    [RelayCommand]
+    private void OpenEnvoyer()
+    {
+        try { Process.Start(new ProcessStartInfo("https://envoyer.io") { UseShellExecute = true }); }
+        catch (Exception ex) { _logger.Warning("Falha ao abrir Envoyer", ex); }
+    }
+
+    [RelayCommand]
+    private void OpenTelescope()
+    {
+        if (string.IsNullOrWhiteSpace(ProjectPath)) return;
+        try { Process.Start(new ProcessStartInfo("http://localhost/telescope") { UseShellExecute = true }); }
+        catch (Exception ex) { _logger.Warning("Falha ao abrir Telescope", ex); }
     }
 }

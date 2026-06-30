@@ -8,7 +8,7 @@ namespace LTools.RouteExplorer;
 
 public class RouteExplorerPlugin : ILToolsPlugin
 {
-    public string Name => "Routes";
+    public string Name => "Rotas";
     public string Icon => "🗺️";
 
     private RouteExplorerView? _view;

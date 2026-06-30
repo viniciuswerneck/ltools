@@ -13,10 +13,15 @@ namespace LTools.LogViewer.ViewModels;
 
 public partial class LogViewerViewModel : ObservableObject
 {
+    private const int MaxViewableEntries = 5000;
+
     private string _projectPath = string.Empty;
     private FileSystemWatcher? _watcher;
     private List<LogEntry> _allEntries = [];
+    private List<LogEntry> _currentFiltered = [];
     private string _currentFilePath = string.Empty;
+    private int _viewableStart;
+    private int _viewableTake = MaxViewableEntries;
 
     [ObservableProperty]
     private string _projectName = string.Empty;
@@ -64,10 +69,16 @@ public partial class LogViewerViewModel : ObservableObject
     private int _filteredCount;
 
     [ObservableProperty]
+    private int _remainingCount;
+
+    [ObservableProperty]
+    private bool _hasMoreEntries;
+
+    [ObservableProperty]
     private string _detailContent = string.Empty;
 
     public ObservableCollection<LogFile> LogFiles { get; } = [];
-    public ObservableCollection<LogEntry> FilteredEntries { get; } = [];
+    public ObservableCollection<LogEntry> ViewableEntries { get; } = [];
     public ObservableCollection<string> LevelFilters { get; } = ["Todos", "ERROR", "WARNING", "INFO", "DEBUG", "CRITICAL", "ALERT", "EMERGENCY", "NOTICE"];
 
     public LogViewerViewModel()
@@ -105,13 +116,16 @@ public partial class LogViewerViewModel : ObservableObject
             LogFiles.Clear();
             LogContent = string.Empty;
             SelectedLogName = string.Empty;
-            FilteredEntries.Clear();
+            ViewableEntries.Clear();
+            _currentFiltered.Clear();
             _allEntries.Clear();
             _currentFilePath = string.Empty;
             TotalEntries = 0;
             FilteredCount = 0;
             DetailContent = string.Empty;
             SelectedEntry = null;
+            _viewableStart = 0;
+            HasMoreEntries = false;
             InitFromContext();
         });
     }
@@ -168,6 +182,21 @@ public partial class LogViewerViewModel : ObservableObject
         SelectedLogName = logFile.Name;
         _currentFilePath = logFile.FullPath;
         await LoadLogContentAsync(logFile.FullPath);
+    }
+
+    [RelayCommand]
+    private void LoadMore()
+    {
+        _viewableStart += _viewableTake;
+        PopulateViewable();
+    }
+
+    [RelayCommand]
+    private void LoadAll()
+    {
+        _viewableTake = int.MaxValue;
+        _viewableStart = 0;
+        PopulateViewable();
     }
 
     private async Task LoadLogContentAsync(string fullPath)
@@ -234,25 +263,10 @@ public partial class LogViewerViewModel : ObservableObject
         return entries;
     }
 
-    partial void OnSearchTextChanged(string value)
-    {
-        ApplyFilters();
-    }
-
-    partial void OnSelectedLevelChanged(string value)
-    {
-        ApplyFilters();
-    }
-
-    partial void OnStartDateChanged(DateTime? value)
-    {
-        ApplyFilters();
-    }
-
-    partial void OnEndDateChanged(DateTime? value)
-    {
-        ApplyFilters();
-    }
+    partial void OnSearchTextChanged(string value) => ApplyFilters();
+    partial void OnSelectedLevelChanged(string value) => ApplyFilters();
+    partial void OnStartDateChanged(DateTime? value) => ApplyFilters();
+    partial void OnEndDateChanged(DateTime? value) => ApplyFilters();
 
     private void ApplyFilters()
     {
@@ -268,9 +282,7 @@ public partial class LogViewerViewModel : ObservableObject
         }
 
         if (SelectedLevel != "Todos")
-        {
             filtered = filtered.Where(e => e.Level == SelectedLevel);
-        }
 
         if (StartDate.HasValue)
         {
@@ -284,18 +296,30 @@ public partial class LogViewerViewModel : ObservableObject
             filtered = filtered.Where(e => e.Timestamp.HasValue && e.Timestamp.Value < end);
         }
 
-        var result = filtered.ToList();
+        _currentFiltered = filtered.ToList();
+        FilteredCount = _currentFiltered.Count;
 
-        FilteredEntries.Clear();
-        foreach (var entry in result)
-        {
-            FilteredEntries.Add(entry);
-        }
+        _viewableStart = 0;
+        PopulateViewable();
+    }
 
-        FilteredCount = FilteredEntries.Count;
-        OnPropertyChanged(nameof(FilteredEntries));
+    private void PopulateViewable()
+    {
+        ViewableEntries.Clear();
 
-        if (SelectedEntry != null && !FilteredEntries.Contains(SelectedEntry))
+        var page = _currentFiltered
+            .Skip(_viewableStart)
+            .Take(_viewableTake)
+            .ToList();
+
+        foreach (var entry in page)
+            ViewableEntries.Add(entry);
+
+        FilteredCount = _currentFiltered.Count;
+        RemainingCount = Math.Max(0, FilteredCount - _viewableStart - page.Count);
+        HasMoreEntries = RemainingCount > 0;
+
+        if (SelectedEntry != null && !ViewableEntries.Contains(SelectedEntry))
         {
             SelectedEntry = null;
             DetailContent = string.Empty;
@@ -363,15 +387,13 @@ public partial class LogViewerViewModel : ObservableObject
     private async Task CopyFilteredAsync()
     {
         var sb = new System.Text.StringBuilder();
-        foreach (var entry in FilteredEntries)
-        {
+        foreach (var entry in ViewableEntries)
             sb.AppendLine(entry.FullContent);
-        }
 
         if (sb.Length > 0)
         {
             await CopyToClipboardAsync(sb.ToString().TrimEnd(),
-                $"{FilteredEntries.Count} entrada(s) copiada(s) para a área de transferência.");
+                $"{ViewableEntries.Count} entrada(s) copiada(s) para a área de transferência.");
         }
     }
 
@@ -413,12 +435,15 @@ public partial class LogViewerViewModel : ObservableObject
     private void ClearLog()
     {
         LogContent = string.Empty;
-        FilteredEntries.Clear();
+        ViewableEntries.Clear();
+        _currentFiltered.Clear();
         _allEntries.Clear();
         TotalEntries = 0;
         FilteredCount = 0;
         DetailContent = string.Empty;
         SelectedEntry = null;
+        HasMoreEntries = false;
+        _viewableStart = 0;
         StatusMessage = "Visualização limpa.";
     }
 

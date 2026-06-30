@@ -8,7 +8,7 @@ namespace LTools.MigrationStudio;
 
 public class MigrationStudioPlugin : ILToolsPlugin
 {
-    public string Name => "Migrations";
+    public string Name => "Migrações";
     public string Icon => "🗄️";
 
     private MigrationStudioView? _view;

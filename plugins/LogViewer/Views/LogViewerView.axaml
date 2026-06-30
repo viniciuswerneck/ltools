@@ -128,10 +128,10 @@
                 <Grid IsVisible="{Binding IsStructuredView}" RowDefinitions="*,Auto">
 
                     <!-- Entry list -->
-                    <ListBox ItemsSource="{Binding FilteredEntries}"
+                     <ListBox ItemsSource="{Binding ViewableEntries}"
                              SelectedItem="{Binding SelectedEntry}"
-                              BorderThickness="1" BorderBrush="{DynamicResource BorderColor}"
-                              Background="{DynamicResource CardBackground}">
+                             BorderThickness="1" BorderBrush="{DynamicResource BorderColor}"
+                             Background="{DynamicResource CardBackground}">
                         <ListBox.ItemTemplate>
                             <DataTemplate x:DataType="models:LogEntry">
                                 <Border Padding="8 4" Margin="2 1" CornerRadius="3"

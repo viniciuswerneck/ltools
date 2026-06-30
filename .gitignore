@@ -20,6 +20,7 @@ obj/
 plugins/*.dll
 plugins/*.pdb
 plugins/*.deps.json
+plugins/*.xml
 
 ## OS
 .DS_Store

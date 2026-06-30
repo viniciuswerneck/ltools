@@ -13,7 +13,7 @@ public class LaravelDetector : ILaravelDetector
         if (!Directory.Exists(rootPath))
             return projects;
 
-        var directories = Directory.GetDirectories(rootPath);
+        var directories = Directory.GetDirectories(rootPath, "*", SearchOption.AllDirectories);
 
         foreach (var dir in directories)
         {

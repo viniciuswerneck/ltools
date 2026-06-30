@@ -1,8 +1,9 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Threading;
+using LTools.Core.Services;
 using LTools.UI.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LTools.UI.Views;
 
@@ -19,9 +20,10 @@ public partial class SplashWindow : Window
 
         await Task.Delay(1500);
 
+        var vm = AppServices.GetRequired<MainWindowViewModel>();
         var main = new MainWindow
         {
-            DataContext = new MainWindowViewModel(),
+            DataContext = vm,
         };
         main.Show();
 

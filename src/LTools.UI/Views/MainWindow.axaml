@@ -9,24 +9,43 @@
         x:DataType="vm:MainWindowViewModel"
         Title="LTools — Laravel Toolkit"
         Icon="/Assets/avalonia-logo.ico"
-         Width="1100" Height="700"
-         MinWidth="800" MinHeight="500"
-         WindowState="Maximized">
+        Width="1100" Height="700"
+        MinWidth="800" MinHeight="500"
+        WindowState="Maximized"
+        TransparencyLevelHint="Mica,AcrylicBlur,Blur"
+        Background="Transparent">
 
     <Design.DataContext>
         <vm:MainWindowViewModel/>
     </Design.DataContext>
+
+    <Window.KeyBindings>
+        <KeyBinding Gesture="Ctrl+O" Command="{Binding SelectGlobalProjectCommand}" />
+        <KeyBinding Gesture="Ctrl+B" Command="{Binding TogglePaneCommand}" />
+        <KeyBinding Gesture="Ctrl+Shift+T" Command="{Binding ToggleThemeCommand}" />
+        <KeyBinding Gesture="Ctrl+Tab" Command="{Binding NextPluginCommand}" />
+        <KeyBinding Gesture="Ctrl+Shift+Tab" Command="{Binding PreviousPluginCommand}" />
+    </Window.KeyBindings>
 
     <Grid RowDefinitions="Auto,*,Auto">
 
         <!-- ════════════════════════════════════════
              ROW 0: CommandBar
              ════════════════════════════════════════ -->
-        <Border Background="{DynamicResource AccentColor}" Padding="12,8">
-            <Grid ColumnDefinitions="Auto,*,Auto">
+        <Border Background="{DynamicResource AccentColor}" Padding="8,6">
+            <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                <!-- Hamburger -->
                 <Button Classes="Icon"
+                        Command="{Binding TogglePaneCommand}"
+                        ToolTip.Tip="Alternar navegação (Ctrl+B)">
+                    <TextBlock Text="☰" FontSize="18" Foreground="White" />
+                </Button>
+
+                <!-- Project selector -->
+                <Button Grid.Column="1" Classes="Icon"
                         Command="{Binding SelectGlobalProjectCommand}"
-                        ToolTip.Tip="Abrir projeto Laravel">
+                        ToolTip.Tip="Abrir projeto Laravel (Ctrl+O)"
+                        Margin="8,0,0,0">
                     <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                         <TextBlock Text="📂" FontSize="16" />
                         <TextBlock Text="{Binding GlobalProjectName, TargetNullValue='Abrir Projeto'}"
@@ -35,26 +54,56 @@
                     </StackPanel>
                 </Button>
 
-                <TextBlock Grid.Column="1" Text="{Binding GlobalProjectPath}"
+                <TextBlock Grid.Column="2" Text="{Binding GlobalProjectPath}"
                            FontSize="12" Foreground="#CCFFFFFF" VerticalAlignment="Center"
                            Margin="12,0,0,0"
                            IsVisible="{Binding HasGlobalProject}"
                            TextTrimming="CharacterEllipsis" />
 
-                <TextBlock Grid.Column="2" Text="Laravel Toolkit" FontSize="18" FontWeight="Bold"
+                <TextBlock Grid.Column="3" Text="Laravel Toolkit" FontSize="18" FontWeight="Bold"
                            Foreground="White" VerticalAlignment="Center" />
             </Grid>
         </Border>
 
         <!-- ════════════════════════════════════════
-             ROW 1: Sidebar + Content
+             ROW 1: SplitView (Navigation Pane + Content)
              ════════════════════════════════════════ -->
-        <Grid Grid.Row="1" ColumnDefinitions="220,*">
+        <SplitView Grid.Row="1"
+                   IsPaneOpen="{Binding IsPaneOpen}"
+                   DisplayMode="CompactInline"
+                   OpenPaneLength="220"
+                   CompactPaneLength="56"
+                   PaneBackground="{DynamicResource SidebarBackground}">
 
-            <!-- Sidebar -->
-            <Border Background="{DynamicResource SidebarBackground}">
+            <!-- Navigation Pane -->
+            <SplitView.Pane>
                 <DockPanel>
-                    <ScrollViewer Padding="6">
+                    <!-- Pane Header (topo) -->
+                    <Border DockPanel.Dock="Top" Padding="12,16,12,8">
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="LTools" FontSize="22" FontWeight="Bold"
+                                       Foreground="{DynamicResource TextPrimary}" />
+                            <TextBlock Text="Laravel Toolkit" FontSize="11"
+                                       Foreground="{DynamicResource TextSecondary}" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Pane Footer (base) -->
+                    <Border DockPanel.Dock="Bottom" Padding="8,4,8,8"
+                            BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="{Binding AppVersion, StringFormat='v{0}'}" FontSize="11"
+                                       Opacity="0.4" VerticalAlignment="Center" />
+                            <Button Grid.Column="1" Command="{Binding ToggleThemeCommand}"
+                                    Classes="Small" ToolTip.Tip="Alternar tema (Ctrl+Shift+T)"
+                                    Background="{DynamicResource CardBackground}">
+                                <TextBlock Text="{Binding ThemeToggleIcon}" FontSize="12" />
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <!-- Plugin list (último filho = preenche) -->
+                    <ScrollViewer Padding="6,0,6,6">
                         <StackPanel Spacing="2">
                             <ItemsControl ItemsSource="{Binding Plugins}">
                                 <ItemsControl.ItemTemplate>
@@ -67,7 +116,8 @@
                                                     BorderThickness="0"
                                                     HorizontalContentAlignment="Stretch"
                                                     Padding="8,6"
-                                                    Cursor="Hand">
+                                                    Cursor="Hand"
+                                                    ToolTip.Tip="{Binding Name}">
                                                 <Grid ColumnDefinitions="Auto,*">
                                                     <TextBlock Text="{Binding Icon}" FontSize="16"
                                                                VerticalAlignment="Center" />
@@ -85,40 +135,30 @@
                         </StackPanel>
                     </ScrollViewer>
                 </DockPanel>
-            </Border>
+            </SplitView.Pane>
 
-            <!-- Content Panel -->
-            <Border Grid.Column="1">
-                <Grid RowDefinitions="Auto,*">
-                    <!-- Page header -->
-                    <Border Padding="16,8" Background="{DynamicResource OverlayLight}">
-                        <TextBlock Text="{Binding CurrentPluginName}" FontSize="{DynamicResource FontSizeSectionTitle}"
-                                   FontWeight="SemiBold" />
-                    </Border>
-
-                    <!-- Plugin content -->
-                    <ContentControl Grid.Row="1" Content="{Binding CurrentView}" />
-                </Grid>
-            </Border>
-        </Grid>
+            <!-- Content Area -->
+            <SplitView.Content>
+                <ContentControl Content="{Binding CurrentView}">
+                    <ContentControl.Transitions>
+                        <Transitions>
+                            <DoubleTransition Property="Opacity" Duration="0:0:0.2" />
+                        </Transitions>
+                    </ContentControl.Transitions>
+                </ContentControl>
+            </SplitView.Content>
+        </SplitView>
 
         <!-- ════════════════════════════════════════
              ROW 2: Status Bar
              ════════════════════════════════════════ -->
         <Border Grid.Row="2" Padding="10,4" Background="{DynamicResource OverlayMedium}"
                 BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0">
-            <Grid ColumnDefinitions="Auto,Auto,*,Auto">
-                <TextBlock Text="{Binding AppVersion, StringFormat='v{0}'}" FontSize="11"
-                           Opacity="0.4" VerticalAlignment="Center" />
-                <Button Grid.Column="1" Command="{Binding ToggleThemeCommand}"
-                        Classes="Small" ToolTip.Tip="Alternar tema"
-                        Margin="8,0,0,0" Background="{DynamicResource CardBackground}">
-                    <TextBlock Text="{Binding ThemeToggleIcon}" FontSize="12" />
-                </Button>
-                <TextBlock Grid.Column="2" Text="{Binding StatusMessage}"
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="{Binding StatusMessage}"
                            FontSize="11" Foreground="#CCFFFFFF" VerticalAlignment="Center"
                            Margin="12,0,0,0" TextTrimming="CharacterEllipsis" />
-                <Button Grid.Column="3" Command="{Binding OpenSiteCommand}"
+                <Button Grid.Column="1" Command="{Binding OpenSiteCommand}"
                         Classes="Icon" ToolTip.Tip="lab.werneck.dev.br">
                     <TextBlock Text="Desenvolvido por Werneck Lab" FontSize="11" Opacity="0.5" />
                 </Button>

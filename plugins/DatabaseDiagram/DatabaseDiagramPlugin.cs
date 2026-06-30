@@ -8,7 +8,7 @@ namespace LTools.DatabaseDiagram;
 
 public class DatabaseDiagramPlugin : ILToolsPlugin
 {
-    public string Name => "DB Diagram";
+    public string Name => "Diagrama BD";
     public string Icon => "📊";
 
     private DatabaseDiagramView? _view;

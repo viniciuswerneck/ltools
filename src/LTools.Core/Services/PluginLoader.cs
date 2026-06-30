@@ -7,8 +7,14 @@ namespace LTools.Core.Services;
 public class PluginLoader : IPluginLoader
 {
     private static string? _pluginsResolvePath;
+    private readonly ILogger _logger;
 
     public List<ILToolsPlugin> LoadedPlugins { get; } = [];
+
+    public PluginLoader(ILogger logger)
+    {
+        _logger = logger;
+    }
 
     static PluginLoader()
     {
@@ -34,7 +40,7 @@ public class PluginLoader : IPluginLoader
         if (!Directory.Exists(pluginsPath))
             return Task.FromResult(plugins);
 
-        var dllFiles = Directory.GetFiles(pluginsPath, "*.dll");
+        var dllFiles = Directory.GetFiles(pluginsPath, "LTools.*.dll");
 
         foreach (var dll in dllFiles)
         {
@@ -49,10 +55,12 @@ public class PluginLoader : IPluginLoader
                     if (Activator.CreateInstance(type) is ILToolsPlugin plugin)
                         plugins.Add(plugin);
                 }
+
+                _logger.Debug($"Plugin carregado: {Path.GetFileName(dll)}");
             }
-            catch
+            catch (Exception ex)
             {
-                // Skip DLLs that fail to load
+                _logger.Warning($"Falha ao carregar DLL: {Path.GetFileName(dll)}", ex);
             }
         }
 

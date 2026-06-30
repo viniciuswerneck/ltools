@@ -7,6 +7,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LTools.ArtisanGui.Models;
+using LTools.Core.Interfaces;
 using LTools.Core.Services;
 
 namespace LTools.ArtisanGui.ViewModels;
@@ -14,6 +15,7 @@ namespace LTools.ArtisanGui.ViewModels;
 public partial class ArtisanGuiViewModel : ObservableObject
 {
     private readonly ProcessRunner _runner = new();
+    private readonly IConfigManager? _config;
     private string _projectPath = string.Empty;
 
     [ObservableProperty]
@@ -167,8 +169,10 @@ public partial class ArtisanGuiViewModel : ObservableObject
 
     public ArtisanGuiViewModel()
     {
+        _config = AppServices.Get<IConfigManager>();
         ProjectContext.Instance.ProjectChanged += OnProjectChanged;
         InitFromContext();
+        LoadHistory();
     }
 
     private void InitFromContext()
@@ -291,6 +295,7 @@ public partial class ArtisanGuiViewModel : ObservableObject
         if (value != null)
         {
             CustomCommand = value.Name;
+            SearchText = value.Name;
             var args = new List<string>();
             foreach (var arg in value.Arguments)
                 args.Add($"--{arg}=...");
@@ -298,6 +303,12 @@ public partial class ArtisanGuiViewModel : ObservableObject
                 args.Add($"--{opt.Name}=...");
             ArgumentValues = string.Join(" ", args);
         }
+    }
+
+    partial void OnCustomCommandChanged(string value)
+    {
+        if (!string.IsNullOrWhiteSpace(value))
+            SearchText = value;
     }
 
     private void ApplyFilter()
@@ -354,6 +365,32 @@ public partial class ArtisanGuiViewModel : ObservableObject
         StatusMessage = "Comando cancelado.";
     }
 
+    private void LoadHistory()
+    {
+        var saved = _config?.Get<string>("artisan_history");
+        if (string.IsNullOrWhiteSpace(saved)) return;
+
+        try
+        {
+            var items = JsonSerializer.Deserialize<List<CommandHistory>>(saved);
+            if (items == null) return;
+            History.Clear();
+            foreach (var item in items)
+                History.Add(item);
+        }
+        catch { }
+    }
+
+    private void SaveHistory()
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(History.Take(50).ToList());
+            _config?.Set("artisan_history", json);
+        }
+        catch { }
+    }
+
     private async Task RunCommandAsync(string commandName)
     {
         IsRunning = true;
@@ -376,6 +413,7 @@ public partial class ArtisanGuiViewModel : ObservableObject
                 ExecutedAt = DateTime.Now
             });
 
+            SaveHistory();
             StatusMessage = "Comando executado.";
         }
         catch (Exception ex)
@@ -424,6 +462,14 @@ public partial class ArtisanGuiViewModel : ObservableObject
     private void ClearOutput()
     {
         OutputText = "";
+    }
+
+    [RelayCommand]
+    private void ClearHistory()
+    {
+        History.Clear();
+        SaveHistory();
+        StatusMessage = "Histórico limpo.";
     }
 
     [RelayCommand]

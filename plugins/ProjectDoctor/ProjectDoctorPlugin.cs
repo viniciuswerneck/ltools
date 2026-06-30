@@ -8,7 +8,7 @@ namespace LTools.ProjectDoctor;
 
 public class ProjectDoctorPlugin : ILToolsPlugin
 {
-    public string Name => "Doctor";
+    public string Name => "Diagnóstico";
     public string Icon => "🩺";
 
     private ProjectDoctorView? _view;
