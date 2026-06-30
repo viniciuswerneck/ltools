@@ -30,3 +30,7 @@ Thumbs.db
 *.nupkg
 nul
 plugins/runtimes/
+
+## Release artifacts
+dist/
+LTools-*.zip
