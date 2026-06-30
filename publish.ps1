@@ -52,30 +52,24 @@ dotnet publish $uiProj -c $Configuration -r $Runtime `
     -o $PublishDir
 if ($LASTEXITCODE -ne 0) { throw "Publish failed" }
 
-# 5. Copy plugin DLLs and dependencies to publish output
+# 5. Copy plugin DLLs and extra dependencies to publish output
 Write-Host "`n=== Copying Plugins ===" -ForegroundColor Cyan
 $pluginsSource = Join-Path $RootDir "plugins"
 $pluginsDest = Join-Path $PublishDir "plugins"
 New-Item -ItemType Directory -Path $pluginsDest -Force | Out-Null
 
-$allPluginFiles = Get-ChildItem -Path $pluginsSource -Include "*.dll", "*.deps.json", "*.xml", "*.pdb" -File
-
-foreach ($file in $allPluginFiles) {
+# Only LTools.*.dll + MySqlConnector.dll (plugin-specific, not in single-file exe)
+$pluginFiles = Get-ChildItem -Path $pluginsSource -Filter "LTools.*.dll"
+$extraDlls = @("MySqlConnector.dll")
+foreach ($file in $pluginFiles) {
     Copy-Item $file.FullName -Destination (Join-Path $pluginsDest $file.Name) -Force
     Write-Host "  Copied: $($file.Name)"
 }
-
-# Copy only Windows runtimes (needed by MySqlConnector on some configs)
-$runtimesSource = Join-Path $pluginsSource "runtimes"
-if (Test-Path $runtimesSource) {
-    $winDirs = @("win-x64", "win-arm64", "win-x86")
-    foreach ($dir in $winDirs) {
-        $src = Join-Path $runtimesSource $dir
-        if (Test-Path $src) {
-            $dst = Join-Path $pluginsDest "runtimes"
-            Copy-Item $src -Destination (Join-Path $dst $dir) -Recurse -Force
-            Write-Host "  Copied: runtimes/$dir/"
-        }
+foreach ($dll in $extraDlls) {
+    $src = Join-Path $pluginsSource $dll
+    if (Test-Path $src) {
+        Copy-Item $src -Destination (Join-Path $pluginsDest $dll) -Force
+        Write-Host "  Copied: $dll"
     }
 }
 
