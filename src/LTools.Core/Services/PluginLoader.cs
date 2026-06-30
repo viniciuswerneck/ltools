@@ -64,7 +64,8 @@ public class PluginLoader : IPluginLoader
             }
             catch (Exception ex)
             {
-                _logger.Warning($"Falha ao carregar DLL: {Path.GetFileName(dll)}", ex);
+                var msg = $"Falha ao carregar DLL: {Path.GetFileName(dll)} — {ex.GetType().Name}: {ex.Message}";
+                _logger.Warning(msg);
             }
         }
 
