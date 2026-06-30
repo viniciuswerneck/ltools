@@ -194,12 +194,12 @@ public string ThemeLabel => App.ThemeService.CurrentTheme == ThemeVariant.Light 
 
     private static string GetPluginsPath()
     {
-        var baseDir = AppContext.BaseDirectory;
-        var devPath = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "..", "..", "plugins"));
+        var exeDir = Path.GetDirectoryName(Environment.ProcessPath)!;
+        var devPath = Path.GetFullPath(Path.Combine(exeDir, "..", "..", "..", "..", "..", "plugins"));
         if (Directory.Exists(devPath))
             return devPath;
 
-        var releasePath = Path.Combine(baseDir, "plugins");
+        var releasePath = Path.Combine(exeDir, "plugins");
         Directory.CreateDirectory(releasePath);
         return releasePath;
     }
