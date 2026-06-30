@@ -52,19 +52,23 @@ dotnet publish $uiProj -c $Configuration -r $Runtime `
     -o $PublishDir
 if ($LASTEXITCODE -ne 0) { throw "Publish failed" }
 
-# 5. Copy plugin DLLs and extra dependencies to publish output
+# 5. Copy plugin DLLs and their specific dependencies to publish output
 Write-Host "`n=== Copying Plugins ===" -ForegroundColor Cyan
 $pluginsSource = Join-Path $RootDir "plugins"
 $pluginsDest = Join-Path $PublishDir "plugins"
 New-Item -ItemType Directory -Path $pluginsDest -Force | Out-Null
 
-# Only LTools.*.dll + MySqlConnector.dll (plugin-specific, not in single-file exe)
-$pluginFiles = Get-ChildItem -Path $pluginsSource -Filter "LTools.*.dll"
-$extraDlls = @("MySqlConnector.dll")
-foreach ($file in $pluginFiles) {
-    Copy-Item $file.FullName -Destination (Join-Path $pluginsDest $file.Name) -Force
-    Write-Host "  Copied: $($file.Name)"
+# LTools plugin assemblies
+Get-ChildItem -Path $pluginsSource -Filter "LTools.*.dll" | ForEach-Object {
+    Copy-Item $_.FullName -Destination (Join-Path $pluginsDest $_.Name) -Force
+    Write-Host "  Copied: $($_.Name)"
 }
+
+# Plugin-specific dependency DLLs (not in main app bundle)
+$extraDlls = @(
+    "MySqlConnector.dll",
+    "Microsoft.Extensions.Logging.Abstractions.dll"
+)
 foreach ($dll in $extraDlls) {
     $src = Join-Path $pluginsSource $dll
     if (Test-Path $src) {
