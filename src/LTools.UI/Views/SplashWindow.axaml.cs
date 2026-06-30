@@ -1,4 +1,6 @@
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using LTools.UI.ViewModels;
 
@@ -22,6 +24,9 @@ public partial class SplashWindow : Window
             DataContext = new MainWindowViewModel(),
         };
         main.Show();
+
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            desktop.MainWindow = main;
 
         Close();
     }

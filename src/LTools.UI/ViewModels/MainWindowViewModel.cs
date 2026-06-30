@@ -28,6 +28,9 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private string? _globalProjectPath;
 
+    [ObservableProperty]
+    private string? _statusMessage;
+
     public bool HasGlobalProject => GlobalProjectName != null;
 
     public ObservableCollection<PluginItemViewModel> Plugins { get; } = [];
@@ -88,29 +91,44 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private async Task SelectGlobalProjectAsync()
     {
-        var window = Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
-            ? desktop.MainWindow
-            : null;
-
-        if (window?.StorageProvider == null) return;
-
-        var folders = await window.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        try
         {
-            Title = "Selecione um projeto Laravel",
-            AllowMultiple = false
-        });
+            StatusMessage = null;
 
-        var folder = folders?.FirstOrDefault();
-        if (folder == null) return;
+            var window = Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
+                ? desktop.MainWindow
+                : null;
 
-        var path = folder.Path.LocalPath;
+            if (window?.StorageProvider == null)
+            {
+                StatusMessage = "Erro ao acessar o seletor de pastas.";
+                return;
+            }
 
-        if (!ProjectContext.IsLaravelProject(path))
-        {
-            return;
+            var folders = await window.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+            {
+                Title = "Selecione um projeto Laravel",
+                AllowMultiple = false
+            });
+
+            var folder = folders?.FirstOrDefault();
+            if (folder == null) return;
+
+            var path = folder.Path.LocalPath;
+
+            if (!ProjectContext.IsLaravelProject(path))
+            {
+                StatusMessage = "A pasta selecionada não é um projeto Laravel válido.";
+                return;
+            }
+
+            ProjectContext.Instance.CurrentPath = path;
+            StatusMessage = $"Projeto carregado: {ProjectContext.Instance.CurrentName}";
         }
-
-        ProjectContext.Instance.CurrentPath = path;
+        catch (Exception ex)
+        {
+            StatusMessage = $"Erro ao abrir projeto: {ex.Message}";
+        }
     }
 
     [RelayCommand]

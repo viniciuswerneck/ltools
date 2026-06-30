@@ -1,4 +1,8 @@
 using System.Collections.ObjectModel;
+using System.Text;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -36,13 +40,18 @@ public partial class ProjectDoctorViewModel : ObservableObject
     private string _currentCheckName = string.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasResults))]
     private int _passedCount;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasResults))]
     private int _warningCount;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasResults))]
     private int _failedCount;
+
+    public bool HasResults => PassedCount + WarningCount + FailedCount > 0;
 
     public ObservableCollection<DoctorCheck> Checks { get; } = [];
     public ObservableCollection<DoctorGroup> CheckGroups { get; } = [];
@@ -738,5 +747,85 @@ public partial class ProjectDoctorViewModel : ObservableObject
         FailedCount = 0;
         CurrentCheckName = "";
         StatusMessage = "Resultados limpos. Execute o diagnóstico novamente.";
+    }
+
+    [RelayCommand]
+    private async Task ExportTxtAsync()
+    {
+        try
+        {
+            var window = Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
+                ? desktop.MainWindow
+                : null;
+
+            if (window?.StorageProvider is null)
+            {
+                StatusMessage = "Erro ao acessar o seletor de arquivos.";
+                return;
+            }
+
+            var file = await window.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+            {
+                Title = "Exportar relatório",
+                DefaultExtension = "txt",
+                FileTypeChoices = [new FilePickerFileType("Texto") { Patterns = ["*.txt"] }],
+                SuggestedFileName = $"diagnostico_{ProjectName}_{DateTime.Now:yyyyMMdd_HHmmss}"
+            });
+
+            if (file is null) return;
+
+            var report = GenerateReport();
+            await using var stream = await file.OpenWriteAsync();
+            await using var writer = new StreamWriter(stream);
+            await writer.WriteAsync(report);
+
+            StatusMessage = $"Relatório exportado: {file.Name}";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Erro ao exportar: {ex.Message}";
+        }
+    }
+
+    private string GenerateReport()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("========================================");
+        sb.AppendLine("    RELATÓRIO DE DIAGNÓSTICO - DOCTOR");
+        sb.AppendLine("========================================");
+        sb.AppendLine();
+        sb.AppendLine($"Projeto: {ProjectName}");
+        sb.AppendLine($"Data: {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
+        sb.AppendLine($"Saúde: {HealthScore}% - {HealthLabel}");
+        sb.AppendLine();
+        sb.AppendLine("Resumo:");
+        sb.AppendLine($"  OK:     {PassedCount}");
+        sb.AppendLine($"  Alerta: {WarningCount}");
+        sb.AppendLine($"  Falha:  {FailedCount}");
+        sb.AppendLine();
+        sb.AppendLine("----------------------------------------");
+
+        foreach (var group in CheckGroups)
+        {
+            sb.AppendLine();
+            sb.AppendLine($"  [{group.Category}]");
+            sb.AppendLine("----------------------------------------");
+
+            foreach (var check in group.Items)
+            {
+                sb.AppendLine($"  {check.Icon} {check.Name}");
+                sb.AppendLine($"     O que verifica: {check.WhatItChecks}");
+                sb.AppendLine($"     Status: {check.Message}");
+                if (!string.IsNullOrWhiteSpace(check.Suggestion))
+                    sb.AppendLine($"     Sugestão: {check.Suggestion}");
+                sb.AppendLine();
+            }
+        }
+
+        sb.AppendLine("========================================");
+        sb.AppendLine("  Gerado por LTools - Laravel Toolkit");
+        sb.AppendLine("========================================");
+
+        return sb.ToString();
     }
 }
