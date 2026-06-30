@@ -41,7 +41,8 @@ public partial class MainWindowViewModel : ViewModelBase
     public ObservableCollection<PluginItemViewModel> Plugins { get; } = [];
 
     public string AppVersion { get; } = GetVersion();
-    public string ThemeToggleIcon => App.ThemeService.CurrentTheme == ThemeVariant.Light ? "☀️ Claro" : "🌙 Escuro";
+    public string ThemeIcon => App.ThemeService.CurrentTheme == ThemeVariant.Light ? "☀️" : "🌙";
+public string ThemeLabel => App.ThemeService.CurrentTheme == ThemeVariant.Light ? "Claro" : "Escuro";
 
     public MainWindowViewModel(IPluginLoader pluginLoader, ILogger logger)
     {
@@ -75,7 +76,8 @@ public partial class MainWindowViewModel : ViewModelBase
     private void ToggleTheme()
     {
         App.ThemeService.Toggle();
-        OnPropertyChanged(nameof(ThemeToggleIcon));
+        OnPropertyChanged(nameof(ThemeIcon));
+        OnPropertyChanged(nameof(ThemeLabel));
     }
 
     [RelayCommand]
