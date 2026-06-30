@@ -7,14 +7,10 @@ namespace LTools.Core.Services;
 public class PluginLoader : IPluginLoader
 {
     private static string? _pluginsResolvePath;
+
     private readonly ILogger _logger;
 
     public List<ILToolsPlugin> LoadedPlugins { get; } = [];
-
-    public PluginLoader(ILogger logger)
-    {
-        _logger = logger;
-    }
 
     static PluginLoader()
     {
@@ -31,16 +27,24 @@ public class PluginLoader : IPluginLoader
         };
     }
 
+    public PluginLoader(ILogger logger)
+    {
+        _logger = logger;
+    }
+
     public Task<List<ILToolsPlugin>> LoadPluginsAsync(string pluginsPath)
     {
         _pluginsResolvePath = pluginsPath;
         LoadedPlugins.Clear();
-        var plugins = new List<ILToolsPlugin>();
 
         if (!Directory.Exists(pluginsPath))
-            return Task.FromResult(plugins);
+            return Task.FromResult(new List<ILToolsPlugin>());
 
-        var dllFiles = Directory.GetFiles(pluginsPath, "LTools.*.dll");
+        var dllFiles = Directory.GetFiles(pluginsPath, "LTools.*.dll")
+            .Where(f => !Path.GetFileName(f).Equals("LTools.Core.dll", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        var plugins = new List<ILToolsPlugin>();
 
         foreach (var dll in dllFiles)
         {

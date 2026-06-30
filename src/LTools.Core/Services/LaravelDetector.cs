@@ -67,7 +67,7 @@ public class LaravelDetector : ILaravelDetector
         try
         {
             using var stream = File.OpenRead(composerPath);
-            var doc = await JsonDocument.ParseAsync(stream);
+            using var doc = await JsonDocument.ParseAsync(stream);
             var root = doc.RootElement;
 
             if (root.TryGetProperty("require", out var require))

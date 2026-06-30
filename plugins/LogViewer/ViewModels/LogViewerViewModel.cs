@@ -14,6 +14,7 @@ namespace LTools.LogViewer.ViewModels;
 public partial class LogViewerViewModel : ObservableObject
 {
     private const int MaxViewableEntries = 5000;
+    private const long MaxFileSizeBytes = 50 * 1024 * 1024;
 
     private string _projectPath = string.Empty;
     private FileSystemWatcher? _watcher;
@@ -137,12 +138,21 @@ public partial class LogViewerViewModel : ObservableObject
         {
             NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Size
         };
-        _watcher.Created += async (_, _) => await LoadLogFilesAsync();
-        _watcher.Deleted += async (_, _) => await LoadLogFilesAsync();
-        _watcher.Changed += async (_, e) =>
+        _watcher.Created += (_, _) =>
         {
-            if (AutoRefresh && SelectedLogName == e.Name)
-                await LoadLogContentAsync(e.FullPath);
+            try { _ = LoadLogFilesAsync(); }
+            catch { Dispatcher.UIThread.Post(() => StatusMessage = "Erro ao atualizar lista de logs."); }
+        };
+        _watcher.Deleted += (_, _) =>
+        {
+            try { _ = LoadLogFilesAsync(); }
+            catch { Dispatcher.UIThread.Post(() => StatusMessage = "Erro ao atualizar lista de logs."); }
+        };
+        _watcher.Changed += (_, e) =>
+        {
+            if (!AutoRefresh || SelectedLogName != e.Name) return;
+            try { _ = LoadLogContentAsync(e.FullPath); }
+            catch { Dispatcher.UIThread.Post(() => StatusMessage = "Erro ao recarregar log."); }
         };
         _watcher.EnableRaisingEvents = true;
     }
@@ -203,10 +213,19 @@ public partial class LogViewerViewModel : ObservableObject
     {
         try
         {
-            var content = await File.ReadAllTextAsync(fullPath);
-            LogContent = content;
+            var fileInfo = new FileInfo(fullPath);
+            if (fileInfo.Exists && fileInfo.Length > MaxFileSizeBytes)
+            {
+                StatusMessage = $"Arquivo muito grande ({(fileInfo.Length / 1024 / 1024):F1} MB). Exibindo apenas as últimas {MaxViewableEntries} entradas.";
+                _allEntries = await ParseLogContentStreamingAsync(fullPath);
+            }
+            else
+            {
+                var content = await File.ReadAllTextAsync(fullPath);
+                LogContent = content;
+                _allEntries = ParseLogContent(content);
+            }
 
-            _allEntries = ParseLogContent(content);
             TotalEntries = _allEntries.Count;
             ApplyFilters();
 
@@ -216,6 +235,54 @@ public partial class LogViewerViewModel : ObservableObject
         {
             StatusMessage = $"Erro ao ler log: {ex.Message}";
         }
+    }
+
+    private static async Task<List<LogEntry>> ParseLogContentStreamingAsync(string fullPath)
+    {
+        var entries = new List<LogEntry>();
+        var entryRegex = new Regex(@"^\[(\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?)\] (\w+)\.(\w+): (.*)");
+
+        using var reader = new StreamReader(fullPath);
+        LogEntry? currentEntry = null;
+        int lineNumber = 0;
+
+        string? line;
+        while ((line = await reader.ReadLineAsync()) != null)
+        {
+            lineNumber++;
+            var match = entryRegex.Match(line);
+            if (match.Success)
+            {
+                if (currentEntry != null)
+                    entries.Add(currentEntry);
+                currentEntry = new LogEntry
+                {
+                    LineNumber = lineNumber,
+                    Timestamp = DateTime.TryParse(match.Groups[1].Value.Trim(), out var dt) ? dt : null,
+                    Environment = match.Groups[2].Value,
+                    Level = match.Groups[3].Value.ToUpperInvariant(),
+                    Message = match.Groups[4].Value,
+                    FullContent = line
+                };
+            }
+            else if (currentEntry != null)
+            {
+                var trimmed = line.Trim();
+                if (!string.IsNullOrWhiteSpace(trimmed))
+                {
+                    currentEntry.StackTrace += (currentEntry.StackTrace.Length > 0 ? "\n" : "") + line;
+                    currentEntry.FullContent += "\n" + line;
+                }
+            }
+        }
+
+        if (currentEntry != null)
+            entries.Add(currentEntry);
+
+        if (entries.Count > MaxViewableEntries)
+            entries = entries[^MaxViewableEntries..];
+
+        return entries;
     }
 
     private List<LogEntry> ParseLogContent(string content)

@@ -13,6 +13,7 @@ public class MySqlQueryWatcher : IDisposable
     private CancellationTokenSource? _cts;
     private DateTime _lastPoll;
     private bool _disposed;
+    private bool _wasGeneralLogOn;
 
     public event Action<SqlQuery>? QueryReceived;
     public event Action<string>? StatusChanged;
@@ -46,7 +47,7 @@ public class MySqlQueryWatcher : IDisposable
             _connection = new MySqlConnection(_connectionString);
             await _connection.OpenAsync();
 
-            await ExecuteNonQueryAsync("SET GLOBAL general_log = OFF");
+            _wasGeneralLogOn = await IsGeneralLogOnAsync();
             await ExecuteNonQueryAsync("SET GLOBAL log_output = 'TABLE'");
             await ExecuteNonQueryAsync("SET GLOBAL general_log = ON");
 
@@ -68,12 +69,40 @@ public class MySqlQueryWatcher : IDisposable
         catch (Exception ex)
         {
             ErrorOccurred?.Invoke($"Erro ao conectar: {ex.Message}");
+            await RestoreGeneralLogAsync();
             if (_connection != null)
             {
                 await _connection.DisposeAsync();
                 _connection = null;
             }
         }
+    }
+
+    private async Task<bool> IsGeneralLogOnAsync()
+    {
+        try
+        {
+            using var cmd = _connection!.CreateCommand();
+            cmd.CommandText = "SELECT @@global.general_log";
+            var result = await cmd.ExecuteScalarAsync();
+            return result is not null && (result.ToString() == "1" || result.ToString() == "ON");
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private async Task RestoreGeneralLogAsync()
+    {
+        try
+        {
+            if (_wasGeneralLogOn)
+                await ExecuteNonQueryAsync("SET GLOBAL general_log = ON");
+            else
+                await ExecuteNonQueryAsync("SET GLOBAL general_log = OFF");
+        }
+        catch { }
     }
 
     public async Task StopAsync()
@@ -83,12 +112,7 @@ public class MySqlQueryWatcher : IDisposable
 
         if (_connection != null)
         {
-            try
-            {
-                await ExecuteNonQueryAsync("SET GLOBAL general_log = OFF");
-            }
-            catch { }
-
+            await RestoreGeneralLogAsync();
             await _connection.CloseAsync();
             await _connection.DisposeAsync();
             _connection = null;
@@ -214,6 +238,19 @@ public class MySqlQueryWatcher : IDisposable
         _disposed = true;
         _cts?.Cancel();
         _cts?.Dispose();
-        _connection?.Dispose();
+        if (_connection != null)
+        {
+            try
+            {
+                using var cmd = _connection.CreateCommand();
+                var val = _wasGeneralLogOn ? "ON" : "OFF";
+                cmd.CommandText = $"SET GLOBAL general_log = {val}";
+                cmd.CommandTimeout = 5;
+                cmd.ExecuteNonQuery();
+            }
+            catch { }
+            _connection.Dispose();
+            _connection = null;
+        }
     }
 }

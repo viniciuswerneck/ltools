@@ -115,11 +115,12 @@ public partial class ComposerManagerViewModel : ObservableObject
             _runner.OutputReceived += OnOutputReceived;
             _runner.ErrorReceived += OnErrorReceived;
 
+            var argParts = arguments.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             var pharPath = Path.Combine(_projectPath, "composer.phar");
             if (File.Exists(pharPath))
-                await _runner.RunAsync(_projectPath, "php", $"composer.phar {arguments}");
+                await _runner.RunAsync(_projectPath, "php", new[] { "composer.phar" }.Concat(argParts));
             else
-                await _runner.RunAsync(_projectPath, "cmd", $"/c composer {arguments}");
+                await _runner.RunAsync(_projectPath, "composer", argParts);
 
             OutputText += "\n";
 
@@ -146,29 +147,14 @@ public partial class ComposerManagerViewModel : ObservableObject
         }
     }
 
-    private static string StripAnsi(string text)
-    {
-        if (string.IsNullOrEmpty(text)) return text;
-        int idx;
-        while ((idx = text.IndexOf('\x1b', StringComparison.Ordinal)) >= 0)
-        {
-            var end = text.IndexOf('m', idx);
-            if (end < 0) end = text.IndexOf('K', idx);
-            if (end < 0) end = text.IndexOf('H', idx);
-            if (end < 0) break;
-            text = text[..idx] + text[(end + 1)..];
-        }
-        return text;
-    }
-
     private void OnOutputReceived(string data)
     {
-        Avalonia.Threading.Dispatcher.UIThread.Post(() => OutputText += StripAnsi(data) + "\n");
+        Avalonia.Threading.Dispatcher.UIThread.Post(() => OutputText += data.StripAnsi() + "\n");
     }
 
     private void OnErrorReceived(string data)
     {
-        Avalonia.Threading.Dispatcher.UIThread.Post(() => OutputText += $"[ERRO] {StripAnsi(data)}\n");
+        Avalonia.Threading.Dispatcher.UIThread.Post(() => OutputText += $"[ERRO] {data.StripAnsi()}\n");
     }
 
     [RelayCommand] private async Task InstallAsync() => await RunComposerAsync("install");

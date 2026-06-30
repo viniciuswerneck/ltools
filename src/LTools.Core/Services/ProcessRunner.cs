@@ -13,19 +13,36 @@ public class ProcessRunner : IProcessRunner
     public event Action? ProcessExited;
 
     public async Task<int> RunAsync(string workingDirectory, string command, string arguments)
+        => await RunAsync(workingDirectory, command, arguments, useArgumentList: false);
+
+    public async Task<int> RunAsync(string workingDirectory, string command, IEnumerable<string> arguments)
+        => await RunAsync(workingDirectory, command, arguments, useArgumentList: true);
+
+    private async Task<int> RunAsync(string workingDirectory, string command, object arguments, bool useArgumentList)
     {
+        var psi = new ProcessStartInfo
+        {
+            WorkingDirectory = workingDirectory,
+            FileName = command,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        if (useArgumentList && arguments is IEnumerable<string> argList)
+        {
+            foreach (var arg in argList)
+                psi.ArgumentList.Add(arg);
+        }
+        else if (arguments is string args)
+        {
+            psi.Arguments = args;
+        }
+
         var process = new Process
         {
-            StartInfo = new ProcessStartInfo
-            {
-                WorkingDirectory = workingDirectory,
-                FileName = command,
-                Arguments = arguments,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            },
+            StartInfo = psi,
             EnableRaisingEvents = true
         };
 
@@ -49,9 +66,6 @@ public class ProcessRunner : IProcessRunner
 
         await process.WaitForExitAsync();
 
-        // Drain async output buffers — recommended .NET pattern
-        // WaitForExit() after WaitForExitAsync() ensures all async
-        // OutputDataReceived/ErrorDataReceived events are delivered
         process.WaitForExit();
 
         ProcessExited?.Invoke();

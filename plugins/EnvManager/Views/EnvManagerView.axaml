@@ -18,6 +18,9 @@
                     <Button Command="{Binding SaveEnvCommand}" Classes="Primary">
                         💾 Salvar
                     </Button>
+                    <ToggleButton IsChecked="{Binding ShowSensitiveValues}" Classes="Secondary">
+                        🔒 Secrets
+                    </ToggleButton>
                     <Button Command="{Binding RestoreBackupCommand}" Classes="Secondary">
                         🔄 Restaurar
                     </Button>

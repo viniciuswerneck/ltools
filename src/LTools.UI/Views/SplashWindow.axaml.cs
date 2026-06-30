@@ -14,7 +14,7 @@ public partial class SplashWindow : Window
         InitializeComponent();
     }
 
-    public async void ShowAndThenOpenMain()
+    public async Task ShowAndThenOpenMainAsync()
     {
         Show();
 

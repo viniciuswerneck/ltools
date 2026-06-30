@@ -4,8 +4,8 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>0.3.0</Version>
-    <FileVersion>0.3.0</FileVersion>
+    <Version>0.4.0</Version>
+    <FileVersion>0.4.0</FileVersion>
     <Company>LTools</Company>
     <Description>Laravel Toolkit — Core library</Description>
     <Copyright>Copyright © 2026 LTools. All rights reserved.</Copyright>

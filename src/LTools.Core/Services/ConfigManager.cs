@@ -7,6 +7,8 @@ public class ConfigManager : IConfigManager
 {
     private readonly string _configPath;
     private Dictionary<string, object> _config = [];
+    private readonly Lock _lock = new();
+    private CancellationTokenSource? _debounceCts;
 
     public ConfigManager()
     {
@@ -19,21 +21,52 @@ public class ConfigManager : IConfigManager
 
     public T? Get<T>(string key)
     {
-        if (_config.TryGetValue(key, out var value) && value is JsonElement element)
-            return JsonSerializer.Deserialize<T>(element.GetRawText());
-        return default;
+        lock (_lock)
+        {
+            if (_config.TryGetValue(key, out var value))
+            {
+                if (value is JsonElement element)
+                    return JsonSerializer.Deserialize<T>(element.GetRawText());
+                if (value is T typed)
+                    return typed;
+            }
+            return default;
+        }
     }
 
     public void Set<T>(string key, T value)
     {
-        _config[key] = value!;
-        Save();
+        var serialized = JsonSerializer.SerializeToElement(value);
+        lock (_lock)
+        {
+            _config[key] = serialized;
+        }
+        DebouncedSave();
+    }
+
+    private void DebouncedSave()
+    {
+        _debounceCts?.Cancel();
+        _debounceCts = new CancellationTokenSource();
+        var token = _debounceCts.Token;
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(300, token);
+                Save();
+            }
+            catch (OperationCanceledException) { }
+        }, token);
     }
 
     public void Save()
     {
-        var json = JsonSerializer.Serialize(_config, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(_configPath, json);
+        lock (_lock)
+        {
+            var json = JsonSerializer.Serialize(_config, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(_configPath, json);
+        }
     }
 
     public void Load()
@@ -41,7 +74,10 @@ public class ConfigManager : IConfigManager
         if (File.Exists(_configPath))
         {
             var json = File.ReadAllText(_configPath);
-            _config = JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? [];
+            lock (_lock)
+            {
+                _config = JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? [];
+            }
         }
     }
 }

@@ -245,6 +245,12 @@ public partial class ProjectDoctorViewModel : ObservableObject
     [RelayCommand]
     private async Task FixAllAsync()
     {
+        if (string.IsNullOrWhiteSpace(_projectPath))
+        {
+            StatusMessage = "Selecione um projeto primeiro.";
+            return;
+        }
+
         var toFix = Checks
             .Where(c => c.ShowFixButton && c.IsSafeFix)
             .ToList();
@@ -274,8 +280,9 @@ public partial class ProjectDoctorViewModel : ObservableObject
                 await _runner.RunAndGetOutputAsync(_projectPath, cmd, args);
                 fixed_count++;
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Falha ao corrigir {check.Name}: {ex.Message}");
                 failed_count++;
             }
         }

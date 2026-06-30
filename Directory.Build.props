@@ -12,7 +12,5 @@
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
-    <AvaloniaVersion>12.0.5</AvaloniaVersion>
-    <CommunityToolkitMvvmVersion>8.4.1</CommunityToolkitMvvmVersion>
   </PropertyGroup>
 </Project>

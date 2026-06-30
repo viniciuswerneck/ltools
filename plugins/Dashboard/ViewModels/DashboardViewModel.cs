@@ -373,9 +373,9 @@ public partial class DashboardViewModel : ObservableObject
             foreach (var f in d.EnumerateFiles("*", SearchOption.AllDirectories))
                 size += f.Length;
         }
-        catch
+        catch (Exception ex)
         {
-            // skip inaccessible files
+            System.Diagnostics.Debug.WriteLine($"Erro ao calcular tamanho: {ex.Message}");
         }
         return size;
     }

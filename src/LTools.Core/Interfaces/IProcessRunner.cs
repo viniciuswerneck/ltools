@@ -12,6 +12,8 @@ public interface IProcessRunner
 
     /// <summary>Starts a process and returns the exit code.</summary>
     Task<int> RunAsync(string workingDirectory, string command, string arguments);
+    /// <summary>Starts a process with an argument list (avoids cmd injection) and returns the exit code.</summary>
+    Task<int> RunAsync(string workingDirectory, string command, IEnumerable<string> arguments);
     /// <summary>Starts a process and captures all output as a single string.</summary>
     Task<string> RunAndGetOutputAsync(string workingDirectory, string command, string arguments);
     /// <summary>Forcefully terminates the running process.</summary>

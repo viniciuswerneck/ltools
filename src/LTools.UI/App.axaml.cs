@@ -45,7 +45,7 @@ public partial class App : Application
         {
             var splash = new SplashWindow();
             desktop.MainWindow = splash;
-            splash.ShowAndThenOpenMain();
+            _ = splash.ShowAndThenOpenMainAsync();
         }
 
         base.OnFrameworkInitializationCompleted();

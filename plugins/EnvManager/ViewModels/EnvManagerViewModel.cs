@@ -28,12 +28,19 @@ public partial class EnvManagerViewModel : ObservableObject
     [ObservableProperty]
     private bool _hasUnsavedChanges;
 
+    [ObservableProperty]
+    private bool _showSensitiveValues;
+
+    private string _originalEnvContent = string.Empty;
+
     public ObservableCollection<string> EnvFiles { get; } = [];
 
     partial void OnEnvContentChanged(string value)
     {
-        if (IsLoaded)
-            HasUnsavedChanges = true;
+        if (!IsLoaded) return;
+        HasUnsavedChanges = true;
+        if (ShowSensitiveValues)
+            _originalEnvContent = value;
     }
 
     public EnvManagerViewModel()
@@ -103,10 +110,42 @@ public partial class EnvManagerViewModel : ObservableObject
         var path = Path.Combine(_projectPath, SelectedEnvFile);
         if (!File.Exists(path)) return;
 
-        EnvContent = File.ReadAllText(path);
+        _originalEnvContent = File.ReadAllText(path);
+        ApplyVisibility();
         IsLoaded = true;
         HasUnsavedChanges = false;
         StatusMessage = $"Editando {SelectedEnvFile}";
+    }
+
+    partial void OnShowSensitiveValuesChanged(bool value) => ApplyVisibility();
+
+    private void ApplyVisibility()
+    {
+        EnvContent = ShowSensitiveValues
+            ? _originalEnvContent
+            : MaskSensitiveValues(_originalEnvContent);
+        HasUnsavedChanges = false;
+    }
+
+    private static string MaskSensitiveValues(string content)
+    {
+        var lines = content.Split('\n');
+        var sensitiveKeys = new[] { "DB_PASSWORD", "APP_KEY", "MAIL_PASSWORD", "AWS_SECRET", "REDIS_PASSWORD", "PASSWORD", "SECRET", "TOKEN" };
+        for (int i = 0; i < lines.Length; i++)
+        {
+            var trimmed = lines[i].Trim();
+            foreach (var key in sensitiveKeys)
+            {
+                if (trimmed.StartsWith($"{key}=", StringComparison.OrdinalIgnoreCase))
+                {
+                    var eq = lines[i].IndexOf('=', StringComparison.Ordinal);
+                    if (eq > 0)
+                        lines[i] = lines[i][..(eq + 1)] + "********";
+                    break;
+                }
+            }
+        }
+        return string.Join('\n', lines);
     }
 
     [RelayCommand]
@@ -119,7 +158,7 @@ public partial class EnvManagerViewModel : ObservableObject
         try
         {
             BackupEnv(SelectedEnvFile);
-            File.WriteAllText(path, EnvContent);
+            File.WriteAllText(path, _originalEnvContent);
             HasUnsavedChanges = false;
             StatusMessage = $"{SelectedEnvFile} salvo com sucesso! Backup criado.";
         }

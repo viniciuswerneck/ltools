@@ -29,6 +29,7 @@ public class ToolVersionService : IToolVersionService
             using var process = new Process { StartInfo = psi };
             process.Start();
             var output = await process.StandardOutput.ReadToEndAsync();
+            var error = await process.StandardError.ReadToEndAsync();
             await process.WaitForExitAsync();
             return output.Split('\n').FirstOrDefault()?.Trim() ?? "Não detectado";
         }
